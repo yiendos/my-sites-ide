@@ -1,0 +1,31 @@
+{
+  "name": "yiendos/my-sites-ide",
+  "type": "project",
+  "license": "MPL-2.0",
+  "description": "A dev-ops tool kit.",
+  "keywords": ["yiendos", "my-sites-ide", "devops"],
+  "homepage": "https://github.com/yiendos/my-sites-ide",
+  "authors": [
+      {
+        "name": "my-sites-ide",
+        "email": "paul@place-me.com",
+        "homepage": "https://yiendos.dev"
+      }
+  ],
+  "require": {
+    "symfony/console": "^5.0",
+    "symfony/yaml": "^5.1",
+    "wp-cli/core-command":      "^2.0",
+    "wp-cli/extension-command": "^2.0",
+    "wp-cli/entity-command":    "^2.0",
+    "wp-cli/config-command":    "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Kindle\\": "_mysites/console/src"
+    }
+  },
+  "bin": [
+    "mysites/console/bin/mysites"
+  ]
+}
