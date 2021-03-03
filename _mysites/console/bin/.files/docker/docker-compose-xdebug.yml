@@ -1,0 +1,93 @@
+version: '2'
+services:
+  apache:
+    build: _mysites/docker/apache2
+    container_name: %replace%_apache
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    environment:
+      - FPM_SOCK=%replace%_php_fpm
+    volumes:
+      - ./Sites/:/Sites
+      - ./Projects/:/Projects
+      - ./_mysites/docker/apache2/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./_mysites/docker/apache2/vhosts/:/usr/local/apache2/sites-enabled/
+      - ./_mysites/docker/apache2/logs:/var/log/apache2
+    command: ["/usr/local/apache2/bin/apachectl", "-D",  "FOREGROUND"]
+  web:
+    build: _mysites/docker/nginx
+    container_name: %replace%_nginx
+    ports:
+      - "8081:8081"
+    environment:
+      - NGINX_PORT=8081
+      - FPM_SOCK=%replace%_php_fpm
+    volumes:
+      - ./Sites/:/Sites
+      - ./Projects/:/Projects
+      - ./_mysites/docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
+      - ./_mysites/docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./_mysites/docker/nginx/vhost/:/etc/nginx/sites-enabled
+      - ./_mysites/docker/nginx/logs/:/var/log/nginx/
+  php_fpm:
+    build: _mysites/docker/php/xdebug
+    container_name: %replace%_php_fpm
+    volumes:
+      - ./Sites/:/Sites
+      - ./Projects/:/Projects
+      - ./_mysites/docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      XDEBUG_CONFIG: remote_host=host.docker.internal
+  composer:
+    image: composer
+    container_name: %replace%_composer
+    volumes:
+      - ./Sites:/app
+    command: install --ignore-platform-reqs
+  db:
+    image: mysql:5.7
+    container_name: %replace%_mysql
+    ports:
+      - "3306:3306"
+    expose:
+      - "3306"
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=0
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_DATABASE=sites_default
+      - MYSQL_USER=joomlatools
+      - MYSQL_PASSWORD=joomlatools
+      - MYSQL_ROOT_PASSWORD=root
+    command: ["mysqld", "--sql-mode=ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"]
+    volumes:
+      - ./_mysites/docker/mysql/:/docker-entrypoint-initdb.d/
+      - ./_mysites/docker/mysql/conf/my.cnf:/etc/mysql/mysql.cnf
+  theia:
+    image: theiaide/theia-php:latest
+    container_name: %replace%_theias
+    logging:
+      driver: "none"
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./Sites:/home/project/Sites
+      - ./Projects/home/project/Projects
+      - ./_mysites/docker/theia/.theia/settings.json:/home/theia/.theia/settings.json
+      - ./_mysites/docker/theia/.gitconfig:/home/theia/.gitconfig
+  mailhog:
+    image: mailhog/mailhog
+    container_name: %replace%_mailhog
+    ports:
+      - "8083:8025"
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - "db"
+    container_name: %replace%_phpmyadmin
+    environment:
+      - PMA_HOST=db
+    restart: always
+    ports:
+      - "8084:80"

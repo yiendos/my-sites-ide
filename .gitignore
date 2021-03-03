@@ -1,0 +1,8 @@
+_mysites/docker/logs*
+_mysites/vendor/*
+_mysites/console/bin/.files/cache/*
+/Sites/*/vendor/*
+/Sites/**/wp-config*
+/Sites/**/configuration.php
+
+.nfs_file_sharing

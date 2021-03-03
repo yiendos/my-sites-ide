@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+/**
+ * @copyright	Copyright (C) 2007 - 2015 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @license		Mozilla Public License, version 2.0
+ * @link		http://github.com/joomlatools/joomlatools-console for the canonical source repository
+ */
+#http://zetcode.com/symfony/commands/
+
+$composer_location = dirname(__FILE__, 3);
+
+$look_for = $composer_location . '/vendor';
+
+if (!file_exists($look_for))
+{
+    echo "\nInstalling console command dependencies";
+    shell_exec("composer install --working-dir=$composer_location --ignore-platform-reqs -q");
+}
+
+require dirname(__FILE__, 3) . '/vendor/autoload.php';
+
+use Symfony\Component\Console\Application;
+use MySites\Command;
+use MySites\Command\Deploy;
+use MySites\Command\server;
+
+$app = new Application();
+$app->add(new Command\Setup());
+
+//we have completed the setup phase, we can add new goodies to the console
+if (file_exists(dirname(__FILE__, 4) . "/docker-compose.yml"))
+{
+    $app->add(new Command\Spark());
+    $app->add(new Command\Status());
+    $app->add(new Command\Restart());
+    $app->add(new Command\Export());
+    $app->add(new Command\Panic());
+    $app->add(new Command\Douse());
+}
+
+$app->run();
