@@ -26,6 +26,6 @@
     }
   },
   "bin": [
-    "mysites/console/bin/mysites"
+    "_mysites/console/bin/mysites"
   ]
 }
