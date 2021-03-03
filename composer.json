@@ -22,7 +22,7 @@
   },
   "autoload": {
     "psr-4": {
-      "Kindle\\": "_mysites/console/src"
+      "MySites\\": "_mysites/console/src"
     }
   },
   "bin": [
