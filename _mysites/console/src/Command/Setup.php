@@ -31,9 +31,14 @@ class Setup extends Command
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $composer_mysites_dir = dirname(__FILE__,4);
         $current_location = trim(shell_exec('echo $PWD'));
+
+        shell_exec("cp -R $composer_mysites_dir/ $current_location/_mysites");
+
         $path_array =  explode("/", $current_location);
         $project = end($path_array);
+
         $docker_compose = $current_location ."/_mysites/console/bin/.files/docker/docker-compose.yml";
 
         //create IDE docker-compose and populate with correct details
@@ -48,21 +53,21 @@ class Setup extends Command
         //now make commands executable
         $path = '/usr/local/bin';
 
-         if (!file_exists($path)){
-             $path = 'usr/local/sbin';
-         }
+        if (!file_exists($path)){
+            $path = 'usr/local/sbin';
+        }
 
-         shell_exec("chmod u+x $current_location/_mysites/console/bin/mysites && ln -s $current_location/_mysites/console/bin/mysites $path/$project");
+        shell_exec("chmod u+x $current_location/_mysites/console/bin/mysites && ln -s $current_location/_mysites/console/bin/mysites $path/$project");
 
-         $output->writeLn('<info>Success, interact with my-site through the following path</info>');
+        $output->writeLn('<info>Success, interact with my-site through the following path</info>');
 
-         $output->writeLn("$path/$project");
+        $output->writeLn("$path/$project");
 
-         shell_exec("cp $current_location/_mysites/console/bin/.files/docker/docker_file_sharing.sh $current_location/docker_file_sharing.sh");
+        shell_exec("cp $current_location/_mysites/console/bin/.files/docker/docker_file_sharing.sh $current_location/docker_file_sharing.sh");
 
-         shell_exec("cp -R $current_location/_mysites/console/bin/.files/Sites $current_location/" );
+        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Sites $current_location/" );
 
-         shell_exec("cp -R $current_location/_mysites/console/bin/.files/Projects $current_location/Projects");
+        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Projects $current_location/Projects");
 
         return Command::SUCCESS;
     }
