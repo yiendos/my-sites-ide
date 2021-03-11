@@ -34,6 +34,20 @@ class Setup extends Command
         $composer_mysites_dir = dirname(__FILE__,4);
         $current_location = trim(shell_exec('echo $PWD'));
 
+        //first up does the base images exist
+        $base_images = array('apache2', 'nginx' , 'php');
+
+        foreach($base_images as $image)
+        {
+            $result =  trim(shell_exec('RET=`docker images -q mysites_' . $image . ':latest`;echo $RET'));
+
+            if (!strlen($result))
+            {
+                $output->writeLn('docker build -t mysites_' . $image . ':latest -f ' . $composer_mysites_dir . "/docker/" . $image . "/Dockerfile . ");
+                passthru('docker build -t mysites_' . $image . ':latest -f ' . $composer_mysites_dir . "/docker/" . $image . "/Dockerfile . ");
+            }
+        }
+
         shell_exec("cp -R $composer_mysites_dir/ $current_location/_mysites");
 
         $path_array =  explode("/", $current_location);
