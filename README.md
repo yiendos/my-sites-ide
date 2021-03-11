@@ -67,4 +67,6 @@ Available commands:
 
 Database available at: -H 127.0.0.1 - P 3306 root:root
 
+We hope you feel at home! 
+
 
