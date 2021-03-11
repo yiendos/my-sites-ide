@@ -33,7 +33,7 @@ services:
         volumes:
             - 'code-mount:/Sites'
             - 'projects-mount:/Projects'
-            - ./mysites/docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
+            - ./_mysites/docker/nginx/default.conf.template:/etc/nginx/templates/default.conf.template
             - ./_mysites/docker/nginx/nginx.conf:/etc/nginx/nginx.conf
             - ./_mysites/docker/nginx/sites-enabled:/etc/nginx/sites-enabled
             - ./_mysites/docker/logs/nginx:/var/log/nginx/
