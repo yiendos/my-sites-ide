@@ -41,9 +41,7 @@ class Setup extends Command
         {
             $result =  trim(shell_exec('RET=`docker images -q mysites_' . $image . ':latest`;echo $RET'));
 
-            if (!strlen($result))
-            {
-                $output->writeLn('docker build -t mysites_' . $image . ':latest -f ' . $composer_mysites_dir . "/docker/" . $image . "/Dockerfile . ");
+            if (!strlen($result)) {
                 passthru('docker build -t mysites_' . $image . ':latest -f ' . $composer_mysites_dir . "/docker/" . $image . "/Dockerfile . ");
             }
         }
@@ -54,14 +52,12 @@ class Setup extends Command
         $project = end($path_array);
 
         $docker_compose = $current_location ."/_mysites/console/bin/.files/docker/docker-compose.yml";
-
-        //create IDE docker-compose and populate with correct details
         shell_exec("cp $docker_compose /tmp/docker-compose.yml");
 
         $config = file_get_contents('/tmp/docker-compose.yml');
         $updated = str_replace(array('~project~', '~pwd~'), array($project, $current_location), $config);
-
         file_put_contents("/tmp/docker-compose.yml", $updated);
+
         shell_exec("cp /tmp/docker-compose.yml $current_location/docker-compose.yml && rm /tmp/docker-compose.yml");
 
         //now make commands executable
@@ -77,11 +73,11 @@ class Setup extends Command
 
         $output->writeLn("$path/$project");
 
-        shell_exec("cp $current_location/_mysites/console/bin/.files/docker/docker_file_sharing.sh $current_location/docker_file_sharing.sh");
-
-        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Sites $current_location/" );
+        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Sites $current_location/Sites" );
 
         shell_exec("cp -R $current_location/_mysites/console/bin/.files/Projects $current_location/Projects");
+
+        shell_exec("cp $current_location/_mysites/console/bin/.files/docker/docker_file_sharing.sh $current_location/docker_file_sharing.sh");
 
         return Command::SUCCESS;
     }
