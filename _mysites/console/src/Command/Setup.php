@@ -77,8 +77,6 @@ class Setup extends Command
 
         shell_exec("cp -R $current_location/_mysites/console/bin/.files/Projects $current_location/Projects");
 
-        shell_exec("cp $current_location/_mysites/console/bin/.files/docker/docker_file_sharing.sh $current_location/docker_file_sharing.sh");
-
         return Command::SUCCESS;
     }
 }

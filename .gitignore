@@ -4,5 +4,3 @@ _mysites/console/bin/.files/cache/*
 /Sites/*/vendor/*
 /Sites/**/wp-config*
 /Sites/**/configuration.php
-
-.nfs_file_sharing
