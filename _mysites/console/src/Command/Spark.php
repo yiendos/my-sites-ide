@@ -55,12 +55,6 @@ class Spark extends Command
                 exit(1);
             }
 
-            $output->writeLn('<info>About to set up mac nfs file sharing</info>');
-
-            passthru("chmod +x $root/docker_file_sharing.sh");
-            passthru("sh $root/docker_file_sharing.sh");
-            shell_exec("touch $root/.nfs_file_sharing");
-
             passthru("docker-compose -f $root/docker-compose.yml up -d");
         }
         else if (file_exists($root ."/.paused"))
