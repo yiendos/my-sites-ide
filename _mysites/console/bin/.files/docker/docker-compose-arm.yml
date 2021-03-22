@@ -47,7 +47,7 @@ services:
             - ./Projects:/Projects
             -  ./_mysites/docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
     db:
-        image: mysql:8.0.23
+        image: mysql/mysql-server:8.0.23-1.1.19
         container_name: ~project~_mysql
         ports:
             - "3306:3306"
