@@ -25,6 +25,8 @@ class Spark extends Command
     {
         $configs = new Get();
         $this->config = $configs->getConfig();
+        $this->system_folders = $configs->getIDEFolders();
+
         $this->port = current($this->config['services']['db']['expose']);
         $this->password = $configs->getEnv('db','MYSQL_ROOT_PASSWORD');
         $this->mysql_container = $this->config['x-project'] . "_mysql";
@@ -37,7 +39,8 @@ class Spark extends Command
     {
         $this->check($input, $output);
         $root = $this->config['x-path'];
-        $sites = '/Sites/';
+        $sites = $this->system_folders['sites'];
+
         $path = realpath(__DIR__ . '/../../bin/.files');
         $scripts = $root . '/_mysites/scripts';
 
