@@ -32,4 +32,5 @@ if  $missing ; then
   exit 1;
 fi
 
+echo "* This is launch command, your approach is looking real good from here";
 exit 0;
