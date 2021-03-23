@@ -4,7 +4,7 @@
 
 `composer global require yiendos/my-sites-ide:dev-master`
 
-Easily spin up new play areas, or you can integrate a `my-sites-ide` into existing projects easily. Simply navigate to the folder of your choice: 
+Create new play areas, or you can integrate the IDE into existing projects. Simply navigate to the folder of your choice and run: 
 
 `mysites setup`
 
