@@ -39,31 +39,8 @@ class Spark extends Command
         $root = $this->config['x-path'];
         $sites = '/Sites/';
         $path = realpath(__DIR__ . '/../../bin/.files');
-        $scripts = $root . '/_mysites/scripts';
 
-        if (!file_exists("$root/.nfs_file_sharing"))
-        {
-            $output->writeLn('<info>Checking mysites  requirements with your host</info>');
-
-            passthru("chmod u+x $scripts/prerequisites.sh");
-            $errors = shell_exec("sh $scripts/prerequisites.sh");
-
-            if (!is_null($errors))
-            {
-                echo $errors;
-                $output->writeln('<error>You are missing key dependencies</error>');
-                exit(1);
-            }
-
-            $output->writeLn('<info>About to set up mac nfs file sharing</info>');
-
-            passthru("chmod +x $root/docker_file_sharing.sh");
-            passthru("sh $root/docker_file_sharing.sh");
-            shell_exec("touch $root/.nfs_file_sharing");
-
-            passthru("docker-compose -f $root/docker-compose.yml up -d");
-        }
-        else if (file_exists($root ."/.paused"))
+        if (file_exists($root ."/.paused"))
         {
             passthru('docker-compose unpause');
             exec("rm $root/.paused");

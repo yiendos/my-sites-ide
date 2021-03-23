@@ -44,21 +44,6 @@ class Panic extends Command
 
         passthru("docker container prune");
 
-        $output->writeLn('<info>Clear out exports</info> `sudo bash -c "> /etc/exports"`');
-
-        shell_exec('sudo bash -c "> /etc/exports"');
-
-        $root = $this->config['x-path'];
-        $remove_nfs_flag = "rm $root/.nfs_file_sharing";
-
-        $output->writeLn("<info>Lets remove our nfs flags</info> `$remove_nfs_flag`");
-
-        shell_exec($remove_nfs_flag);
-
-        $output->writeLn("<info>Finally restart our file share</info> `sudo nfsd restart`");
-
-        shell_exec('sudo nfsd restart');
-
         return Command::SUCCESS;
     }
 
