@@ -28,12 +28,6 @@ if ! command -v composer > /dev/null; then
 
 fi
 
-## is brew installed
-if ! command -v brew > /dev/null; then
-  missing=true
-  echo "* brew is not installed";
-fi
-
 if  $missing ; then
   exit 1;
 fi
