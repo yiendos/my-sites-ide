@@ -27,14 +27,16 @@ export PATH=$PATH:~/.composer/vendor/bin
 Or a more permanent solution: 
 
 ```
-echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> ~/.bashrc && 
+echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> ~/.bashrc
+
 source ~/.bashrc
 ```
 
 Or if you use zshrc: 
 
 ```
-echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> ~/.zshrc && 
+echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> ~/.zshrc
+
 source ~/.zshrc && 
 ```
 
