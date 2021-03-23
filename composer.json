@@ -2,8 +2,8 @@
   "name": "yiendos/my-sites-ide",
   "type": "project",
   "license": "MPL-2.0",
-  "description": "A dev-ops tool kit.",
-  "keywords": ["yiendos", "my-sites-ide", "devops"],
+  "description": "A dev-ops toolkit, that enables you to create new development environments on the fly, and hook up Continuous Deployment/ Integration processes easily.",
+  "keywords": ["yiendos", "my-sites-ide", "devops", "ide", "docker", "LAMP", "LEMP"],
   "homepage": "https://github.com/yiendos/my-sites-ide",
   "authors": [
       {
