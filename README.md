@@ -1,24 +1,50 @@
 # my-sites-ide
 
-`my-sites-ide` is designed to be an easy way to spin up new development environments on the fly: 
+`my-sites-ide` is designed to be an easy way to spin up new php development environments on the fly: 
 
-`composer require global yiendos/my-sites-ide`; 
+`composer global require yiendos-dev/my-sites-ide`
 
-once installed globally, you create as many new `my-sites-ide` hosted pods as you wish. 
+---
 
 ### Prerequisites
 
-You are required to have support for the following on your host system:
+Here is the list of prerequisites for your host system:
 
 * Docker
 * php 
 * composer
 
-### Apple M1/ ARM64 chip support 
+### Initial setup 
 
-Note if you want to use this on Arm64 chips, we need to handle mysql differently. Currently only mysql:8.0 is supported: 
+Now you are going to need to add the global `~./composer/vendor/bin` to your path if you haven't already done this. 
 
-`php _mysites/console/bin/mysites setup -f docker-compose-arm.yml`
+To do this temporarily for the session of your terminal screen: 
+
+```
+export PATH=$PATH:~/.composer/vendor/bin
+````
+
+Or a more permanent solution: 
+
+```
+echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> ~/.bashrc && 
+source ~/.bashrc
+```
+
+Or if you use zshrc: 
+
+```
+echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> ~/.zshrc && 
+source ~/.zshrc && 
+```
+
+For the first run, we'll need to create the base images and ensure all dependencies are run: 
+
+```
+mysites setup
+``` 
+
+This can take a while, we are building apache, nginx, php base images for you. The next time you come to use `mysites setup` for a new project the installation time will be super speedy. 
 
 ### Your project path is important
 
@@ -30,9 +56,23 @@ Where you choose to install the `my-sites-ide` is important. Let's say you wante
 * With the project name of 
 `new-site`
 
-So you would therefore install the `my-site-ide` by issuing the following command from within the `new-site` folder:
+So you would therefore install the `my-site-ide` by issuing the following commands: 
 
-`mysites setup`
+* Create the folder if it doesn't already exist: 
+```
+mkdir -p ~/Sites/new-site && cd ~/Sites/new-site
+```
+
+* Install the IDE 
+```
+mysites setup
+```
+
+### Apple M1/ ARM64 chip support 
+
+Note if you want to use this on Arm64 chips, we need to handle mysql differently. Currently only mysql:8.0 is supported: 
+
+`mysites setup -f docker-compose-arm.yml`
 
 ### Controlling your my-sites-ide 
 
@@ -65,8 +105,8 @@ Available commands:
   panic    Kindle won't launch? This is our troubleshooting command
   restart  Made changes locally? Restart the corresponding docker container
   setup    Create the initial mysites  configuration file
-  spark    Fire up your mysites  IDE
-  status   See the status of mysites  containers
+  spark    Fire up your mysites IDE
+  status   See the status of mysites containers
 ``` 
 
 ### Welcome to your new project 
@@ -86,4 +126,4 @@ We hope you feel at home!
 
 `my-sites-ide` came from 8 years working with deployment processes (Jenkins, Travis, github actions) and from this the IDE came into being. So going full circle we've included a barebones github actions integration for you. 
 
-You'll see that it's easy to spark your IDE locally, and without even lifting a finger you have CD support as well! 
+You'll see that it's easy to spark your IDE locally, and without even lifting a finger you have github actions CD support as well! 
