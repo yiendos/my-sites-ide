@@ -8,6 +8,16 @@ once installed globally, you create as many new `my-sites-ide` hosted sites as y
 
 `mysites setup`
 
+### Prerequisites
+
+You are required to have support for the following on your host system:
+
+* Docker
+* php 
+* composer
+
+Run the following script to check for any missing dependencies: `sh _mysites/scripts/prerequisites.sh`
+
 ### Your project path is important
 
 Where you choose to install the `my-sites-ide` is important. Let's say you wanted to host sites(s) at: `~/Sites/new-site`: 
