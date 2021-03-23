@@ -40,12 +40,6 @@ echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> ~/.zshrc
 source ~/.zshrc && 
 ```
 
-For the first run, we'll need to create the base images and ensure all dependencies are run: 
-
-```
-mysites setup
-``` 
-
 This can take a while, we are building apache, nginx, php base images for you. The next time you come to use `mysites setup` for a new project the installation time will be super speedy. 
 
 ### Your project path is important
