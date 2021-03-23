@@ -2,7 +2,7 @@
 
 `my-sites-ide` is designed to be an easy way to spin up new php development environments on the fly: 
 
-`composer global require yiendos-dev/my-sites-ide:dev-master`
+`composer global require yiendos/my-sites-ide:dev-master`
 
 ---
 
