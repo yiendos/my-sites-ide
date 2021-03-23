@@ -80,3 +80,10 @@ Available commands:
 Database available at: -H 127.0.0.1 - P 3306 root:root
 
 We hope you feel at home! 
+
+
+### Continuous Deployment as Standard 
+
+`my-sites-ide` came from 8 years working with deployment processes (Jenkins, Travis, github actions) and from this the IDE came into being. So going full circle we've included a barebones github actions integration for you. 
+
+You'll see that it's easy to spark your IDE locally, and without even lifting a finger you have CD support as well! 
