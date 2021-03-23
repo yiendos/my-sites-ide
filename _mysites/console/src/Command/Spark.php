@@ -75,7 +75,7 @@ EOT;
             exec("rm $root/Sites/rebuild.html");
         }
 
-        $output->writeLn('<info>Houstan you are cleared for take off</info>');
+        $output->writeLn('<info>Houston you are cleared for take off</info>');
 
         $this->openTabs();
 

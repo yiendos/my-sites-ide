@@ -1,4 +1,4 @@
-## my-sites-ide
+# my-sites-ide
 
 `my-sites-ide` is designed to be an easy way to spin up new development environments on the fly: 
 
@@ -13,6 +13,12 @@ You are required to have support for the following on your host system:
 * Docker
 * php 
 * composer
+
+### Apple M1/ ARM64 chip support 
+
+Note if you want to use this on Arm64 chips, we need to handle mysql differently. Currently only mysql:8.0 is supported: 
+
+`php _mysites/console/bin/mysites setup -f docker-compose-arm.yml`
 
 ### Your project path is important
 
@@ -74,5 +80,3 @@ Available commands:
 Database available at: -H 127.0.0.1 - P 3306 root:root
 
 We hope you feel at home! 
-
-

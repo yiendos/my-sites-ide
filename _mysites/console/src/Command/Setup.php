@@ -21,16 +21,18 @@ class Setup extends Command
             ->setName('setup')
             ->setDescription('Create the initial mysites  configuration file')
             ->addOption(
-                'file_sync',
+                'compose_file',
                 'f',
-                InputOption::VALUE_REQUIRED,
-                "Select your type of file sync (nfs | docker-sync | native)",
-                'nfs'
+                InputOption::VALUE_OPTIONAL,
+                "Select the standard `docker-compose.yml` or ARM64 support via `docker-compose-arm.yml`",
+                'docker-compose.yml'
             );
     }
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
+        $compose_file = $input->getOption('compose_file');
+
         $composer_mysites_dir = dirname(__FILE__,4);
         $current_location = trim(shell_exec('echo $PWD'));
 
@@ -51,7 +53,7 @@ class Setup extends Command
         $path_array =  explode("/", $current_location);
         $project = end($path_array);
 
-        $docker_compose = $current_location ."/_mysites/console/bin/.files/docker/docker-compose.yml";
+        $docker_compose = $current_location ."/_mysites/console/bin/.files/docker/$compose_file";
         shell_exec("cp $docker_compose /tmp/docker-compose.yml");
 
         $config = file_get_contents('/tmp/docker-compose.yml');
@@ -74,7 +76,6 @@ class Setup extends Command
         $output->writeLn("$path/$project");
 
         shell_exec("cp -R $current_location/_mysites/console/bin/.files/Sites $current_location/Sites" );
-
         shell_exec("cp -R $current_location/_mysites/console/bin/.files/Projects $current_location/Projects");
 
         return Command::SUCCESS;
