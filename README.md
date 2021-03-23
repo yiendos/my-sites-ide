@@ -1,12 +1,18 @@
 # my-sites-ide
 
-`my-sites-ide` is designed to be an easy way to spin up new development environments; via way of a global composer dependency: 
+`my-sites-ide` is designed to be an easy way to spin up new development environments on the fly: 
 
-`composer require yiendos/my-sites-ide`; 
+`composer require global yiendos/my-sites-ide`; 
 
-once installed globally, you create as many new `my-sites-ide` hosted sites as you wish. 
+once installed globally, you create as many new `my-sites-ide` hosted pods as you wish. 
 
-`mysites setup`
+### Prerequisites
+
+You are required to have support for the following on your host system:
+
+* Docker
+* php 
+* composer
 
 ### Apple M1/ ARM64 chip support 
 
@@ -22,7 +28,7 @@ Where you choose to install the `my-sites-ide` is important. Let's say you wante
 `/Users/somebody/Sites/new-site` 
 
 * With the project name of 
-`new-site`.
+`new-site`
 
 So you would therefore install the `my-site-ide` by issuing the following command from within the `new-site` folder:
 
@@ -32,7 +38,7 @@ So you would therefore install the `my-site-ide` by issuing the following comman
 
 We've made working with your my-sites-ide as easy as possible, as part of the `mysites setup` process we also created these commands under the project namespace. 
 
-So once again if your site is hosted at `new-site`, then your terminal commands are available under the `new-site` namespace: 
+So once again if your site is hosted at `new-site`, then your new terminal commands will be available under the `new-site` namespace: 
 
 ```
 new-site 

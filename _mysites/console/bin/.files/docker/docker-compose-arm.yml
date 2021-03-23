@@ -3,9 +3,10 @@ x-project: ~project~
 x-path: ~pwd~
 services:
     apache:
-        build:
-            context: .
-            dockerfile: _mysites/docker/apache2/Dockerfile
+        image: mysites_apache2:latest
+        #build:
+        #    context: .
+        #    dockerfile: _mysites/docker/apache2/Dockerfile
         container_name: ~project~_apache
         ports:
             - "8080:8080"
@@ -21,9 +22,10 @@ services:
             - ./Projects:/Projects
         command: ["/usr/local/apache2/bin/apachectl", "-D",  "FOREGROUND"]
     nginx:
-        build:
-            context: .
-            dockerfile: _mysites/docker/nginx/Dockerfile
+        image: mysites_nginx:latest
+        #build:
+        #    context: .
+        #    dockerfile: _mysites/docker/nginx/Dockerfile
         container_name: ~project~_nginx
         ports:
             - "8081:8081"
@@ -38,9 +40,10 @@ services:
             - ./_mysites/docker/nginx/sites-enabled:/etc/nginx/sites-enabled
             - ./_mysites/docker/logs/nginx:/var/log/nginx/
     php_fpm:
-        build:
-            context: .
-            dockerfile: _mysites/docker/php/Dockerfile
+        image: mysites_php:latest
+        #build:
+        #    context: .
+        #    dockerfile: _mysites/docker/php/Dockerfile
         container_name: ~project~_php_fpm
         volumes:
             - ./Sites:/Sites
