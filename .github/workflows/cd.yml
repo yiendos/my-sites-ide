@@ -1,0 +1,25 @@
+name: CD
+on:
+  push:
+    branches:
+      - master
+      - staging
+    tags:
+      - v*
+  pull_request:
+jobs:
+  tests:
+    runs-on: ubuntu-18.04
+    env:
+      BRANCH_REF: ${{ github.ref }}
+      LOCATION_DIR: GITHUB_WORKSPACE
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run chromedriver
+        run:  nohup $CHROMEWEBDRIVER/chromedriver --url-base=/wd/hub /dev/null 2>&1 &
+      - name: Set up IDE
+        run: php _mysites/console/bin/mysites setup > /dev/null 2>&1
+      - name: Spark IDE
+        run: php _mysites/console/bin/mysites spark
+      - name: Lets see if the homepage is available
+        run: curl -X GET localhost:8080
