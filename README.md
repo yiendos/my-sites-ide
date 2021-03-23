@@ -1,31 +1,41 @@
-## my-sites-ide
+# my-sites-ide
 
-Checkout this repository: 
-`git clone git@github.com:yiendos/my-sites-ide.git ~/Sites/my-sites-ide`
+`my-sites-ide` is designed to be an easy way to spin up new development environments; via way of a global composer dependency: 
 
-To test out ARM 64 support checkout the corresponding branch: 
-`git checkout feature/3-arm`
+`composer require yiendos/my-sites-ide`; 
 
-Navigate to where you have checked out the repository: 
+once installed globally, you create as many new `my-sites-ide` hosted sites as you wish. 
 
-`cd ~/Sites/my-sites-ide` 
+`mysites setup`
 
-Followed by:
-
-`php _mysites/console/bin/mysites setup`
+### Apple M1/ ARM64 chip support 
 
 Note if you want to use this on Arm64 chips, we need to handle mysql differently. Currently only mysql:8.0 is supported: 
 
 `php _mysites/console/bin/mysites setup -f docker-compose-arm.yml`
 
+### Your project path is important
+
+Where you choose to install the `my-sites-ide` is important. Let's say you wanted to host sites(s) at: `~/Sites/new-site`: 
+
+* This would translate to project path of:  
+`/Users/somebody/Sites/new-site` 
+
+* With the project name of 
+`new-site`.
+
+So you would therefore install the `my-site-ide` by issuing the following command from within the `new-site` folder:
+
+`mysites setup`
+
 ### Controlling your my-sites-ide 
 
 We've made working with your my-sites-ide as easy as possible, as part of the `mysites setup` process we also created these commands under the project namespace. 
 
-So once again if your site is hosted at `my-sites-ide`, then your terminal commands are available under the `my-sites-ide` namespace: 
+So once again if your site is hosted at `new-site`, then your terminal commands are available under the `new-site` namespace: 
 
 ```
-my-sites-ide
+new-site 
 
 Console Tool
 
@@ -64,5 +74,3 @@ Available commands:
 Database available at: -H 127.0.0.1 - P 3306 root:root
 
 We hope you feel at home! 
-
-
