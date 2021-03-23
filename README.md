@@ -43,9 +43,6 @@ echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> ~/.zshrc
 
 source ~/.zshrc && 
 ```
-
-This can take a while, we are building apache, nginx, php base images for you. The next time you come to use `mysites setup` for a new project the installation time will be super speedy. 
-
 ### Your project path is important
 
 Where you choose to install the `my-sites-ide` is important. Let's say you wanted to host sites(s) at: `~/Sites/new-site`: 
@@ -67,6 +64,9 @@ mkdir -p ~/Sites/new-site && cd ~/Sites/new-site
 ```
 mysites setup
 ```
+
+This can take a while for the first time, we are building apache, nginx, php base images for you. The next time you come to use `mysites setup` for a new project the installation time will be super speedy. 
+
 
 ### Apple M1/ ARM64 chip support 
 
