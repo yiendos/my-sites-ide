@@ -8,6 +8,12 @@ Create new play areas, or you can integrate the IDE into existing projects. Simp
 
 `mysites setup`
 
+Followed by: 
+
+`[project-name] spark` 
+
+To launch your new play area... See `Your project path is important` below for further details.
+
 ---
 
 ### Prerequisites
@@ -65,7 +71,14 @@ mkdir -p ~/Sites/new-site && cd ~/Sites/new-site
 mysites setup
 ```
 
+* Launch the IDE 
+```
+new-site spark
+```
+
 This can take a while for the first time, we are building apache, nginx, php base images for you. The next time you come to use `mysites setup` for a new project the installation time will be super speedy. 
+
+Then you are able to control the docker instances through commands we've created under the project namespace. So if your project is `new-sites` typing this into the terminal will give you access to these commands. See `Controlling your my-sites-ide` section below.
 
 
 ### Apple M1/ ARM64 chip support 
@@ -109,7 +122,7 @@ Available commands:
   status   See the status of mysites containers
 ``` 
 
-### Welcome to your new project 
+### Welcome to your new play area 
 
 * http://localhost:8080 - apache2
 * http://localhost:8081 - nginx
