@@ -120,6 +120,10 @@ Available commands:
   setup    Create the initial mysites  configuration file
   spark    Fire up your mysites IDE
   status   See the status of mysites containers
+ wordpress
+  wordpress:create  Create a WordPress site
+  wordpress:delete  Nuke an existing site
+  wordpress:vhost   Creates a new Apache2 and/or Nginx virtual host
 ``` 
 
 ### Welcome to your new play area 
