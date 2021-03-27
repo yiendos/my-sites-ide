@@ -75,7 +75,7 @@ services:
         ports:
             - "3000:3000"
         volumes:
-            - ./Sites:/home/project/Sites
+        #    - ./Sites:/home/project/Sites
             - ./Projects:/home/project/Projects
             - ./_mysites/docker/theia/.theia/settings.json:/home/theia/.theia/settings.json
             - ./_mysites/docker/theia/.gitconfig:/home/theia/.gitconfig

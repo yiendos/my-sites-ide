@@ -97,10 +97,8 @@ EOT;
         sleep(5);
 
         $open_tabs = <<<EOT
-        open -a "Google Chrome" http://localhost:8080 &&
-        open -a "Google Chrome" http://localhost:8081 && 
-        open -a "Google Chrome" http://localhost:8084 && 
-        open -a "Google Chrome" http://localhost:3000
+        open -a "Google Chrome" http://localhost:8080/pages/hello &&
+        open -a "Google Chrome" http://localhost:8081/pages/hello
 EOT;
 
         shell_exec($open_tabs);
