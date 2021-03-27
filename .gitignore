@@ -4,5 +4,6 @@ _mysites/console/bin/.files/cache/*
 /Sites/*/vendor/*
 /Sites/**/wp-config*
 /Sites/**/configuration.php
+!/Sites/pages/configuration.php
 /Projects/joomlatools-pages/cache/*
 /Sites/pages/administrator/cache/*
