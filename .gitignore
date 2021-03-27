@@ -4,3 +4,4 @@ _mysites/console/bin/.files/cache/*
 /Sites/*/vendor/*
 /Sites/**/wp-config*
 /Sites/**/configuration.php
+/Projects/joomlatools-pages/cache/*
