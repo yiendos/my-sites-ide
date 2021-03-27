@@ -57,8 +57,6 @@ class Spark extends Command
 
         shell_exec('docker exec ' . $this->mysql_container . ' sh -c "export MYSQL_PWD=root; mysqladmin ping -h ' . $this->mysql_host . ' -u root --wait=30--silent"');
 
-        sleep(5);
-
         //now the db container is available we wait for the databases to be ready
         while (true) {
             $cmd = <<<EOT
@@ -70,6 +68,8 @@ EOT;
                 break;
             }
         }
+
+        sleep(5);
 
         if (file_exists("$root/Sites/rebuild.html")){
             exec("rm $root/Sites/rebuild.html");
