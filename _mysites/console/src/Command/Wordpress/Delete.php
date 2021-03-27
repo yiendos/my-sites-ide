@@ -53,6 +53,9 @@ EOF
         //so first up remove vhosts
         $this->removeVhosts($input, $output);
 
+        //first switch-a-roo container host for local
+        $output->writeLn(Wp::call("config set --path={$this->target_dir} DB_HOST '127.0.0.1'"));
+
         //next up clear any db backed up/// all-dbs will replaced on box down
         $this->removeDatabase($input, $output);
 
