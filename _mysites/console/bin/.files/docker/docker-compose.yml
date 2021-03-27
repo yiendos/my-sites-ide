@@ -67,18 +67,18 @@ services:
         volumes:
             - ./_mysites/docker/mysql/:/docker-entrypoint-initdb.d/
             - ./_mysites/docker/mysql/conf/my.cnf:/etc/mysql/mysql.cnf
-    theia:
-        image: theiaide/theia-php:latest
-        container_name: ~project~_theias
-        logging:
-            driver: "none"
-        ports:
-            - "3000:3000"
-        volumes:
+    #theia:
+    #    image: theiaide/theia-php:latest
+    #    container_name: ~project~_theias
+    #    logging:
+    #        driver: "none"
+    #    ports:
+    #        - "3000:3000"
+    #    volumes:
         #    - ./Sites:/home/project/Sites
-            - ./Projects:/home/project/Projects
-            - ./_mysites/docker/theia/.theia/settings.json:/home/theia/.theia/settings.json
-            - ./_mysites/docker/theia/.gitconfig:/home/theia/.gitconfig
+    #        - ./Projects:/home/project/Projects
+    #        - ./_mysites/docker/theia/.theia/settings.json:/home/theia/.theia/settings.json
+    #        - ./_mysites/docker/theia/.gitconfig:/home/theia/.gitconfig
     mailhog:
         container_name: ~project~_mailhog
         image: mailhog/mailhog
