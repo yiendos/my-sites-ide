@@ -12,7 +12,7 @@ Here is the list of prerequisites for your host system:
 1. `git clone git@github.com:yiendos/my-sites-ide.git`
 1. `cd ~/Sites/my-sites-ide`
 1. `git checkout feature/16-pages `
-1. `php _mysites/console/bin/mysites setup` 
+1. `php _mysites/console/bin/mysites setup` (slow first time, building base images... much quicker next pages installation)
 1. `my-sites-ide spark`
 
 ### Welcome to your new play area 
