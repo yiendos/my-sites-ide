@@ -195,7 +195,7 @@ class Create extends Command
 
     public function modifyConfiguration(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln(Wp::call("config create --dbhost=db --path={$this->target_dir} --dbname={$this->target_db} --dbuser={$this->mysql->user} --dbpass={$this->mysql->password} --extra-php=\"define( 'WP_DEBUG', true ); define( 'WP_DEBUG_LOG', true );\""));
+        $output->writeln(Wp::call("config create --dbhost=127.0.0.1 --path={$this->target_dir} --dbname={$this->target_db} --dbuser={$this->mysql->user} --dbpass={$this->mysql->password} --extra-php=\"define( 'WP_DEBUG', true ); define( 'WP_DEBUG_LOG', true );\""));
     }
 
     public function createDatabase(InputInterface $input, OutputInterface $output)

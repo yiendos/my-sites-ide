@@ -78,6 +78,9 @@ EOF
     {
         $output->writeLn('db drop --path=' . $this->target_dir);
 
+        //update db_host in configuration back to local access
+        $output->writeLn(Wp::call("config set --path={$this->target_dir} DB_HOST '127.0.0.1'"));
+
         //straight over to WP to drop our database obtained from the site configuration
         $output->writeLn(Wp::call('db drop --yes --path=' . $this->target_dir));
 
