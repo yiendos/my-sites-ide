@@ -1,0 +1,16 @@
+[mysqld]
+max-allowed-packet=16M
+default-authentication-plugin=mysql_native_password
+
+!includedir /etc/mysql/conf.d/
+!includedir /etc/mysql/mysql.conf.d/
+
+[mysqldump]
+user=root
+password="root"
+host=127.0.0.1
+
+[mysqldiff]
+user=root
+password="root"
+host=127.0.0.1

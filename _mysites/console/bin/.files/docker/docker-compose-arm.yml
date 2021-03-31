@@ -46,11 +46,11 @@ services:
         #    dockerfile: _mysites/docker/php/Dockerfile
         container_name: ~project~_php_fpm
         volumes:
-            -  ./Sites:/Sites
-            -  ./Projects:/Projects
+            - ./Sites:/Sites
+            - ./Projects:/Projects
             -  ./_mysites/docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
     db:
-        image: mysql:5.7
+        image: mysql/mysql-server:8.0.23-1.1.19
         container_name: ~project~_mysql
         ports:
             - "3306:3306"
@@ -63,10 +63,9 @@ services:
             - MYSQL_USER=joomlatools
             - MYSQL_PASSWORD=joomlatools
             - MYSQL_ROOT_PASSWORD=root
-        command: ["mysqld", "--sql-mode=ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"]
         volumes:
             - ./_mysites/docker/mysql/:/docker-entrypoint-initdb.d/
-            - ./_mysites/docker/mysql/conf/my.cnf:/etc/mysql/mysql.cnf
+            - ./_mysites/docker/mysql/conf/my-arm.cnf:/etc/mysql/mysql.cnf
     theia:
         image: theiaide/theia-php:latest
         container_name: ~project~_theias

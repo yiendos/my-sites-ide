@@ -15,6 +15,12 @@
 #set our flag initial to false;
 update=false;
 
+## is brew installed
+if ! command -v brew > /dev/null; then
+  echo "* brew is not installed";
+  exit 1;
+fi
+
 #firstly is dnsmasq installed
 if ! command -v dnsmasq > /dev/null; then
   brew update;

@@ -23,6 +23,7 @@ use Symfony\Component\Console\Application;
 use MySites\Command;
 use MySites\Command\Deploy;
 use MySites\Command\server;
+use MySites\Command\Wordpress;
 
 $app = new Application();
 $app->add(new Command\Setup());
@@ -36,6 +37,10 @@ if (file_exists(dirname(__FILE__, 4) . "/docker-compose.yml"))
     $app->add(new Command\Export());
     $app->add(new Command\Panic());
     $app->add(new Command\Douse());
+
+    $app->add(new Command\Wordpress\Create());
+    $app->add(new Command\Wordpress\Delete());
+    $app->add(new Command\Wordpress\Vhost());
 }
 
 $app->run();
