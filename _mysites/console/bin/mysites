@@ -44,6 +44,7 @@ if (file_exists(dirname(__FILE__, 4) . "/docker-compose.yml"))
     $app->add(new Command\Wordpress\Vhost());
 
     $app->add(new Command\Joomla\Create());
+    $app->add(new Command\Joomla\Delete());
 }
 
 $app->run();
