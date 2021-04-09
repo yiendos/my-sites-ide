@@ -12,6 +12,7 @@
         "homepage": "https://yiendos.dev"
       }
   ],
+  "minimum-stability": "stable",
   "require": {
     "symfony/console": "^5.0",
     "symfony/yaml": "^5.1",

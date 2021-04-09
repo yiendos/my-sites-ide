@@ -122,6 +122,10 @@ Available commands:
   setup    Create the initial mysites  configuration file
   spark    Fire up your mysites IDE
   status   See the status of mysites containers
+joomla
+  joomla:create     Create a Joomla site
+  joomla:delete     Delet a Joomla site
+  joomla:vhost      Creates a new Apache2 and/or Nginx virtual host
  wordpress
   wordpress:create  Create a WordPress site
   wordpress:delete  Nuke an existing site
