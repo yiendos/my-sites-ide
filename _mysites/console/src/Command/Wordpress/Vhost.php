@@ -101,10 +101,10 @@ class Vhost extends Command
         if ($remove)
         {
             shell_exec("rm $kindle_nginx_vhosts/1-$site.conf");
-            //passthru("docker kill -s HUP $docker_nginx_container > /dev/null 2>&1");
+            passthru("docker kill -s HUP $docker_nginx_container > /dev/null 2>&1");
 
             shell_exec("rm $kindle_apache_vhosts/1-$site.conf");
-            //passthru("docker exec $docker_apache_container /usr/local/apache2/bin/apachectl restart -D FOREGROUND");
+            passthru("docker exec $docker_apache_container /usr/local/apache2/bin/apachectl restart -D FOREGROUND");
 
             return Command::SUCCESS;
         }
@@ -120,7 +120,7 @@ class Vhost extends Command
 
         shell_exec("cp $tmp $kindle_nginx_vhosts/1-$site.conf");
 
-        //passthru("docker kill -s HUP $docker_nginx_container > /dev/null 2>&1");
+        passthru("docker kill -s HUP $docker_nginx_container > /dev/null 2>&1");
 
         $template = $this->_getTemplate($input, 'apache');
         $vhost = str_replace(array_keys($variables), array_values($variables), $template);
@@ -128,7 +128,7 @@ class Vhost extends Command
         file_put_contents($tmp, $vhost);
         
         shell_exec("cp $tmp $kindle_apache_vhosts/1-$site.conf");
-        //passthru("docker exec $docker_apache_container /usr/local/apache2/bin/apachectl restart -D FOREGROUND");
+        passthru("docker exec $docker_apache_container /usr/local/apache2/bin/apachectl restart -D FOREGROUND");
 
         return Command::SUCCESS;
     }
@@ -163,18 +163,9 @@ class Vhost extends Command
     {
         $path = realpath(__DIR__ . '/../../../bin/.files/vhosts');
 
-        /*if ($template = $input->getOption(sprintf('%s-template', $application)))
-        {
-            if (file_exists($template)) {
-                return file_get_contents($template);
-            }
-            else throw new \Exception(sprintf('Template file %s does not exist.', $template));
-        }*/
-
         switch($application)
         {
             case 'nginx':
-                //$file = Util::isKodekitPlatform($this->target_dir) ? 'nginx.kodekit.conf' : 'nginx.conf';
                 $file = 'nginx.conf';
                 break;
             case 'apache':
@@ -184,17 +175,6 @@ class Vhost extends Command
         }
 
         $template = file_get_contents(sprintf('%s/%s', $path, $file));
-
-        /*if (!$input->getOption('disable-ssl'))
-        {
-            if (file_exists($input->getOption('ssl-crt')) && file_exists($input->getOption('ssl-key')))
-            {
-                $file = str_replace('.conf', '.ssl.conf', $file);
-
-                $template .= "\n\n" . file_get_contents(sprintf('%s/%s', $path, $file));
-            }
-            else throw new \Exception('Unable to enable SSL for the site: one or more certificate files are missing.');
-        }*/
 
         return $template;
     }
