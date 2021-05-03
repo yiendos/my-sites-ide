@@ -1,5 +1,6 @@
 {
   "require": {
+    "rmccue/requests": "~1.8",
     "symfony/console": "^5.0",
     "symfony/yaml": "^5.1",
     "wp-cli/core-command":      "^2.0",
