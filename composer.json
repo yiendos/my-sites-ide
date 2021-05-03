@@ -13,14 +13,6 @@
       }
   ],
   "minimum-stability": "stable",
-  "require": {
-    "symfony/console": "^5.0",
-    "symfony/yaml": "^5.1",
-    "wp-cli/core-command":      "^2.0",
-    "wp-cli/extension-command": "^2.0",
-    "wp-cli/entity-command":    "^2.0",
-    "wp-cli/config-command":    "^2.0"
-  },
   "autoload": {
     "psr-4": {
       "MySites\\": "_mysites/console/src"
