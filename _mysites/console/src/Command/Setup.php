@@ -44,6 +44,7 @@ class Setup extends Command
             $result =  trim(shell_exec('RET=`docker images -q mysites_' . $image . ':latest`;echo $RET'));
 
             if (!strlen($result)) {
+                //$output->writeLn('docker build -t mysites_' . $image . ':latest -f ' . $composer_mysites_dir . "/docker/" . $image . "/Dockerfile . ");
                 passthru('docker build -t mysites_' . $image . ':latest -f ' . $composer_mysites_dir . "/docker/" . $image . "/Dockerfile . ");
             }
         }
@@ -75,8 +76,8 @@ class Setup extends Command
 
         $output->writeLn("$path/$project");
 
-        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Sites $current_location/Sites" );
-        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Projects $current_location/Projects");
+        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Sites/ $current_location/Sites/" );
+        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Projects/ $current_location/Projects/");
         shell_exec("cp -R $current_location/_mysites/console/bin/.files/.github $current_location/.github");
 
         return Command::SUCCESS;
