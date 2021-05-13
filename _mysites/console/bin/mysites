@@ -38,6 +38,7 @@ if (file_exists(dirname(__FILE__, 4) . "/docker-compose.yml"))
     $app->add(new Command\Export());
     $app->add(new Command\Panic());
     $app->add(new Command\Douse());
+    $app->add(new Command\Xdebug());
 
     $app->add(new Command\Wordpress\Create());
     $app->add(new Command\Wordpress\Delete());
