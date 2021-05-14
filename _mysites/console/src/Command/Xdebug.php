@@ -19,7 +19,7 @@ class Xdebug extends Command
     {
         $this
             ->setName('xdebug:status')
-            ->setDescription('Create the initial mysites  configuration file')
+            ->setDescription('Enable or disable xdebug support')
             ->addArgument(
                 'state',
                 InputArgument::REQUIRED,
