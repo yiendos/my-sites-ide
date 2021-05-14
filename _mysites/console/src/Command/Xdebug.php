@@ -18,10 +18,10 @@ class Xdebug extends Command
     protected function configure()
     {
         $this
-            ->setName('xdebug:toggle')
+            ->setName('xdebug:status')
             ->setDescription('Create the initial mysites  configuration file')
             ->addArgument(
-                'enable',
+                'state',
                 InputArgument::REQUIRED,
                 "Toggle the use of xdebug image, to improve browser times (enable | disable)"
             );
@@ -32,11 +32,25 @@ class Xdebug extends Command
         $toggle = $input->getArgument('enable');
         $composer_mysites_dir = dirname(__FILE__,4);
 
+        $command_input = new ArrayInput(array(
+            '--snuff' => true
+        ));
+
+        $command = new Douse();
+        $command->run($command_input, $output);
+
+        passthru("Docker rmi mysites_php");
+
         if ($toggle == 'disable'){
-            passthru('docker rmi mysites_php:latest');
+            passthru('docker build -t mysites_php:latest -f ' . $composer_mysites_dir . "/docker/php/Dockerfile . ");
         }else{
             passthru('docker build -t mysites_php:latest -f ' . $composer_mysites_dir . "/docker/php/xdebug/Dockerfile . ");
         }
+
+        $command_input = new ArrayInput(array());
+
+        $command = new Spark();
+        $command->run($command_input, $output);
 
         return Command::SUCCESS;
     }
