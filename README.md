@@ -82,7 +82,6 @@ This can take a while for the first time, we are building apache, nginx, php bas
 
 Then you are able to control the docker instances through commands we've created under the project namespace. So if your project is `new-sites` typing this into the terminal will give you access to these commands. See `Controlling your my-sites-ide` section below.
 
-
 ### Apple M1/ ARM64 chip support 
 
 Note if you want to use this on Arm64 chips, we need to handle mysql differently. Currently only mysql:8.0 is supported: 
@@ -126,10 +125,12 @@ joomla
   joomla:create     Create a Joomla site
   joomla:delete     Delet a Joomla site
   joomla:vhost      Creates a new Apache2 and/or Nginx virtual host
- wordpress
+wordpress
   wordpress:create  Create a WordPress site
   wordpress:delete  Nuke an existing site
   wordpress:vhost   Creates a new Apache2 and/or Nginx virtual host
+xdebug
+  xdebug:status     Enable or disable xdebug support
 ``` 
 
 ### Welcome to your new play area 
@@ -144,6 +145,14 @@ Database available at: -H 127.0.0.1 - P 3306 root:root
 
 We hope you feel at home! 
 
+
+### Debugging your project with xdebug 
+
+xdebug is an essential tool for really getting to heart of your web applications. Performance does take a hit though, when xdebug is enabled. It is for this reason, that xdebug is not installed into the php image as standard. However, hot switching between images is a snap with `new-site xdebug:status`
+
+`new-site xdebug:status enable` to tear down your existing containers (safely with a db export) and rebuild the php-fpm image with xdebug support. 
+
+`new-site xdebug:status disable` to tear down your existing containers (safely with a db export) and rebuild the php-fpm image with xdebug enabled
 
 ### Continuous Deployment as Standard 
 
