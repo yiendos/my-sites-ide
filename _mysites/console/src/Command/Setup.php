@@ -78,7 +78,7 @@ class Setup extends Command
 
         shell_exec("cp -R $current_location/_mysites/console/bin/.files/Sites/ $current_location/Sites/" );
         shell_exec("cp -R $current_location/_mysites/console/bin/.files/Projects/ $current_location/Projects/");
-        shell_exec("cp -R $current_location/_mysites/console/bin/.files/.github $current_location/.github");
+        shell_exec("cp -R $current_location/_mysites/console/bin/.files/.github/ $current_location/.github/");
 
         return Command::SUCCESS;
     }

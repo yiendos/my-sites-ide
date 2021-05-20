@@ -29,7 +29,7 @@ class Xdebug extends Command
 
     public function execute(InputInterface $input, OutputInterface $output)
     {
-        $toggle = $input->getArgument('enable');
+        $toggle = $input->getArgument('state');
         $composer_mysites_dir = dirname(__FILE__,4);
 
         $command_input = new ArrayInput(array(

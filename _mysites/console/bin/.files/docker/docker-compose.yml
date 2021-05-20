@@ -49,7 +49,7 @@ services:
             -  ./Sites:/Sites
             -  ./Projects:/Projects
             -  ./_mysites/docker/php/custom.ini:/usr/local/etc/php/conf.d/custom.ini
-            - ./_mysites/docker/php/xdebug/xdebug-local.ini:/usr/local/etc/php/conf.d/xdebug.ini
+            -  ./_mysites/docker/php/xdebug/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     db:
         image: mysql:5.7
         container_name: ~project~_mysql
