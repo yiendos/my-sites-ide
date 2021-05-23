@@ -1,4 +1,4 @@
-![Screenshot](/screenshot.png?raw=true)
+![Screenshot](https://raw.githubusercontent.com/yiendos/my-sites-ide/master/screenshot.png?raw=true)
 
 # my-sites-ide
 
@@ -14,7 +14,7 @@ Followed by:
 
 `[project-name] spark` 
 
-To launch your new play area... See `Your project path is important` below for further details.
+To launch your new play area... See [Your project path is important](https://github.com/yiendos/my-sites-ide/wiki/Project-name--path-is-important) for further details.
 
 ---
 
@@ -36,55 +36,11 @@ To do this temporarily for the session of your terminal screen:
 export PATH=$PATH:~/.composer/vendor/bin
 ````
 
-Or a more permanent solution: 
-
-```
-echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> ~/.bashrc
-
-source ~/.bashrc
-```
-
-Or if you use zshrc: 
-
-```
-echo 'export PATH="$PATH:$HOME/.composer/vendor/bin"' >> ~/.zshrc
-
-source ~/.zshrc && 
-```
-### Your project path is important
-
-Where you choose to install the `my-sites-ide` is important. Let's say you wanted to host sites(s) at: `~/Sites/new-site`: 
-
-* This would translate to project path of:  
-`/Users/somebody/Sites/new-site` 
-
-* With the project name of 
-`new-site`
-
-So you would therefore install the `my-site-ide` by issuing the following commands: 
-
-* Create the folder if it doesn't already exist: 
-```
-mkdir -p ~/Sites/new-site && cd ~/Sites/new-site
-```
-
-* Install the IDE 
-```
-mysites setup
-```
-
-* Launch the IDE 
-```
-new-site spark
-```
-
-This can take a while for the first time, we are building apache, nginx, php base images for you. The next time you come to use `mysites setup` for a new project the installation time will be super speedy. 
-
-Then you are able to control the docker instances through commands we've created under the project namespace. So if your project is `new-sites` typing this into the terminal will give you access to these commands. See `Controlling your my-sites-ide` section below.
+For more permanent solutions please see [Initial setup](https://github.com/yiendos/my-sites-ide/wiki/Initial-setup)
 
 ### Apple M1/ ARM64 chip support 
 
-Note if you want to use this on Arm64 chips, we need to handle mysql differently. Currently only mysql:8.0 is supported: 
+Note if you want to use this on Arm64 chips, we need to handle mysql differently. Currently, only mysql:8.0 is supported: 
 
 `mysites setup -f docker-compose-arm.yml`
 
@@ -148,11 +104,8 @@ We hope you feel at home!
 
 ### Debugging your project with xdebug 
 
-xdebug is an essential tool for really getting to heart of your web applications. Performance does take a hit though, when xdebug is enabled. It is for this reason, that xdebug is not installed into the php image as standard. However, hot switching between images is a snap with `new-site xdebug:status`
-
-`new-site xdebug:status enable` to tear down your existing containers (safely with a db export) and rebuild the php-fpm image with xdebug support. 
-
-`new-site xdebug:status disable` to tear down your existing containers (safely with a db export) and rebuild the php-fpm image with xdebug enabled
+xdebug is an essential tool for really getting to heart of your web applications. So of course xdebug comes as standard. For more information about using xdebug and my-sites-ide:
+https://github.com/yiendos/my-sites-ide/wiki/x-debugging-with-my-sites-ide
 
 ### Continuous Deployment as Standard 
 
