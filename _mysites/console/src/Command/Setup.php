@@ -36,6 +36,10 @@ class Setup extends Command
         $composer_mysites_dir = dirname(__FILE__,4);
         $current_location = trim(shell_exec('echo $PWD'));
 
+        if (strpos($current_location, '_mysites') !== false){
+            throw new \RuntimeException('You are currently in the _mysites folder, please make sure you are in the root of your project');
+        }
+
         //first up does the base images exist
         $base_images = array('apache2', 'nginx' , 'php');
 
@@ -49,7 +53,7 @@ class Setup extends Command
             }
         }
 
-        shell_exec("cp -R $composer_mysites_dir/ $current_location/_mysites");
+        shell_exec("cp -R $composer_mysites_dir/ $current_location/_mysites/");
 
         $path_array =  explode("/", $current_location);
         $project = end($path_array);
