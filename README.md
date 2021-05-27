@@ -105,7 +105,7 @@ We hope you feel at home!
 ### Debugging your project with xdebug 
 
 xdebug is an essential tool for really getting to heart of your web applications. So of course xdebug comes as standard. For more information about using xdebug and my-sites-ide:
-https://github.com/yiendos/my-sites-ide/wiki/x-debugging-with-my-sites-ide
+https://github.com/yiendos/my-sites-ide/wiki/x-debug'ging-with-my-sites-ide
 
 ### Continuous Deployment as Standard 
 
