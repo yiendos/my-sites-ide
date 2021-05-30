@@ -26,7 +26,7 @@ class Restart extends Command
             ->addArgument(
                 'container',
                 InputArgument::REQUIRED,
-                'Provide the name of the container (apache | nginx | mysql)'
+                'Provide the name of the container (apache | nginx | mysql | php_fpm)'
 
             );
     }
@@ -34,16 +34,17 @@ class Restart extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $input->getArgument('container');
+        $project = $this->config['x-project'];
 
         switch ($container) {
             case 'apache':
-                passthru("docker exec loeror_$container /usr/local/apache2/bin/apachectl restart -D FOREGROUND");
+                passthru("docker exec {$project}_{$container} /usr/local/apache2/bin/apachectl restart -D FOREGROUND");
                 break;
             case 'mysql':
-                passthru("docker restart loeror_$container > /dev/null 2>&1");
+                passthru("docker restart {$project}_{$container} > /dev/null 2>&1");
                 break;
             default:
-                passthru("docker restart loeror_$container > /dev/null 2>&1");
+                passthru("docker restart {$project}_{$container} > /dev/null 2>&1");
                 break;
         }
 

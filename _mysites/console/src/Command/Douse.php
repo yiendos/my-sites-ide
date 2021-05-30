@@ -23,13 +23,6 @@ class Douse extends Command
         $this->setName('douse')
             ->setDescription('Temporarily pause your sites')
             ->addOption(
-                'xdebug',
-                'x',
-                InputOption::VALUE_REQUIRED,
-                'Destroy a previously created php-fpm + xdebug container',
-                false
-            )
-            ->addOption(
                 'snuff',
                 's',
                 InputOption::VALUE_NONE,
@@ -50,12 +43,6 @@ class Douse extends Command
 
         $command = new Export();
         $command->run($command_input, $output);
-
-        $kill_xdebug = $input->getOption('xdebug');
-
-        if ($kill_xdebug){
-            passthru("docker rmi loeror_php_fpm:latest");
-        }
 
         if ($snuff)
         {

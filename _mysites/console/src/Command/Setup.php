@@ -36,6 +36,10 @@ class Setup extends Command
         $composer_mysites_dir = dirname(__FILE__,4);
         $current_location = trim(shell_exec('echo $PWD'));
 
+        if (strpos($current_location, '_mysites') !== false){
+            throw new \RuntimeException('You are currently in the _mysites folder, please make sure you are in the root of your project');
+        }
+
         //first up does the base images exist
         $base_images = array('apache2', 'nginx' , 'php');
 
@@ -44,11 +48,12 @@ class Setup extends Command
             $result =  trim(shell_exec('RET=`docker images -q mysites_' . $image . ':latest`;echo $RET'));
 
             if (!strlen($result)) {
+                //$output->writeLn('docker build -t mysites_' . $image . ':latest -f ' . $composer_mysites_dir . "/docker/" . $image . "/Dockerfile . ");
                 passthru('docker build -t mysites_' . $image . ':latest -f ' . $composer_mysites_dir . "/docker/" . $image . "/Dockerfile . ");
             }
         }
 
-        shell_exec("cp -R $composer_mysites_dir/ $current_location/_mysites");
+        shell_exec("cp -R $composer_mysites_dir/ $current_location/_mysites/");
 
         $path_array =  explode("/", $current_location);
         $project = end($path_array);
@@ -75,9 +80,9 @@ class Setup extends Command
 
         $output->writeLn("$path/$project");
 
-        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Sites $current_location/Sites" );
-        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Projects $current_location/Projects");
-        shell_exec("cp -R $current_location/_mysites/console/bin/.files/.github $current_location/.github");
+        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Sites/ $current_location/Sites/" );
+        shell_exec("cp -R $current_location/_mysites/console/bin/.files/Projects/ $current_location/Projects/");
+        shell_exec("cp -R $current_location/_mysites/console/bin/.files/.github/ $current_location/.github/");
 
         return Command::SUCCESS;
     }

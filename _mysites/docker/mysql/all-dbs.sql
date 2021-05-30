@@ -944,16 +944,6 @@ CREATE TABLE IF NOT EXISTS `slow_log` (
 CREATE DATABASE /*!32312 IF NOT EXISTS*/ `sites_default` /*!40100 DEFAULT CHARACTER SET latin1 */;
 
 USE `sites_default`;
-
---
--- Current Database: `testing`
---
-
-/*!40000 DROP DATABASE IF EXISTS `testing`*/;
-
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `testing` /*!40100 DEFAULT CHARACTER SET latin1 */;
-
-USE `testing`;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
