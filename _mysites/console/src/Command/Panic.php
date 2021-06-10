@@ -49,7 +49,7 @@ class Panic extends Command
 
     public function check(InputInterface $input, OutputInterface $output)
     {
-        $kindle_root = $this->config['x-path'];
+        $kindle_root = $this->config['PROJECT_PATH'];
         $current_directory = trim(shell_exec('pwd'));
 
         if ($current_directory != $kindle_root){

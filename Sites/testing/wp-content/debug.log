@@ -1,0 +1,2 @@
+[30-May-2021 15:32:51 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): Connection refused in /Sites/testing/wp-includes/wp-db.php on line 1653
+[30-May-2021 15:32:52 UTC] PHP Warning:  mysqli_real_connect(): (HY000/2002): Connection refused in /Sites/testing/wp-includes/wp-db.php on line 1653

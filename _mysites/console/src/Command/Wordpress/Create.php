@@ -78,7 +78,7 @@ class Create extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 "Web server root",
-                $this->config['x-path'] . '/Sites/'
+                $this->config['PROJECT_PATH'] . '/Sites/'
             )
             ->addOption(
                 'wordpress',
@@ -104,7 +104,7 @@ class Create extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 'Directory where your custom projects reside',
-                $this->config['x-path'] . '/Projects/'
+                $this->config['PROJECT_PATH'] . '/Projects/'
             )
             ->addOption(
                 'http-port',

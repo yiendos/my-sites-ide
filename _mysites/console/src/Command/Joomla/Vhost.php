@@ -71,7 +71,7 @@ class Vhost extends Wordpress\Vhost
                 null,
                 InputOption::VALUE_REQUIRED,
                 'PHP-FPM address or path to Unix socket file, set as value for fastcgi_pass in Nginx config',
-                $this->config['x-project'] . '_php_fpm'
+                $this->config['PROJECT_NAME'] . '_php_fpm'
             )
             ->addOption(
                 'remove',

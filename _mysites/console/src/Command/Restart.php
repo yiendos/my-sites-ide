@@ -34,7 +34,7 @@ class Restart extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $container = $input->getArgument('container');
-        $project = $this->config['x-project'];
+        $project = $this->config['PROJECT_NAME'];
 
         switch ($container) {
             case 'apache':

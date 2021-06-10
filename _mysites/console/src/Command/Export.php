@@ -29,7 +29,7 @@ class Export extends Command
         $this->config = $configs->getConfig();
         $this->port = current($this->config['services']['db']['expose']);
         $this->password = $configs->getEnv('db', 'MYSQL_ROOT_PASSWORD');
-        $this->mysql_container = $this->config['x-project'] . "_mysql";
+        $this->mysql_container = $this->config['PROJECT_NAME'] . "_mysql";
 
         $this
         ->setName('export')

@@ -60,13 +60,20 @@ class Setup extends Command
 
         $docker_compose = $current_location ."/_mysites/console/bin/.files/docker/$compose_file";
         shell_exec("cp $docker_compose /tmp/docker-compose.yml");
+        shell_exec("cp $current_location/_mysites/console/bin/.files/docker/.env /tmp/.env");
 
-        $config = file_get_contents('/tmp/docker-compose.yml');
-        $updated = str_replace(array('~project~', '~pwd~'), array($project, $current_location), $config);
+        $config = file_get_contents('/tmp/.env');
+        $updated_config = str_replace(array('~project~', '~pwd~'), array($project, $current_location), $config);
+        file_put_contents("/tmp/.env", $updated_config);
+
+        $composer_config = file_get_contents('/tmp/docker-compose.yml');
+        $updated = str_replace(array('~project~', '~pwd~'), array($project, $current_location), $composer_config);
         file_put_contents("/tmp/docker-compose.yml", $updated);
 
-        shell_exec("cp /tmp/docker-compose.yml $current_location/docker-compose.yml && rm /tmp/docker-compose.yml");
+        var_dump($updated);
 
+        shell_exec("cp /tmp/docker-compose.yml $current_location/docker-compose.yml && rm /tmp/docker-compose.yml");
+        shell_exec("cp /tmp/.env $current_location/.env && rm /tmp/.en");
         //now make commands executable
         $path = '/usr/local/bin';
 

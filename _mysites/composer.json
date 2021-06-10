@@ -8,7 +8,8 @@
     "wp-cli/extension-command": "^2.0",
     "wp-cli/entity-command":    "^2.0",
     "wp-cli/config-command":    "^2.0",
-    "wp-cli/db-command": "^2.0"
+    "wp-cli/db-command": "^2.0",
+    "symfony/dotenv": "^5.2"
   },
   "autoload": {
     "psr-4": {

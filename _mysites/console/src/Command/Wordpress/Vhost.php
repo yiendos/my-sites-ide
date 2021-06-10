@@ -70,7 +70,7 @@ class Vhost extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 'PHP-FPM address or path to Unix socket file, set as value for fastcgi_pass in Nginx config',
-                 $this->config['x-project'] . '_php_fpm'
+                 $this->config['PROJECT_NAME'] . '_php_fpm'
             )
             ->addOption(
                 'remove',
@@ -85,17 +85,17 @@ class Vhost extends Command
     {
         $site = $input->getArgument('site');
         $remove = $input->getOption('remove');
-        $docker_nginx_container = $this->config['x-project'] . '_nginx';
-        $kindle_nginx_vhosts = $this->config['x-path'] . '/_mysites/docker/nginx/sites-enabled';
-        $docker_apache_container = $this->config['x-project'] . '_apache';
-        $kindle_apache_vhosts = $this->config['x-path'] . '/_mysites/docker/apache2/sites-enabled/';
+        $docker_nginx_container = $this->config['PROJECT_NAME'] . '_nginx';
+        $kindle_nginx_vhosts = $this->config['PROJECT_PATH'] . '/_mysites/docker/nginx/sites-enabled';
+        $docker_apache_container = $this->config['PROJECT_NAME'] . '_apache';
+        $kindle_apache_vhosts = $this->config['PROJECT_PATH'] . '/_mysites/docker/apache2/sites-enabled/';
 
         if (!strlen($site)){
             throw new \RuntimeException('You must provide a value for site');
         }
 
-        if (!file_exists($this->config['x-path'] . '/Sites/' .  $site. "/")){
-            throw new \RuntimeException(sprintf('Site not found: %s', $this->config['x-path'] . '/Sites/' .  $site));
+        if (!file_exists($this->config['PROJECT_PATH'] . '/Sites/' .  $site. "/")){
+            throw new \RuntimeException(sprintf('Site not found: %s', $this->config['PROJECT_PATH'] . '/Sites/' .  $site));
         }
 
         if ($remove)
@@ -143,7 +143,7 @@ class Vhost extends Command
             '%site%'       => $input->getArgument('site'),
             '%root%'       => $doc_root,
             '%http_port%'  => $input->getOption('http-port'),
-            '%php_fpm%'    => $this->config['x-project'] . "_php_fpm",
+            '%php_fpm%'    => $this->config['PROJECT_NAME'] . "_php_fpm",
             '%nginx_http_port%' => '8081'
         );
 

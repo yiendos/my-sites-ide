@@ -39,7 +39,7 @@ EOF
                 'w',
                 InputOption::VALUE_OPTIONAL,
                 'provide the path to the site',
-                $this->config['x-path'] . '/Sites/'
+                $this->config['PROJECT_PATH'] . '/Sites/'
             )
         ;
     }
@@ -65,11 +65,11 @@ EOF
 
     protected function removeVhosts(InputInterface $input, OutputInterface $output)
     {
-        $kindle_nginx_vhosts = $this->config['x-path'] . '/_mysites/docker/nginx/sites-enabled';
+        $kindle_nginx_vhosts = $this->config['PROJECT_PATH'] . '/_mysites/docker/nginx/sites-enabled';
 
         shell_exec("rm $kindle_nginx_vhosts/1-$this->site.conf");
 
-        $kindle_apache_vhosts = $this->config['x-path'] . '/_mysites/docker/apache2/sites-enabled';
+        $kindle_apache_vhosts = $this->config['PROJECT_PATH'] . '/_mysites/docker/apache2/sites-enabled';
 
         shell_exec("rm $kindle_apache_vhosts/1-$this->site.conf");
     }

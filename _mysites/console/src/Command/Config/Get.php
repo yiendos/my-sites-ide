@@ -1,28 +1,38 @@
 <?php
 
 namespace MySites\Command\Config;
-
 use Symfony\Component\Yaml\Yaml as Yaml;
+use Symfony\Component\Dotenv\Dotenv;
 
 class Get
 {
     public $settings;
 
+    public $root;
+
     public function __construct()
     {
-        $root = dirname(__FILE__, 6);
+        $this->root = dirname(__FILE__, 6);
 
-        $this->settings =  Yaml::parseFile($root . "/docker-compose.yml");
+        $dotenv = new Dotenv();
+        $dotenv->load($this->root . '/.env');
+
+        $this->settings = $_ENV;
+
+        $compose_settings =  Yaml::parseFile($this->root . "/docker-compose.yml");
+
+        $this->settings = array_merge($this->settings, $compose_settings);
     }
 
     public function getConfig()
     {
-        return  $this->settings;
+        return $this->settings;
     }
 
     public function getEnv($service, $search, $assignment = '=')
     {
-        $environment_vars = $this->settings['services'][$service]['environment'];
+        $compose_settings = Yaml::parseFile($this->root . "/docker-compose.yml");
+        $environment_vars = $compose_settings['services'][$service]['environment'];
 
         $needle = $search . $assignment;
         $result = array_filter($environment_vars, function($el) use ($needle) {
@@ -36,9 +46,9 @@ class Get
 
     public function getIDEFolders()
     {
-        $this->settings['x-path'];
+        $this->settings['PROJECT_PATH'];
 
-        $my_sites_ide_files = new \RecursiveDirectoryIterator($this->settings['x-path'] . "/");
+        $my_sites_ide_files = new \RecursiveDirectoryIterator($this->settings['PROJECT_PATH'] . "/");
         $display = Array ( '.my-sites-sites', '.my-sites-projects' );
 
         $found = array();
@@ -48,7 +58,7 @@ class Get
             if (in_array($file->getFilename(), $display) && !strpos($file->getPathname(), '_mysites/console/bin'))
             {
                 $type_of_folder = str_replace('.my-sites-', '', $file->getFilename());
-                $found[$type_of_folder] = str_replace(array($this->settings['x-path'],  $file->getFilename()), '', $file->getPathname());
+                $found[$type_of_folder] = str_replace(array($this->settings['PROJECT_PATH'],  $file->getFilename()), '', $file->getPathname());
             }
         }
 

@@ -46,7 +46,7 @@ class Douse extends Command
 
         if ($snuff)
         {
-            $paused_file = $this->config['x-path'] . "/.paused";
+            $paused_file = $this->config['PROJECT_PATH'] . "/.paused";
 
             shell_exec("rm $paused_file > /dev/null 2>&1");
 
@@ -61,7 +61,7 @@ class Douse extends Command
             passthru('docker-compose pause');
 
             //create text file to denote the containers are currently paused
-            $file = $this->config['x-path'] ."/.paused";
+            $file = $this->config['PROJECT_PATH'] ."/.paused";
             exec("touch $file");
         }
 
@@ -70,7 +70,7 @@ class Douse extends Command
 
     public function check(InputInterface $input, OutputInterface $output)
     {
-        $kindle_root = $this->config['x-path'];
+        $kindle_root = $this->config['PROJECT_PATH'];
         $current_directory = trim(shell_exec('pwd'));
 
         if ($current_directory != $kindle_root){

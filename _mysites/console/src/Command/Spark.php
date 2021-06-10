@@ -12,6 +12,7 @@ use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Yaml\Yaml;
 use MySites\Command\Config\Get;
+use function cli\line;
 
 class Spark extends Command
 {
@@ -29,7 +30,7 @@ class Spark extends Command
 
         $this->port = current($this->config['services']['db']['expose']);
         $this->password = $configs->getEnv('db','MYSQL_ROOT_PASSWORD');
-        $this->mysql_container = $this->config['x-project'] . "_mysql";
+        $this->mysql_container = $this->config['PROJECT_NAME'] . "_mysql";
 
         $this->setName('spark')
             ->setDescription('Fire up your mysites  IDE');
@@ -38,8 +39,8 @@ class Spark extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->check($input, $output);
-        $root = $this->config['x-path'];
-        $sites = $this->system_folders['sites'];
+        $root = $this->config['PROJECT_PATH'];
+        $sites = $this->config['SITES'];
 
         $path = realpath(__DIR__ . '/../../bin/.files');
 
@@ -87,7 +88,7 @@ EOT;
 
     public function check(InputInterface $input, OutputInterface $output)
     {
-        $kindle_root = $this->config['x-path'];
+        $kindle_root = $this->config['PROJECT_PATH'];
         $current_directory = trim(shell_exec('pwd'));
 
         if ($current_directory != $kindle_root){

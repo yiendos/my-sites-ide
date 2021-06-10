@@ -41,7 +41,7 @@ class Status extends Command
     {
         $inspect_container = $input->getOption('inspect');
         $system_logs = $input->getOption('system');
-        $project = $this->config['x-project'];
+        $project = $this->config['PROJECT_NAME'];
 
         $output->writeLn('<info>Running containers</info>');
 

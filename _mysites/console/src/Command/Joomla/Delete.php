@@ -36,7 +36,7 @@ class Delete extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 "Web server root",
-                $this->config['x-path'] . '/Sites/'
+                $this->config['PROJECT_PATH'] . '/Sites/'
             );
     }
 
