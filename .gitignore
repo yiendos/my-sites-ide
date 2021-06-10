@@ -4,3 +4,11 @@ _mysites/console/bin/.files/cache/*
 /Sites/*/vendor/*
 /Sites/**/wp-config*
 /Sites/**/configuration.php
+
+
+##
+##REMOVE AFTER TESTING
+.github/*
+/Projects/*
+/Sites/*
+docker-compose.yml
