@@ -6,9 +6,11 @@ _mysites/console/bin/.files/cache/*
 /Sites/**/configuration.php
 
 
-##
 ##REMOVE AFTER TESTING
 .github/*
 /Projects/*
 /Sites/*
 docker-compose.yml
+docker-compose.staging.yml
+_mysites/console/bin/.files/docker/docker-compose.staging.yml
+.env
