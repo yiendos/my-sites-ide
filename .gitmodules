@@ -1,3 +1,0 @@
-[submodule "_mysites/plugins/docker_context"]
-	path = _mysites/plugins/docker_context
-	url = git@github.com:yiendos/my-sites-docker-context.git
