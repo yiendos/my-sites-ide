@@ -27,17 +27,12 @@ USER  webuser
 
 # We need an nginx container which can pass requests to our FPM container,
 # as well as serve any static content..
-FROM nginx:stable-alpine3.20-slim AS web_server
+FROM nginx:stable-alpine3.20-slim AS nginx
 
 WORKDIR /opt/sites
 
 RUN apk --no-cache add shadow && usermod -u 10014 nginx && \
     groupmod -g 10014 nginx && apk del shadow
-
-# We need to add our NGINX template to the container for startup,
-# and configuration.
-#COPY _cloud/docker/nginx/local/0-default.conf.template /etc/nginx/templates/0-default.conf.template
-COPY _dev/environment/servers/nginx/local/laravel.conf.template /etc/nginx/templates/1-laravel.conf.template
 
 COPY _dev/environment/servers/nginx/local/ssl /etc/nginx/ssl
 
@@ -53,3 +48,17 @@ RUN touch /var/run/nginx.pid && \
         chown -R nginx:nginx /var/run/nginx.pid
 
 USER nginx
+
+FROM httpd:alpine3.22 AS apache
+
+WORKDIR /opt/sites 
+
+RUN apk --no-cache add shadow && usermod -u 10015 www-data && \
+    groupmod -g 10015 www-data && apk del shadow 
+
+RUN mkdir -p /var/log/apache2 \
+        && chown -R www-data:www-data /usr/local/apache2 \ 
+        && chown -R www-data:www-data /var/log/apache2 \ 
+        && chown -R www-data:www-data /opt/sites 
+
+USER www-data

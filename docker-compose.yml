@@ -1,4 +1,4 @@
-name: cotenend
+name: my_sites
 services:
     fpm:
         container_name: "my_site_fpm"
@@ -14,9 +14,9 @@ services:
             - laravel-in-kubernetes
         #command: ["/usr/bin/tail", "-f", "/dev/null"]
     # Run the web server container for static content, and proxying to our FPM container
-    web:
-        container_name: "my_site_web_server"
-        image: my_site_web_server:latest
+    nginx:
+        container_name: "my_site_nginx"
+        image: my_site_nginx:latest
         #image: ghcr.io/onsidelive/cotenend-web-server:v0.0.8
         # Expose our application port (80) through a port on our local machine (8080)
         ports:
@@ -28,7 +28,25 @@ services:
         # Mount the public directory into the container so we can serve any static files directly when they change
         volumes:
             - './Sites/public:/opt/sites/public'
+            - './_dev/environment/servers/nginx/local/laravel.conf.template:/etc/nginx/templates/1-laravel.conf.template'
         networks:
             - laravel-in-kubernetes 
+    apache:
+        image: my_site_apache:latest
+        container_name: "my_site_apache"
+        ports:
+            - "8080:8080"
+        expose:
+            - "8080"
+        environment:
+            FPM_HOST: "fpm:9000"
+        volumes:
+            - ./_dev/environment/servers/apache/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
+            - ./_dev/environment/servers/apache/sites-enabled:/usr/local/apache2/conf/sites-enabled
+        #    - ./_mysites/docker/logs/apache2/:/var/log/apache2
+            - ./Sites/public:/opt/sites/public
+        networks:
+            - laravel-in-kubernetes 
+        #command: ["/usr/local/apache2/bin/apachectl", "-D",  "FOREGROUND"]
 networks:
     laravel-in-kubernetes:
