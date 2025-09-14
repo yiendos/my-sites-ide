@@ -29,6 +29,7 @@ services:
         volumes:
             - './Sites/public:/opt/sites/public'
             - './_dev/environment/servers/nginx/local/laravel.conf.template:/etc/nginx/templates/1-laravel.conf.template'
+            - './_dev/environment/servers/ssl:/etc/nginx/ssl'
         networks:
             - laravel-in-kubernetes 
     apache:
