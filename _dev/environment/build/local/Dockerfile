@@ -1,13 +1,13 @@
 ARG PHP_EXTS="bcmath ctype fileinfo mbstring pdo pdo_mysql dom pcntl"
 ARG PHP_PECL_EXTS="redis"
 
-FROM php:8.3.26RC1-zts-alpine3.22 AS fpm_server
+FROM php:8.3.26RC1-fpm-alpine AS fpm_server
 
 # We need to declare that we want to use the args in this build step
 ARG PHP_EXTS
 ARG PHP_PECL_EXTS
 
-WORKDIR /opt/apps/laravel-in-kubernetes
+WORKDIR /opt/sites
 
 RUN apk add --no-cache ${PHPIZE_DEPS} \
         && pecl install ${PHP_PECL_EXTS} \
@@ -22,6 +22,34 @@ RUN apk add --no-cache ${PHPIZE_DEPS} \
 #COPY _cloud/docker/php/z-www.conf /usr/local/etc/php-fpm.d/z-www.conf
 
 # Now that we've installed and configured, switch the user 
+
 USER  webuser
 
-#CMD ["/usr/bin/tail", "-f","/dev/null"]
+# We need an nginx container which can pass requests to our FPM container,
+# as well as serve any static content..
+FROM nginx:stable-alpine3.20-slim AS web_server
+
+WORKDIR /opt/sites
+
+RUN apk --no-cache add shadow && usermod -u 10014 nginx && \
+    groupmod -g 10014 nginx && apk del shadow
+
+# We need to add our NGINX template to the container for startup,
+# and configuration.
+#COPY _cloud/docker/nginx/local/0-default.conf.template /etc/nginx/templates/0-default.conf.template
+COPY _dev/environment/servers/nginx/local/laravel.conf.template /etc/nginx/templates/1-laravel.conf.template
+
+COPY _dev/environment/servers/nginx/local/ssl /etc/nginx/ssl
+
+RUN touch /etc/nginx/ssl
+
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+        chown -R nginx:nginx /var/cache/nginx && \
+        chown -R nginx:nginx /var/log/nginx && \
+        chown -R nginx:nginx /etc/nginx && \ 
+        chown -R nginx:nginx /etc/nginx/ssl
+
+RUN touch /var/run/nginx.pid && \
+        chown -R nginx:nginx /var/run/nginx.pid
+
+USER nginx

@@ -1,0 +1,34 @@
+name: cotenend
+services:
+    fpm:
+        container_name: "my_site_fpm"
+        image: my_site_fpm:latest
+        #image: registry.digitalocean.com/barford/cotenend-fpm-server:v0.15.2
+
+        #environment:
+
+        # Mount the codebase, so any code changes we make will be propagated to the running application
+        volumes:
+            - './Sites:/opt/sites'
+        networks:
+            - laravel-in-kubernetes
+        #command: ["/usr/bin/tail", "-f", "/dev/null"]
+    # Run the web server container for static content, and proxying to our FPM container
+    web:
+        container_name: "my_site_web_server"
+        image: my_site_web_server:latest
+        #image: ghcr.io/onsidelive/cotenend-web-server:v0.0.8
+        # Expose our application port (80) through a port on our local machine (8080)
+        ports:
+            - '8091:443'
+        environment:
+            # We need to pass in the new FPM host as the name of the fpm container on port 9000
+            FPM_HOST: "fpm:9000"
+            SERVER_NAME: "localhost"
+        # Mount the public directory into the container so we can serve any static files directly when they change
+        volumes:
+            - './Sites/public:/opt/sites/public'
+        networks:
+            - laravel-in-kubernetes 
+networks:
+    laravel-in-kubernetes:
