@@ -1,37 +1,28 @@
 name: my_sites
+#these are your optional local services you can run 
 include: 
     #- ./_dev/environment/databases/mariadb/docker-compose.yml
-    - ./_dev/environment/databases/mysql/docker-compose.yml
+    #- ./_dev/environment/databases/mysql/docker-compose.yml
 services:
     fpm:
         container_name: "my_site_fpm"
         image: my_site_fpm:latest
-        #image: registry.digitalocean.com/barford/cotenend-fpm-server:v0.15.2
-
         #environment:
 
-        # Mount the codebase, so any code changes we make will be propagated to the running application
         volumes:
             - './Sites:/opt/sites'
         networks:
             - laravel-in-kubernetes
-        #command: ["/usr/bin/tail", "-f", "/dev/null"]
-    # Run the web server container for static content, and proxying to our FPM container
     nginx:
         container_name: "my_site_nginx"
         image: my_site_nginx:latest
-        #image: ghcr.io/onsidelive/cotenend-web-server:v0.0.8
-        # Expose our application port (80) through a port on our local machine (8080)
         ports:
             - '8091:443'
         environment:
-            # We need to pass in the new FPM host as the name of the fpm container on port 9000
             FPM_HOST: "fpm:9000"
             SERVER_NAME: "localhost"
-        # Mount the public directory into the container so we can serve any static files directly when they change
         volumes:
             - './Sites:/opt/sites/'
-            #- './_dev/environment/servers/nginx/local/laravel.conf.template:/etc/nginx/templates/1-laravel.conf.template'
             - './_dev/environment/servers/ssl:/etc/nginx/ssl'
             - './_dev/environment/servers/nginx/local/nginx.conf:/etc/nginx/nginx.conf'
         networks:
@@ -50,10 +41,8 @@ services:
             - ./_dev/environment/servers/apache/sites-enabled:/usr/local/apache2/conf/sites-enabled
             - ./_dev/environment/servers/ssl/selfsigned.crt:/usr/local/apache2/conf/server.crt
             - ./_dev/environment/servers/ssl/selfsigned.key:/usr/local/apache2/conf/server.key
-        #    - ./_mysites/docker/logs/apache2/:/var/log/apache2
             - ./Sites:/opt/sites
         networks:
             - laravel-in-kubernetes 
-        #command: ["/usr/local/apache2/bin/apachectl", "-D",  "FOREGROUND"]
 networks:
     laravel-in-kubernetes:
