@@ -14,7 +14,7 @@ services:
             #- ./my.cnf:/etc/my.cnf
             - ./data:/var/lib/mysql
         networks:
-            - laravel-in-kubernetes
+            - my-sites-ide
         healthcheck:
           test: ["CMD", "mysqladmin", "ping", "-proot"]
           retries: 3

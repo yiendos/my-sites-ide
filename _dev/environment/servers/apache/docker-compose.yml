@@ -15,4 +15,4 @@ services:
             - ./../ssl/selfsigned.key:/usr/local/apache2/conf/server.key
             - ./../../../../Sites:/opt/sites
         networks:
-            - laravel-in-kubernetes 
+            - my-sites-ide 

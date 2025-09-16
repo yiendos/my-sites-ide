@@ -14,6 +14,6 @@ services:
         volumes:
             - './Sites:/opt/sites'
         networks:
-            - laravel-in-kubernetes
+            - my-sites-ide
 networks:
-    laravel-in-kubernetes:
+    my-sites-ide:
