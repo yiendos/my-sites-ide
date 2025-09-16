@@ -28,7 +28,7 @@ services:
         # Mount the public directory into the container so we can serve any static files directly when they change
         volumes:
             - './Sites:/opt/sites/'
-            - './_dev/environment/servers/nginx/local/laravel.conf.template:/etc/nginx/templates/1-laravel.conf.template'
+            #- './_dev/environment/servers/nginx/local/laravel.conf.template:/etc/nginx/templates/1-laravel.conf.template'
             - './_dev/environment/servers/ssl:/etc/nginx/ssl'
             - './_dev/environment/servers/nginx/local/nginx.conf:/etc/nginx/nginx.conf'
         networks:
@@ -47,7 +47,7 @@ services:
             - ./_dev/environment/servers/apache/sites-enabled:/usr/local/apache2/conf/sites-enabled
             - './_dev/environment/servers/ssl:/usr/local/apache2/ssl/'
         #    - ./_mysites/docker/logs/apache2/:/var/log/apache2
-            - ./Sites/public:/opt/sites/public
+            - ./Sites:/opt/sites
         networks:
             - laravel-in-kubernetes 
         #command: ["/usr/local/apache2/bin/apachectl", "-D",  "FOREGROUND"]
