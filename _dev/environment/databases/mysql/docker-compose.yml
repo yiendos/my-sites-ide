@@ -1,0 +1,21 @@
+services:
+    db:
+        container_name: "mysites_db"
+        image: 'mysql:8.0' #mysql:8.4.6
+        ports:
+            - '3306:3306'
+        environment:
+            MYSQL_DATABASE: 'default'
+            MYSQL_USER: 'mysites'
+            MYSQL_PASSWORD: 'mysites'
+            MYSQL_ALLOW_EMPTY_PASSWORD: true
+        command: ["mysqld", "--user=mysql", "--sql-mode=ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"]
+        volumes:
+            #- ./my.cnf:/etc/my.cnf
+            - ./data:/var/lib/mysql
+        networks:
+            - laravel-in-kubernetes
+        healthcheck:
+          test: ["CMD", "mysqladmin", "ping", "-proot"]
+          retries: 3
+          timeout: 5s 

@@ -1,4 +1,7 @@
 name: my_sites
+include: 
+    #- ./_dev/environment/databases/mariadb/docker-compose.yml
+    - ./_dev/environment/databases/mysql/docker-compose.yml
 services:
     fpm:
         container_name: "my_site_fpm"
