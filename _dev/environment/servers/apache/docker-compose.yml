@@ -1,0 +1,18 @@
+services:
+    apache:
+        image: my_site_apache:latest
+        container_name: "my_site_apache"
+        ports:
+            - "8443:8443"
+        expose:
+            - "8443"
+        environment:
+            FPM_HOST: "fpm:9000"
+        volumes:
+            - ./conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
+            - ./sites-enabled:/usr/local/apache2/conf/sites-enabled
+            - ./..//ssl/selfsigned.crt:/usr/local/apache2/conf/server.crt
+            - ./../ssl/selfsigned.key:/usr/local/apache2/conf/server.key
+            - ./../../../../Sites:/opt/sites
+        networks:
+            - laravel-in-kubernetes 

@@ -1,0 +1,15 @@
+services:
+    nginx:
+        container_name: "my_site_nginx"
+        image: my_site_nginx:latest
+        ports:
+            - '8091:443'
+        environment:
+            FPM_HOST: "fpm:9000"
+            SERVER_NAME: "localhost"
+        volumes:
+            - './../../../../Sites:/opt/sites/'
+            - './../ssl:/etc/nginx/ssl'
+            - './local/nginx.conf:/etc/nginx/nginx.conf'
+        networks:
+            - laravel-in-kubernetes 

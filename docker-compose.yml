@@ -1,6 +1,8 @@
 name: my_sites
 #these are your optional local services you can run 
 include: 
+    - ./_dev/environment/servers/nginx/docker-compose.yml
+    - ./_dev/environment/servers/apache/docker-compose.yml
     #- ./_dev/environment/databases/mariadb/docker-compose.yml
     #- ./_dev/environment/databases/mysql/docker-compose.yml
 services:
@@ -13,36 +15,5 @@ services:
             - './Sites:/opt/sites'
         networks:
             - laravel-in-kubernetes
-    nginx:
-        container_name: "my_site_nginx"
-        image: my_site_nginx:latest
-        ports:
-            - '8091:443'
-        environment:
-            FPM_HOST: "fpm:9000"
-            SERVER_NAME: "localhost"
-        volumes:
-            - './Sites:/opt/sites/'
-            - './_dev/environment/servers/ssl:/etc/nginx/ssl'
-            - './_dev/environment/servers/nginx/local/nginx.conf:/etc/nginx/nginx.conf'
-        networks:
-            - laravel-in-kubernetes 
-    apache:
-        image: my_site_apache:latest
-        container_name: "my_site_apache"
-        ports:
-            - "8443:8443"
-        expose:
-            - "8443"
-        environment:
-            FPM_HOST: "fpm:9000"
-        volumes:
-            - ./_dev/environment/servers/apache/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
-            - ./_dev/environment/servers/apache/sites-enabled:/usr/local/apache2/conf/sites-enabled
-            - ./_dev/environment/servers/ssl/selfsigned.crt:/usr/local/apache2/conf/server.crt
-            - ./_dev/environment/servers/ssl/selfsigned.key:/usr/local/apache2/conf/server.key
-            - ./Sites:/opt/sites
-        networks:
-            - laravel-in-kubernetes 
 networks:
     laravel-in-kubernetes:
