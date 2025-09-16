@@ -39,13 +39,14 @@ services:
         ports:
             - "8443:8443"
         expose:
-            - "8843"
+            - "8443"
         environment:
             FPM_HOST: "fpm:9000"
         volumes:
             - ./_dev/environment/servers/apache/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
             - ./_dev/environment/servers/apache/sites-enabled:/usr/local/apache2/conf/sites-enabled
-            - './_dev/environment/servers/ssl:/usr/local/apache2/ssl/'
+            - './_dev/environment/servers/ssl/nginx-selfsigned.crt:/usr/local/apache2/conf/server.crt'
+            - './_dev/environment/servers/ssl/nginx-selfsigned.key:/usr/local/apache2/conf/server.key'
         #    - ./_mysites/docker/logs/apache2/:/var/log/apache2
             - ./Sites:/opt/sites
         networks:
