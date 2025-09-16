@@ -45,8 +45,8 @@ services:
         volumes:
             - ./_dev/environment/servers/apache/conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
             - ./_dev/environment/servers/apache/sites-enabled:/usr/local/apache2/conf/sites-enabled
-            - './_dev/environment/servers/ssl/nginx-selfsigned.crt:/usr/local/apache2/conf/server.crt'
-            - './_dev/environment/servers/ssl/nginx-selfsigned.key:/usr/local/apache2/conf/server.key'
+            - ./_dev/environment/servers/ssl/selfsigned.crt:/usr/local/apache2/conf/server.crt
+            - ./_dev/environment/servers/ssl/selfsigned.key:/usr/local/apache2/conf/server.key
         #    - ./_mysites/docker/logs/apache2/:/var/log/apache2
             - ./Sites:/opt/sites
         networks:
