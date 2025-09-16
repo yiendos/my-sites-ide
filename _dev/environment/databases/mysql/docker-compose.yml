@@ -11,7 +11,7 @@ services:
             MYSQL_ALLOW_EMPTY_PASSWORD: true
         command: ["mysqld", "--user=mysql", "--sql-mode=ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"]
         volumes:
-            #- ./my.cnf:/etc/my.cnf
+            - ./conf/my.cnf:/etc/my.cnf
             - ./data:/var/lib/mysql
         networks:
             - my-sites-ide

@@ -9,7 +9,7 @@ services:
             - ./../../../../.env
         command: ["--sql_mode=ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"]
         volumes:
-            - ./my.cnf:/etc/mysql/mariadb.cnf
+            - ./conf/my.cnf:/etc/mysql/mariadb.cnf
             - ./data:/var/lib/mysql
         networks:
             - my-sites-ide

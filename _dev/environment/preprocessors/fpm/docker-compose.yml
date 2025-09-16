@@ -1,0 +1,12 @@
+services:
+    fpm:
+        container_name: "my_site_fpm"
+        image: my_site_fpm:latest
+        env_file: 
+            - ./.env
+            - ./../../../../.env
+        volumes:
+            - './conf/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'
+            - './../../../Sites:/opt/sites'
+        networks:
+            - my-sites-ide

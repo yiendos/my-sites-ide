@@ -1,19 +1,10 @@
 name: my_sites
 #these are your optional local services you can run 
 include: 
+    - ./_dev/environment/preprocessors/fpm/docker-compose.yml
     - ./_dev/environment/servers/nginx/docker-compose.yml
     - ./_dev/environment/servers/apache/docker-compose.yml
     - ./_dev/environment/databases/mariadb/docker-compose.yml
     #- ./_dev/environment/databases/mysql/docker-compose.yml
-services:
-    fpm:
-        container_name: "my_site_fpm"
-        image: my_site_fpm:latest
-        #environment:
-
-        volumes:
-            - './Sites:/opt/sites'
-        networks:
-            - my-sites-ide
 networks:
     my-sites-ide:
