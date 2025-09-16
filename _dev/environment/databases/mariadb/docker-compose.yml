@@ -4,11 +4,9 @@ services:
         image: 'mariadb:11.4-noble' 
         ports:
             - '3306:3306'
-        environment:
-            MARIADB_DATABASE: 'default'
-            MARIADB_USER: 'mysites'
-            MARIADB_PASSWORD: 'mysites'
-            MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: true
+        env_file: 
+            - ./.env
+            - ./../../../../.env
         command: ["--sql_mode=ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"]
         volumes:
             - ./my.cnf:/etc/mysql/mariadb.cnf

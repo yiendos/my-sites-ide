@@ -1,2 +1,3 @@
+/.env
 /vendor/
 _dev/environment/databases/**/data/*
