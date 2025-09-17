@@ -1,10 +1,8 @@
-ARG PHP_EXTS="bcmath ctype fileinfo mbstring pdo pdo_mysql dom pcntl"
 ARG PHP_PECL_EXTS="redis"
 
 FROM php:8.3.26RC1-fpm-alpine AS fpm_server
 
 # We need to declare that we want to use the args in this build step
-ARG PHP_EXTS
 ARG PHP_PECL_EXTS
 
 WORKDIR /opt/sites
@@ -14,15 +12,11 @@ RUN apk add --no-cache ${PHPIZE_DEPS} \
         && docker-php-ext-enable ${PHP_PECL_EXTS} \
         && apk del ${PHPIZE_DEPS} \ 
         && rm -Rf /var/cache/apk/* \ 
+        && rm -Rf /etc/apk/* \
         && addgroup -g 20009 web \ 
-        && adduser -u 20008 webuser -G web -D \
-        && rm -Rf /etc/apk/*
-
-# this ensures that we can customise fpm settings via deployment environment variables 
-#COPY _cloud/docker/php/z-www.conf /usr/local/etc/php-fpm.d/z-www.conf
+        && adduser -u 20008 webuser -G web -D
 
 # Now that we've installed and configured, switch the user 
-
 USER  webuser
 
 # We need an nginx container which can pass requests to our FPM container,
@@ -43,6 +37,8 @@ RUN touch /var/run/nginx.pid && \
 
 USER nginx
 
+# We need an apache container which can pass requests to our FPM container,
+# as well as serve any static content..
 FROM httpd:alpine3.22 AS apache
 
 WORKDIR /opt/sites 
