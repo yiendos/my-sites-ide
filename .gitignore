@@ -1,3 +1,4 @@
 /.env
 vendor/
 _dev/environment/databases/**/data/*
+Sites/laravel/deploy/*
