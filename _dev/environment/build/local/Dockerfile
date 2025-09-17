@@ -40,6 +40,13 @@ RUN npm --prefix ${SITE} install && npm --prefix ${SITE} run build
 #public/build/assets/app-Bj43h_rG.js   36.08 kB │ gzip: 14.58 kB
 #
 #
+# HOWEVER ONCE WE HAVE SET UP OUR OWN WEBPACK.CJS 
+# IT WILL ALSO COPY IN PLACE 
+# public/vendor/camps/[css|js] files in place 
+#
+# SO THEREFORE FRONTEND IS THE PLACE TO COPY THESE FILES FROM 
+#
+#
 
 CMD ["/usr/bin/tail", "-f","/dev/null"]
 
