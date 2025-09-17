@@ -1,4 +1,27 @@
 ARG PHP_PECL_EXTS="redis"
+ARG SITE="default"
+
+FROM composer:2.8.11 AS composer_base
+
+ARG SITE
+
+RUN mkdir -p /opt/sites 
+
+WORKDIR /opt/sites 
+
+RUN addgroup -S composer \
+    &&  adduser -S composer -G composer \
+    &&  chown -R composer /opt/sites
+
+USER composer 
+
+COPY --chown=composer Sites ./
+
+RUN composer --working-dir=${SITE} install --no-scripts --ignore-platform-reqs --no-autoloader --prefer-dist
+
+RUN composer --working-dir=${SITE} install --no-dev --prefer-dist
+
+ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 FROM php:8.3.26RC1-fpm-alpine AS fpm_server
 
