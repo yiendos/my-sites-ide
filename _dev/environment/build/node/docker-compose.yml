@@ -1,0 +1,12 @@
+services:
+    node:
+        container_name: "my_site_node"
+        image: my_site_frontend:latest
+        env_file: 
+            - ./.env
+            - ./../../../../.env
+        volumes:
+            - './../../../../Sites:/opt/sites'
+            - '../../../../Packages:/opt/Packages'
+        networks:
+            - my-sites-ide
