@@ -1,0 +1,12 @@
+services:
+    composer:
+        container_name: "my_site_composer"
+        image: my_site_composer:latest
+        env_file: 
+            - ./.env
+            - ./../../../../.env
+        volumes:
+            - './../../../../Sites:/opt/sites'
+            - '../../../../Packages:/opt/Packages'
+        networks:
+            - my-sites-ide

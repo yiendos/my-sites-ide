@@ -12,13 +12,10 @@ WORKDIR /opt/sites
 
 USER composer 
 
-COPY --chown=composer Sites ./
+#command to build an individual site 
+#docker compose run composer --working-dir=laravel/deploy install 
 
-RUN composer --working-dir=${SITE} install --no-scripts --ignore-platform-reqs --no-autoloader --prefer-dist
-
-RUN composer --working-dir=${SITE} install --no-dev --prefer-dist
-
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+#ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 FROM node:23.9.0-alpine3.21 AS frontend
 
