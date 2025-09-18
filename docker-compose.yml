@@ -20,5 +20,6 @@ include:
     - ./_dev/environment/databases/mariadb/docker-compose.yml
     - ./_dev/environment/build/composer/docker-compose.yml
     - ./_dev/environment/build/node/docker-compose.yml
+    - ./_dev/environment/caching/redis/docker-compose.yml
 networks:
     my-sites-ide:

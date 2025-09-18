@@ -1,0 +1,16 @@
+services:  
+    redis:
+          container_name: "my_site_redis"
+          image: "redis:alpine3.22"
+          command: [sh, -c, "rm -f /data/dump.rdb && redis-server --appendonly yes --requirepass $PASSWORD"]
+          ports:
+          - "6379:6379"
+          env_file: 
+              - ./.env
+              - ./../../../../.env
+          healthcheck:
+              test: redis-cli --raw incr ping
+              retries: 5
+              timeout: 10s
+          networks:
+              - my-sites-ide
