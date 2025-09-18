@@ -13,8 +13,8 @@ WORKDIR /opt/sites
 USER composer 
 
 #command to build an individual site 
-#docker compose run --rm composerUnique --working-dir=laravel/deploy install
-
+#docker compose run --rm composer --working-dir=cotenend/deploy install --no-scripts --ignore-platform-reqs --no-autoloader --prefer-dist
+#docker compose run --rm composer --working-dir=cotenend/deploy install --ignore-platform-reqs --prefer-dist
 CMD ["/usr/bin/tail", "-f","/dev/null"]
 
 FROM node:23.9.0-alpine3.21 AS frontend
