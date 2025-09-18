@@ -11,7 +11,7 @@ services:
         volumes:
             - ./conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
             - ./sites-enabled:/usr/local/apache2/conf/sites-enabled
-            - ./..//ssl/selfsigned.crt:/usr/local/apache2/conf/server.crt
+            - ./../ssl/selfsigned.crt:/usr/local/apache2/conf/server.crt
             - ./../ssl/selfsigned.key:/usr/local/apache2/conf/server.key
             - ./../../../../Sites:/opt/sites
         networks:
