@@ -3,8 +3,6 @@ ARG SITE="default"
 
 FROM composer:2.8.11 AS composer_base
 
-ARG SITE
-
 RUN addgroup -S composer \
     &&  adduser -S composer -G composer
 
@@ -15,20 +13,14 @@ USER composer
 #command to build an individual site 
 #docker compose run --rm composer --working-dir=cotenend/deploy install --no-scripts --ignore-platform-reqs --no-autoloader --prefer-dist
 #docker compose run --rm composer --working-dir=cotenend/deploy install --ignore-platform-reqs --prefer-dist
-CMD ["/usr/bin/tail", "-f","/dev/null"]
 
 FROM node:23.9.0-alpine3.21 AS frontend
 
-ARG SITE 
-
 WORKDIR /opt/sites/
 
-COPY Sites/ ./
-
-
 #currently a two step process
-#docker compose run --rm node /usr/local/bin/npm --prefix laravel/deploy install
-#docker compose run --rm node /usr/local/bin/npm --prefix laravel/deploy run build
+#docker compose run --rm node /usr/local/bin/npm --prefix cotenend/deploy install
+#docker compose run --rm node /usr/local/bin/npm --prefix cotenend/deploy run prod
 
 FROM php:8.3.26RC1-fpm-alpine AS fpm_server
 
@@ -37,9 +29,11 @@ ARG PHP_PECL_EXTS
 
 WORKDIR /opt/sites
 
-RUN apk add --no-cache ${PHPIZE_DEPS} \
-        && pecl install ${PHP_PECL_EXTS} \
-        && docker-php-ext-enable ${PHP_PECL_EXTS} \
+RUN apk add --no-cache ${PHPIZE_DEPS} linux-headers libpng-dev \
+        && pecl install ${PHP_PECL_EXTS} xdebug \
+        &&  docker-php-ext-configure gd \
+        &&  docker-php-ext-install pdo_mysql gd \
+        && docker-php-ext-enable ${PHP_PECL_EXTS} xdebug gd \
         && apk del ${PHPIZE_DEPS} \ 
         && rm -Rf /var/cache/apk/* \ 
         && rm -Rf /etc/apk/* \
