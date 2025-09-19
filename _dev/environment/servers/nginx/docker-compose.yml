@@ -11,5 +11,6 @@ services:
             - './../../../../Sites:/opt/sites/'
             - './../ssl:/etc/nginx/ssl'
             - './conf/nginx.conf:/etc/nginx/nginx.conf'
+            - './conf/sites-enabled/0-default-nginx.conf:/etc/nginx/conf.d/sites-enabled/0-default-nginx.conf'
         networks:
             - my-sites-ide 
