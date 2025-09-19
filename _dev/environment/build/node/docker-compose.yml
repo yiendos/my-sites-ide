@@ -1,7 +1,7 @@
 services:
     node:
-        container_name: "my_site_node"
-        image: my_site_frontend:latest
+        container_name: "${NAMESPACE}_node"
+        image: ${NAMESPACE}_frontend:latest
         env_file: 
             - ./.env
             - ./../../../../.env

@@ -1,7 +1,7 @@
 services:
     nginx:
-        container_name: "my_site_nginx"
-        image: my_site_nginx:latest
+        container_name: "${NAMESPACE}_nginx"
+        image: ${NAMESPACE}_nginx:latest
         ports:
             - '8091:443'
         environment:

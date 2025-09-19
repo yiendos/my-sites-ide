@@ -1,7 +1,7 @@
 services:
     composer:
-        container_name: "my_site_composer"
-        image: my_site_composer:latest
+        container_name: "${NAMESPACE}_composer"
+        image: ${NAMESPACE}_composer:latest
         env_file: 
             - ./.env
             - ./../../../../.env

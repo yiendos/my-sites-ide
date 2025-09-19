@@ -1,7 +1,7 @@
 services:
     fpm:
-        container_name: "my_site_fpm"
-        image: my_site_fpm:latest
+        container_name: "${NAMESPACE}_fpm"
+        image: ${NAMESPACE}_fpm:latest
         env_file: 
             - ./.env
             - ./../../../../.env

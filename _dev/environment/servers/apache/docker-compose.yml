@@ -1,7 +1,7 @@
 services:
     apache:
-        image: my_site_apache:latest
-        container_name: "my_site_apache"
+        image: ${NAMESPACE}_apache:latest
+        container_name: "${NAMESPACE}_apache"
         ports:
             - "8443:8443"
         expose:

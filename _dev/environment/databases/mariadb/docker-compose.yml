@@ -1,6 +1,6 @@
 services:
     mariadb:
-        container_name: "my_site_db"
+        container_name: "${NAMESPACE}_db"
         image: 'mariadb:11.4-noble' 
         ports:
             - '3306:3306'
