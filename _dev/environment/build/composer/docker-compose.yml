@@ -8,5 +8,5 @@ services:
         volumes:
             - './../../../../Sites:/opt/sites'
             - '../../../../Packages:/opt/Packages'
-        networks:
-            - my-sites-ide
+#        networks:
+#            - my-sites-ide
