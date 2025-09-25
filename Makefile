@@ -24,6 +24,12 @@ docker-local:
 	docker build . -f ${DOCKER_FILE} --target nginx -t my_site_nginx
 	docker build . -f ${DOCKER_FILE} --target apache -t my_site_apache
 
+restart:
+
+	@echo "Restart the existing containers - after a configuration change" 
+
+	@docker compose restart 
+	
 clone: 
 
 	@echo "first clone the repository and --recurse-submodules into Sites/${NAME}" 
@@ -40,7 +46,6 @@ clone:
 	@echo "We need to create the following: ${NAME}/deploy/public/index.php" 
 
 	wget ${LARAVEL_INDEX} -O Sites/${NAME}/deploy/public/index.php
-
 
 #
 # NOW COPY THESE NEW FILES INTO THE EXISTING SITES FOLDER
@@ -153,9 +158,4 @@ seed:
     
 	@echo "Db Seed"
 	@docker exec -i $$(docker ps -q -f name=${NAMESPACE}_fpm) php ${SITE}/deploy/artisan db:seed
-
-restart:
-    
-	@echo "restart container"
-	@docker restart ${NAMESPACE}_fpm
 
