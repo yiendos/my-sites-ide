@@ -13,8 +13,8 @@
                 "max_data": -1
             },
             "pathMappings": {
-                "/opt/apps/sites" : "${workspaceFolder}/Sites",
-                "/opt/apps/Packages": "${workspaceFolder}/Packages"
+                "/opt/sites" : "${workspaceFolder}/Sites",
+                "/opt/Packages": "${workspaceFolder}/Packages"
             }
         }
     ]
