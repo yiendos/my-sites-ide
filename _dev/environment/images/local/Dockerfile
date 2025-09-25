@@ -3,24 +3,18 @@ ARG SITE="default"
 
 FROM composer:2.8.11 AS composer_base
 
-RUN addgroup -S composer \
-    &&  adduser -S composer -G composer
-
 WORKDIR /opt/sites 
 
-USER composer 
+RUN addgroup -S composer \
+    &&  adduser -S composer -G composer \
+    && chown -R composer:composer /opt/sites
 
-#command to build an individual site 
-#docker compose run --rm composer --working-dir=cotenend/deploy install --no-scripts --ignore-platform-reqs --no-autoloader --prefer-dist
-#docker compose run --rm composer --working-dir=cotenend/deploy install --ignore-platform-reqs --prefer-dist
+USER composer
 
 FROM node:23.9.0-alpine3.21 AS frontend
 
 WORKDIR /opt/sites/
 
-#currently a two step process
-#docker compose run --rm node /usr/local/bin/npm --prefix cotenend/deploy install
-#docker compose run --rm node /usr/local/bin/npm --prefix cotenend/deploy run prod
 
 FROM php:8.3.26RC1-fpm-alpine AS fpm_server
 

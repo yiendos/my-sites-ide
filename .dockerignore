@@ -5,3 +5,4 @@ Sites/**/node_modules/
 Sites/**/.git/
 Sites/**/.gitmodules
 Sites/**/.gitignore 
+Sites/**/composer.lock
