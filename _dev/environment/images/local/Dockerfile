@@ -36,7 +36,6 @@ RUN apk add --no-cache ${PHPIZE_DEPS} linux-headers libpng-dev \
 # Now that we've installed and configured, switch the user 
 USER  webuser 
 
-
 FROM php:8.3.26RC1-cli-alpine3.22 AS cli
 
 # We need to declare that we want to use the args in this build step

@@ -1,20 +1,18 @@
 name: my_sites
 
 
-#we only want to start with a few services running 
-#   docker compose up -d fpm nginx apache  
-
-#this should be made into a console command 
-
-#then we can start other services such as 
-    #docker compose run --rm composerUnique --working-dir=laravel/deploy install
-    #docker compose run --rm node npm --prefix laravel/deploy install && npm --prefix laravel/deploy run build
-
-#again to be made into a console command 
+#whilst all the modular compose files are declared here 
+#not of all of them will be run 
+#to define which services run edit ./.env 
+#and change the APP variable 
+#
+#APP=fpm nginx mariadb redis cli cron
 
 #these are your optional local services you can run 
 include: 
     - ./_dev/environment/preprocessors/fpm/docker-compose.yml
+    - ./_dev/environment/preprocessors/cli/docker-compose.yml
+    - ./_dev/environment/preprocessors/cron/docker-compose.yml
     - ./_dev/environment/servers/nginx/docker-compose.yml
     - ./_dev/environment/servers/apache/docker-compose.yml
     - ./_dev/environment/databases/mariadb/docker-compose.yml
