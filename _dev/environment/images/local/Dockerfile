@@ -33,6 +33,9 @@ RUN apk add --no-cache ${PHPIZE_DEPS} linux-headers libpng-dev \
         && addgroup -g 20009 web \ 
         && adduser -u 20008 webuser -G web -D
 
+#lets harden php with some default values 
+COPY _dev/environment/preprocessors/fpm/conf/custom.ini /usr/local/etc/php/conf.d/custom.ini
+
 # Now that we've installed and configured, switch the user 
 USER  webuser 
 
