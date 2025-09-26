@@ -1,8 +1,8 @@
 vendor/
 node_modules/
-Sites/**/vendor/
-Sites/**/node_modules/
-Sites/**/.git/
-Sites/**/.gitmodules
-Sites/**/.gitignore 
-Sites/**/composer.lock
+Repos/**/vendor/
+Repos/**/node_modules/
+Repos/**/.git/
+Repos/**/.gitmodules
+Repos/**/.gitignore 
+Repos/**/composer.lock

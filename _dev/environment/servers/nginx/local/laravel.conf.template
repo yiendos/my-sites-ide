@@ -9,7 +9,7 @@ server {
 
     # We need to set the root for our sevrer,
     # so any static file requests gets loaded from the correct path
-    root /opt/sites/public;
+    root /opt/repos/public;
 
     index index.php index.html index.htm;
 

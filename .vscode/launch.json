@@ -13,7 +13,7 @@
                 "max_data": -1
             },
             "pathMappings": {
-                "/opt/sites" : "${workspaceFolder}/Sites",
+                "/opt/repos" : "${workspaceFolder}/Repos",
                 "/opt/Packages": "${workspaceFolder}/Packages"
             }
         }

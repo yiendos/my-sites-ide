@@ -13,6 +13,6 @@ services:
             - ./sites-enabled:/usr/local/apache2/conf/sites-enabled
             - ./../ssl/selfsigned.crt:/usr/local/apache2/conf/server.crt
             - ./../ssl/selfsigned.key:/usr/local/apache2/conf/server.key
-            - ./../../../../Sites:/opt/sites
+            - ./../../../../Repos:/opt/repos
         networks:
             - my-sites-ide 

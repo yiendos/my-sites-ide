@@ -7,7 +7,7 @@ services:
             - ./../../../../.env
         volumes:
             - './../fpm/conf/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'
-            - './../../../../Sites:/opt/sites'
+            - './../../../../Repos:/opt/repos'
             - './../../../../Packages:/opt/Packages'
         entrypoint: ["tail", "-f" , "/dev/null"]
         networks:

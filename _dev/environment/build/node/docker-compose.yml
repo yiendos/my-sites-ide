@@ -6,7 +6,7 @@ services:
             - ./.env
             - ./../../../../.env
         volumes:
-            - './../../../../Sites:/opt/sites'
+            - './../../../../Repos:/opt/repos'
             - '../../../../Packages:/opt/Packages'
 #        networks:
 #            - my-sites-ide
