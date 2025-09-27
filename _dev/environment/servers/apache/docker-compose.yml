@@ -1,7 +1,7 @@
 services:
     apache:
         container_name: "${NAMESPACE}_apache"
-        image: ${NAMESPACE}_fpm:latest
+        image: ${NAMESPACE}_apache:latest
         build:
             context: .
             dockerfile: Dockerfile
