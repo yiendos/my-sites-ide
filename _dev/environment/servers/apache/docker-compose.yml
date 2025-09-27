@@ -1,7 +1,10 @@
 services:
     apache:
-        image: ${NAMESPACE}_apache:latest
         container_name: "${NAMESPACE}_apache"
+        image: ${NAMESPACE}_fpm:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
         ports:
             - "8443:8443"
         expose:

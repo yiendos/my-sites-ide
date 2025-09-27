@@ -2,6 +2,9 @@ services:
     cron:
         container_name: "${NAMESPACE}_cron"
         image: ${NAMESPACE}_cron:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
         env_file: 
             - ./.env
             - ./../../../../.env

@@ -2,6 +2,9 @@ services:
     nginx:
         container_name: "${NAMESPACE}_nginx"
         image: ${NAMESPACE}_nginx:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
         ports:
             - '443:443'
         environment:

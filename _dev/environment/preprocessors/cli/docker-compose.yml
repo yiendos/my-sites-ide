@@ -2,6 +2,9 @@ services:
     cli:
         container_name: "${NAMESPACE}_cli"
         image: ${NAMESPACE}_cli:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
         env_file: 
             - ./.env
             - ./../../../../.env

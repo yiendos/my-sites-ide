@@ -18,13 +18,8 @@ init-prod: build-prod composer-install build-front key-generate storage-link db-
 
 docker-local: 
 
-	docker build . -f ${DOCKER_FILE} --target composer_base -t ${NAMESPACE}_composer
-	docker build . -f ${DOCKER_FILE} --target frontend -t ${NAMESPACE}_frontend
-	docker build . -f ${DOCKER_FILE} --target fpm_server -t ${NAMESPACE}_fpm
-	docker build . -f ${DOCKER_FILE} --target nginx -t ${NAMESPACE}_nginx
-	docker build . -f ${DOCKER_FILE} --target apache -t ${NAMESPACE}_apache
-	docker build . -f ${DOCKER_FILE} --target cli -t ${NAMESPACE}_cli
-	docker build . -f ${DOCKER_FILE} --target cron -t ${NAMESPACE}_cron
+	docker compose build 
+	
 restart:
 
 	@echo "Restart the existing containers - after a configuration change" 
