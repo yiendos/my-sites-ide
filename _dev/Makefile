@@ -24,36 +24,36 @@ restart:
 clone: 
 
 	@echo "first clone the repository and --recurse-submodules into Sites/${NAME}" 
-	git clone ${REPO} Sites/${NAME} --recurse-submodules 
+	git clone ${REPO} Repos/${NAME} --recurse-submodules 
 
 	@echo "We need to make a few default directories" 
 
-	mkdir -p Sites/${NAME}/deploy/storage/framework/cache/data
-	mkdir -p Sites/${NAME}/deploy/storage/framework/sessions
-	mkdir -p Sites/${NAME}/deploy/storage/framework/testing 
-	mkdir -p Sites/${NAME}/deploy/storage/framework/views 
-	mkdir -p Sites/${NAME}/deploy/public
+	@echo  Repos/${NAME}/Sites/storage/framework/sessions
+
+	mkdir -p Repos/${NAME}/Sites/storage/framework/cache/data
+	mkdir -p Repos/${NAME}/Sites/storage/framework/sessions
+	mkdir -p Repos/${NAME}/Sites/storage/framework/testing 
+	mkdir -p Repos/${NAME}/Sites/storage/framework/views 
+	mkdir -p Repos/${NAME}/Sites/public
+
 	@echo "" 
-	@echo "We need to create the following: ${NAME}/deploy/public/index.php" 
+	@echo "We need to create the following: Repos/${NAME}/Sites/public/index.php" 
 
-	wget ${LARAVEL_INDEX} -O Sites/${NAME}/deploy/public/index.php
-
-#
-# NOW COPY THESE NEW FILES INTO THE EXISTING SITES FOLDER
-	mv Sites/${NAME}/deploy/storage Sites/${NAME}/Sites/
-	mv Sites/${NAME}/deploy/public Sites/${NAME}/Sites/
+	wget ${LARAVEL_INDEX} -O Repos/${NAME}/Sites/public/index.php
 #
 #
 
 #	as a new site has been added, we should reload the servers nginx | apache
 	@echo "Now restart our docker services"
-	docker compose restart
+	@docker compose restart
 
-	echo ""
-	@echo "To finish you will need to run the following commands in this location Sites/${NAME}/deploy" 
-	@echo "make composer-install NAMESPACE=${NAMESPACE} ${SITE}"
+	@echo ""
+	@echo "To finish you will need to run the following commands:" 
+	@echo ""
+	@echo "./mysites composer SITE=${NAME}"
 	@echo "" 
-	@echo "make build-front  NAMESPACE=${NAMESPACE} ${SITE}"
+	@echo "./mysites assets SITE=${NAME}"
+	@echo "./mysites migration SITE=${NAME}"
 
 build:
 
