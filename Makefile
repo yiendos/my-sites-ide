@@ -15,10 +15,6 @@ update-project: pull composer-install db-migrate build-front rm-images build-pro
 init: build composer-install build-front key-generate storage-link db-migrate seed restart build-wait
 # a set of commands for initializing a project on production
 init-prod: build-prod composer-install build-front key-generate storage-link db-migrate seed restart build-prod
-
-docker-local: 
-
-	docker compose build 
 	
 restart:
 
@@ -80,19 +76,14 @@ down:
 	@echo "Stopping contianers" 
 	@docker compose --env-file .env down --remove-orphans
 
-#build-prod:
+status: 
 
-#	@echo "Building containers"
-#	@docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env up -d --wait --build
-
-#up-prod:
-
-#	@echo "Starting containers"
-#	@docker compose -f docker-compose.yml -f docker-compose.prod.yml --env-file .env up -d --wait --remove-orphans
+	@echo "Lets see the status of running containers" 
+	@docker container list 
 
 exec:
 
-	@docker exec -it $$(docker ps -q -f name=${NAMESPACE}_fpm) /bin/sh
+	@docker exec -it $(docker ps -q -f name=${NAMESPACE}_fpm) /bin/sh
 
 code-check:
 
@@ -113,22 +104,22 @@ code-baseline:
 	@echo "Perform phpstan generate-baseline"
 	@DOCKER_CLI_HINTS=false docker exec -it $$(docker ps -q -f name=${NAMESPACE}_fpm) vendor/bin/phpstan analyse --generate-baseline --memory-limit=2G
 
-composer-install:
+composer:
 
 	@echo "Running composer install"
-	@docker compose run --rm composer --working-dir=${SITE}/deploy install --no-scripts --ignore-platform-reqs --no-autoloader --prefer-dist
-#	@docker compose run --rm composer --working-dir=${SITE} install --ignore-platform-reqs --prefer-dist
+	@docker compose run --rm composer --working-dir=${SITE}/Sites install --no-scripts --ignore-platform-reqs --no-autoloader --prefer-dist
+	@docker compose run --rm composer --working-dir=${SITE}/Sites install --ignore-platform-reqs --prefer-dist
 
-build-front:
+assets:
     
 	@echo "Building frontend for production"
-	@docker compose run --rm node /usr/local/bin/npm --prefix ${SITE}/deploy install
-	@docker compose run --rm node /usr/local/bin/npm --prefix ${SITE}/deploy run prod
+	@docker compose run --rm node /usr/local/bin/npm --prefix ${SITE}/Sites install
+	@docker compose run --rm node /usr/local/bin/npm --prefix ${SITE}/Sites run prod
 
-db-migrate:
+migrate:
 	
 	@echo "Running database migrations"
-	@docker exec -i $$(docker ps -q -f name=${NAMESPACE}_fpm) php ${SITE}/deploy/artisan migrate --force
+	@docker exec -i $$(docker ps -q -f name=${NAMESPACE}_fpm) php ${SITE}/Sites/artisan migrate --force
 
 #pull:
     
@@ -143,15 +134,15 @@ rm-images:
 key-generate:
     
 	@echo "Key generate"
-	@docker exec -i $$(docker ps -q -f name=${NAMESPACE}_fpm) php ${SITE}/deploy/artisan key:generate
+	@docker exec -i $$(docker ps -q -f name=${NAMESPACE}_fpm) php ${SITE}/Sites/artisan key:generate
 
 storage-link:
     
 	@echo "Storage Link"
-	@docker exec -i $$(docker ps -q -f name=${NAMESPACE}_fpm) php ${SITE}/deploy/artisan storage:link
+	@docker exec -i $$(docker ps -q -f name=${NAMESPACE}_fpm) php ${SITE}/Sites/artisan storage:link
 
 seed:
     
 	@echo "Db Seed"
-	@docker exec -i $$(docker ps -q -f name=${NAMESPACE}_fpm) php ${SITE}/deploy/artisan db:seed
+	@docker exec -i $$(docker ps -q -f name=${NAMESPACE}_fpm) php ${SITE}/Sites/artisan db:seed
 
