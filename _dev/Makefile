@@ -14,8 +14,7 @@ update-project: pull composer-install db-migrate build-front rm-images build-pro
 # a set of commands to initialize a project locally
 init: build composer-install build-front key-generate storage-link db-migrate seed restart build-wait
 # a set of commands for initializing a project on production
-init-prod: build-prod composer-install build-front key-generate storage-link db-migrate seed restart build-prod
-	
+init-prod: build-prod composer-install build-front key-generate storage-link db-migrate seed restart build-prod	
 restart:
 
 	@echo "Restart the existing containers - after a configuration change" 
