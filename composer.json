@@ -14,5 +14,17 @@
             "email": "yiendos@sbmatrix.com"
         }
     ],
-    "require": {}
+    "require": {
+        "symfony/console": "7.3",
+        "yiendos/deploy": "@dev"
+    },
+    "repositories": {
+        "content": {
+            "type": "path",
+            "url": "_dev/deployment",
+            "options": {
+                "symlink": true
+            }
+        }
+    }
 }
