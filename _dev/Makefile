@@ -4,17 +4,20 @@ include .env
 # ${APP} and ${NAMESPACE} to name but a few 
 # These can be over-ridden by providing the name on the command line 
 # make build-wait APP=fpm nginx
-
-word: 
-
-	@echo "the application consists of" ${APP}
-
+GREEN=\033[0;32m
+RED=\033[0;31m
+NC=\033[0m
 # a set of commands for updating a project in production
 update-project: pull composer-install db-migrate build-front rm-images build-prod restart
 # a set of commands to initialize a project locally
 init: build composer-install build-front key-generate storage-link db-migrate seed restart build-wait
 # a set of commands for initializing a project on production
 init-prod: build-prod composer-install build-front key-generate storage-link db-migrate seed restart build-prod	
+
+start-minikube: up start-minikube minikube-storage install-certificates set-context minkube-nextsteps
+
+deploy-minikube: build-production minikube-load deploy-site
+
 restart:
 
 	@echo "Restart the existing containers - after a configuration change" 
@@ -55,10 +58,12 @@ clone:
 	@echo "./mysites assets SITE=${NAME}"
 	@echo "./mysites migration SITE=${NAME}"
 
+#This should be the first run
+#It will build all the images that are required
 build:
 
 	@echo "Building containers"
-	@docker compose --env-file .env up -d --build
+	docker compose --env-file .env up -d composer node fpm nginx apache mariadb redis cli cron  --build
 	
 build-wait:
 
@@ -67,8 +72,11 @@ build-wait:
 
 up:
 
-	@echo "Starting containers"
-	@docker compose --env-file .env up -d ${APP}  --remove-orphans
+	@echo ""
+	@echo "${GREEN}Starting containers${NC}"
+	@echo "" 
+
+	docker compose --env-file .env up -d ${APP}  --remove-orphans
 
 down: 
 
