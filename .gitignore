@@ -1,5 +1,7 @@
 /.env
 vendor/
+deploy
 _dev/environment/databases/**/data/*
+_dev/deployment
 /Packages/*
 Repos/*

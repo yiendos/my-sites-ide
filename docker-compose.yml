@@ -1,6 +1,4 @@
 name: my_sites
-
-
 #whilst all the modular compose files are declared here 
 #not of all of them will be run 
 #to define which services run edit ./.env 
