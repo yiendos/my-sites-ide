@@ -9,7 +9,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class SparkCommand extends Command
+class RestartCommand extends Command
 {
     /**
      * The ability to configure the console command
@@ -19,9 +19,8 @@ class SparkCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('ide:spark')
-            ->setDescription('Spark your creativity to life, by bringing the IDE up')
-            ->addOption('app', null, InputOption::VALUE_OPTIONAL, 'Which containers you would like to open', getenv('APP'))
+            ->setName('ide:restart')
+            ->setDescription('Cloned a new site, or made configuration changes? Restart the IDE')
         ;
     }
     /**
@@ -37,9 +36,9 @@ class SparkCommand extends Command
     {
         $app = str_replace(",", " ", $input->getOption('app'));
 
-        $output->writeLn("docker compose up -d $app --remove-orphans");
+        $output->writeLn("docker compose restart");
 
-        passthru("docker compose up -d $app --remove-orphans");
+        passthru("docker compose restart");
 
 $ascii = <<<EOT
                                    /\

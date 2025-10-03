@@ -21,9 +21,9 @@ class BuildCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('ide:build')
-            ->setDescription('Build the containers you wish')
-            ->addOption('app', null, InputOption::VALUE_OPTIONAL, 'Which containers you would like to open', 'node fpm nginx apache mariadb redis cli cron composer')
+            ->setName('ide:assets-build')
+            ->setDescription('Build the node assets for the Site of your choice')
+            ->addArgument('site', InputArgument::REQUIRED, 'Which site would you like to build the assets for')
         ;
     }
     /**
@@ -35,14 +35,9 @@ class BuildCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $app = $input->getOption('app');
+        $site = $input->getArgument('site');
 
-        $output->writeLn("docker compose up -d $app  --build");
-        exec("docker compose up -d $app  --build --remove-orphans");
-
-        foreach (explode(",", $_ENV['BURNER_CONTAINERS']) as $container) { 
-             passthru("docker-compose rm -svf $container");
-        }
+       
 
         return Command::SUCCESS;
     }

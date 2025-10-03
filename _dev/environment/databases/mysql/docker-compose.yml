@@ -1,5 +1,5 @@
 services:
-    db:
+    mysql:
         container_name: "mysites_db"
         image: 'mysql:8.0' #mysql:8.4.6
         ports:
