@@ -6,6 +6,15 @@ Is designed to be a modular approach to docker containerisation for PHP applicat
 
 These images can be used as part of a Continuous Integration/ deployment strategy also. Therefore by running the exact same images for your local, CI/CD/ staging/ production environments you can be assured of perfect results everytime. 
 
+
+## Getting started 
+
+clone the repository to a location of your choice, followed by installing the dependancies: 
+
+`composer install`
+
+## Background
+
 In terms of running containers on the IDE you have the choice of: 
 
 * PHP-FPM 
@@ -28,6 +37,8 @@ And these are the default containers that will run when you invoke:
 To change the default behaviour add or remove containers from the `./env` file or provide further options via the spark command: 
 
 `php my-sites-ide ide:spark --app=fpm,nginx`
+
+## Available Commands
 
 ```
 Available commands for the "ide" namespace:
@@ -53,3 +64,19 @@ my-sites-ide can handle as many github repositories or individual projects you c
 After each time you clone a repository to `./Repos` you should restart your IDE: 
 
 `php my-sites-ide ide:restart`
+
+## Creating new sites
+
+We've made it super simple for you to spin up new Laravel sites, with the correct folder structure as outlined above in Hosting Repositories.
+
+`php my-sites-ide ide:create-site <project_name>`
+
+This will create a new Laravel instance under `./Repos`
+
+```
+└── Repos
+   └── PROJECT_NAME
+      ├── _build
+      │   └── config
+      └── Sites
+```

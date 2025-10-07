@@ -34,8 +34,6 @@ class RestartCommand extends Command
      */
     public function __invoke(OutputInterface $output,InputInterface $input, SymfonyStyle $io): int
     {
-        $app = str_replace(",", " ", $input->getOption('app'));
-
         $output->writeLn("docker compose restart");
 
         passthru("docker compose restart");

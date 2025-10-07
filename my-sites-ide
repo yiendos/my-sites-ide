@@ -27,6 +27,7 @@ use Yiendos\Deploy\Console\Site\RemoveCommand;
 use Yiendos\MySitesIde\DouseCommand;
 use Yiendos\MySitesIde\SparkCommand;
 use Yiendos\MySitesIde\BuildCommand AS ImageBuildCommand;
+use Yiendos\MySitesIde\CreateSiteCommand;
 use Yiendos\MySitesIde\RestartCommand;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__);
@@ -42,6 +43,7 @@ $application->add(new SparkCommand());
 $application->add(new DouseCommand());
 $application->add(new ImageBuildCommand());
 $application->add(new RestartCommand());
+$application->add(new CreateSiteCommand());
 
 #minikube 
 $application->add(new CheckSystemRequirementsCommand());
