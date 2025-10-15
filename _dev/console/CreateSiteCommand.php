@@ -40,13 +40,13 @@ class CreateSiteCommand extends Command
         $projectName = strtolower($input->getArgument('projectName'));
 
         $output->writeLn("php vendor/bin/laravel new Repos/$projectName/Sites"); 
-       // passthru("php vendor/bin/laravel new Repos/$projectName/Sites");
+        passthru("php vendor/bin/laravel new Repos/$projectName/Sites");
 
         $output->writeLn("mkdir -p Repos/$projectName/_build/config"); 
         passthru("mkdir -p Repos/$projectName/_build/config");
         
-        $output->writeLn("mkdir -p Repos/$projectName/Projeects"); 
-        passthru("mkdir -p Repos/$projectName/Projeects");
+        $output->writeLn("mkdir -p Repos/$projectName/Projects"); 
+        passthru("mkdir -p Repos/$projectName/Projects");
         
         //then we need to configure the _build/config files
         $this->copyVhosts($projectName);
@@ -58,7 +58,7 @@ class CreateSiteCommand extends Command
 
         $output->writeLn('php my-sites-ide ide:restart'); 
         $restartInput = new ArrayInput(['command' => 'ide:restart']); 
-        //$application->doRun($restartInput, $output);
+        $application->doRun($restartInput, $output);
 
         return Command::SUCCESS;
     }
@@ -98,6 +98,11 @@ class CreateSiteCommand extends Command
         //next we want to provide production images 
         $file = "Repos/$projectName/_build/images/production/Dockerfile"; 
         passthru("cp _dev/deployment/src/images/Dockerfile $file"); 
+        file_put_contents($file, str_replace("__PROJECT__", $projectName, file_get_contents($file)));
+
+        //next we want to provide base nginx vhost
+        $file = "Repos/$projectName/_build/images/production/1-$projectName.conf"; 
+        passthru("cp _dev/deployment/src/images/1-__project__.conf $file"); 
         file_put_contents($file, str_replace("__PROJECT__", $projectName, file_get_contents($file)));
     }
 }

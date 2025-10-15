@@ -59,12 +59,14 @@ $ascii = <<<EOT
 ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 EOT;
 
-    $io->title('Welcome home'); 
+        $io->title('Welcome home'); 
 
-    $output->writeLn([
-        '',
-        $ascii, 
-    ]);
+        $output->writeLn([
+            '',
+            $ascii, 
+        ]);  
+
+        $output->writeln('<href=https://localhost>See your homepage</>');
 
         return Command::SUCCESS;
     }
