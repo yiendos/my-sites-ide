@@ -6,24 +6,6 @@ require __DIR__.'/vendor/autoload.php';
 
 use Dotenv\Dotenv;
 use Symfony\Component\Console\Application;
-use Yiendos\Deploy\Console\InputCommand;
-use Yiendos\Deploy\Console\Minikube\CheckSystemRequirementsCommand;
-use Yiendos\Deploy\Console\Minikube\DashboardCommand;
-use Yiendos\Deploy\Console\Minikube\DestroyCommand;
-use Yiendos\Deploy\Console\Minikube\InstallCertificateManagerCommand;
-use Yiendos\Deploy\Console\Minikube\LoadImagesCommand;
-use Yiendos\Deploy\Console\Minikube\NextStepsCommand;
-use Yiendos\Deploy\Console\Minikube\PortForwardCommand;
-use Yiendos\Deploy\Console\Minikube\StartConfigureMinikubeCommand;
-use Yiendos\Deploy\Console\Minikube\StorageCommand;
-use Yiendos\Deploy\Console\Minikube\UpCommand;
-use Yiendos\Deploy\Console\OutputCommand;
-use Yiendos\Deploy\Console\Site\BuildCommand;
-use Yiendos\Deploy\Console\Site\BuildPushCommand;
-use Yiendos\Deploy\Console\Site\ContextCommand;
-use Yiendos\Deploy\Console\Site\CopyContentCommand;
-use Yiendos\Deploy\Console\Site\PushCommand;
-use Yiendos\Deploy\Console\Site\RemoveCommand;
 use Yiendos\MySitesIde\DouseCommand;
 use Yiendos\MySitesIde\SparkCommand;
 use Yiendos\MySitesIde\BuildCommand AS ImageBuildCommand;
@@ -35,9 +17,6 @@ $dotenv->load();
 
 $application = new Application();
 
-$application->add(new OutputCommand());
-$application->add(new InputCommand());
-
 #ide
 $application->add(new SparkCommand());
 $application->add(new DouseCommand());
@@ -45,25 +24,18 @@ $application->add(new ImageBuildCommand());
 $application->add(new RestartCommand());
 $application->add(new CreateSiteCommand());
 
-#minikube 
-$application->add(new CheckSystemRequirementsCommand());
-$application->add(new StartConfigureMinikubeCommand());
-$application->add(new UpCommand());
-$application->add(new StorageCommand());
-$application->add(new InstallCertificateManagerCommand());
-$application->add(new NextStepsCommand());
-$application->add(new LoadImagesCommand());
-$application->add(new PortForwardCommand());
-$application->add(new DashboardCommand());
-$application->add(new DestroyCommand());
 
-#deploy site 
-$application->add(new BuildPushCommand());
-$application->add(new BuildCommand());
-$application->add(new ContextCommand());
-$application->add(new PushCommand());
-$application->add(new CopyContentCommand());
-$application->add(new RemoveCommand());
+/** If the user has a deployment mechanism installed via composer */
+if (class_exists('Yiendos\Deploy\Console\Commands')) 
+{
+    $commands = (new \Yiendos\Deploy\Console\Commands)->getList();
 
+    foreach($commands as $command)
+    {
+        $object = new ReflectionClass($command);
+        $obj = $object->newInstanceArgs(array($args));
+        $application->add($obj);
+    }
+}
 
 $application->run();
