@@ -51,9 +51,12 @@ class CreateSiteCommand extends Command
         //then we need to configure the _build/config files
         $this->copyVhosts($projectName);
 
-        //this should only be if the deployment kit is installed 
-        $this->createDeploy($projectName);
-
+        /** If the user has a deployment mechanism installed via composer */
+        if (class_exists('Yiendos\Deploy\Console\Commands')) 
+        {
+            $createDeploy = new ArrayInput(['command' => 'deploy:site:create-scripts', 'site' => $projectName]);
+            $application->doRun($createDeploy, $output);
+        }
         //then we need to update the local.yaml - definately APP_KEY
 
         $output->writeLn('php my-sites-ide ide:restart'); 
@@ -72,37 +75,6 @@ class CreateSiteCommand extends Command
             $vhost = "Repos/$projectName/_build/config/1-$projectName-$server.conf";
             passthru("cp _dev/environment/servers/$server/sample.vhost $vhost");
             file_put_contents($vhost, str_replace("__PROJECT__", $projectName, file_get_contents($vhost)));
-
         }
-    }
-
-    public function createDeploy($projectName)
-    {
-        passthru("mkdir -p Repos/$projectName/_build/deployment");
-        passthru("mkdir -p Repos/$projectName/_build/images/production");
-
-        //first we want to provide sample configuration for Minikube
-        $file = "Repos/$projectName/_build/deployment/local.yaml"; 
-        passthru("cp _dev/deployment/src/_files/config/sample-config.yaml $file");
-        file_put_contents($file, str_replace("__PROJECT__", $projectName, file_get_contents($file)));
-
-        //now we want to replace the blank app key
-        exec("php Repos/$projectName/Sites/artisan key:generate --show", $app_key);
-        file_put_contents($file, str_replace("__APP_KEY__", current($app_key), file_get_contents($file)));
-        
-        //then we want to be able to build persistent volumes for minikube 
-        $file = "Repos/$projectName/_build/deployment/create-storage.sh";
-        passthru("cp _dev/deployment/src/_files/config/create-storage.sh $file");
-        file_put_contents($file, str_replace("__PROJECT__", $projectName, file_get_contents($file)));
-
-        //next we want to provide production images 
-        $file = "Repos/$projectName/_build/images/production/Dockerfile"; 
-        passthru("cp _dev/deployment/src/_files/images/Dockerfile $file"); 
-        file_put_contents($file, str_replace("__PROJECT__", $projectName, file_get_contents($file)));
-
-        //next we want to provide base nginx vhost
-        $file = "Repos/$projectName/_build/images/production/1-$projectName.conf"; 
-        passthru("cp _dev/deployment/src/_files/images/1-__project__.conf $file"); 
-        file_put_contents($file, str_replace("__PROJECT__", $projectName, file_get_contents($file)));
     }
 }
