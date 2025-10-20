@@ -83,7 +83,7 @@ class CreateSiteCommand extends Command
 
         //first we want to provide sample configuration for Minikube
         $file = "Repos/$projectName/_build/deployment/local.yaml"; 
-        passthru("cp _dev/deployment/src/config/sample-config.yaml $file");
+        passthru("cp _dev/deployment/src/_files/config/sample-config.yaml $file");
         file_put_contents($file, str_replace("__PROJECT__", $projectName, file_get_contents($file)));
 
         //now we want to replace the blank app key
@@ -92,17 +92,17 @@ class CreateSiteCommand extends Command
         
         //then we want to be able to build persistent volumes for minikube 
         $file = "Repos/$projectName/_build/deployment/create-storage.sh";
-        passthru("cp _dev/deployment/src/config/create-storage.sh $file");
+        passthru("cp _dev/deployment/src/_files/config/create-storage.sh $file");
         file_put_contents($file, str_replace("__PROJECT__", $projectName, file_get_contents($file)));
 
         //next we want to provide production images 
         $file = "Repos/$projectName/_build/images/production/Dockerfile"; 
-        passthru("cp _dev/deployment/src/images/Dockerfile $file"); 
+        passthru("cp _dev/deployment/src/_files/images/Dockerfile $file"); 
         file_put_contents($file, str_replace("__PROJECT__", $projectName, file_get_contents($file)));
 
         //next we want to provide base nginx vhost
         $file = "Repos/$projectName/_build/images/production/1-$projectName.conf"; 
-        passthru("cp _dev/deployment/src/images/1-__project__.conf $file"); 
+        passthru("cp _dev/deployment/src/_files/images/1-__project__.conf $file"); 
         file_put_contents($file, str_replace("__PROJECT__", $projectName, file_get_contents($file)));
     }
 }
