@@ -1,19 +1,77 @@
-![Screenshot](https://raw.githubusercontent.com/yiendos/my-sites-ide/master/screenshot.png?raw=true)
+# my-sites-ide 
 
-# my-sites-ide
+Welcome to my-sites-ide, contained within this project is over 8 years of experience working with Docker, condensed, distilled into one lean mean Dev-ops machine. There are many features: 
 
-Is designed to be a modular approach to docker containerisation for PHP applications, only use what you want. Further the base images created are production ready and can be deployed via any containerisation technology.
+* Modular - pick which services you require 
+Apache or Nginx or both, Mysql or Mariab or both 
+* Small image size, all images < 200mb
+Yet still contain all the php goods you require for Laravel. 
+* Blazingly fast image build, CI/ CD, deployment of containers  
+Because of the small image size all waiting times are reduced
+* Configurable, the main .env can override the settings of all the docker containers being run. Allowing you full control over how your sites are run, failing that you are free to modify the original Dockerfiles for total configuration-city 
 
-These images can be used as part of a Continuous Integration/ deployment strategy also. Therefore by running the exact same images for your local, CI/CD/ staging/ production environments you can be assured of perfect results everytime. 
+These images can be used as part of a Continuous Integration/ deployment strategy also. By running the exact same images for your local, CI/CD/ staging/ production environments you can be assured of perfect results everytime. 
 
+Coming soon - Container deployment strategies via: 
 
-## Getting started 
+* Docker compose 
+* Docker swam 
+* Kubernetes
 
-clone the repository to a location of your choice, followed by installing the dependancies: 
+## Installation 
 
-`composer install`
+git clone git@github.com:yiendos/my-sites-ide.git 
 
-## Background
+cd my-sites-ide
+
+git checkout feature/31-update 
+
+Create your .env file from the sample `cp env-example .env` 
+
+Build you images `php my-sites-ide ide:build` 
+
+Access you homepage: 
+
+* https://localhost/ [nginx]
+
+* https://localhost:8443/ [apache]
+
+## See available commands 
+
+`php my-sites-ide` 
+
+```
+Console Tool
+
+Usage:
+  command [options] [arguments]
+
+Options:
+  -h, --help            Display help for the given command. When no command is given display help for the list command
+      --silent          Do not output any message
+  -q, --quiet           Only errors are displayed. All other output is suppressed
+  -V, --version         Display this application version
+      --ansi|--no-ansi  Force (or disable --no-ansi) ANSI output
+  -n, --no-interaction  Do not ask any interactive question
+  -v|vv|vvv, --verbose  Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
+
+Available commands:
+  completion       Dump the shell completion script
+  help             Display help for a command
+  list             List commands
+ ide
+  ide:build        Build the containers you wish
+  ide:create-site  Create a new Laravel site, with my-site-ide integration
+  ide:douse        Finished, until next time? Bring the containers down
+  ide:restart      Cloned a new site, or made configuration changes? Restart the IDE
+  ide:spark        Spark your creativity to life, by bringing the IDE up
+```
+
+For help and guidance relating to any command 
+
+`php my-sites-ide [command:subcommand] --help` 
+
+## Background to modular docker containers
 
 In terms of running containers on the IDE you have the choice of: 
 
@@ -38,15 +96,38 @@ To change the default behaviour add or remove containers from the `./env` file o
 
 `php my-sites-ide ide:spark --app=fpm,nginx`
 
-## Available Commands
+### Next steps 
+
+Make things more interesting by installing a Laravel site: 
+
+`php my-sites-ide ide:create-site example`
+
+Run through the normal install steps...
+
+This will create a new Laravel instance under `./Repos/example`
 
 ```
-Available commands for the "ide" namespace:
-  ide:build    Build the containers you wish
-  ide:douse    Finished, until next time? Bring the containers down
-  ide:restart  Cloned a new site, or made configuration changes? Restart the IDE
-  ide:spark    Spark your creativity to life, by bringing the IDE up
+└── Repos
+   └── example
+      ├── _build
+      │   └── config
+      └── Projects
+      └── Sites
 ```
+
+Then access your brand new Laravel site: 
+
+* https://example.localhost [nginx]
+
+* https://example.localhost [apache]
+
+#### New site configuration 
+
+You can configure how your servers respond to requests by changing the default configuration files `Repos/example/_build/`. 
+
+If your sites that are hosted under Repos require common code bases, these can be installed and shared via the `Packages` folder
+
+Site specific packages can be installed under the `Repos/[example]/Projects` folder 
 
 ## Hosting Repositories 
 
@@ -64,19 +145,3 @@ my-sites-ide can handle as many github repositories or individual projects you c
 After each time you clone a repository to `./Repos` you should restart your IDE: 
 
 `php my-sites-ide ide:restart`
-
-## Creating new sites
-
-We've made it super simple for you to spin up new Laravel sites, with the correct folder structure as outlined above in Hosting Repositories.
-
-`php my-sites-ide ide:create-site <project_name>`
-
-This will create a new Laravel instance under `./Repos`
-
-```
-└── Repos
-   └── PROJECT_NAME
-      ├── _build
-      │   └── config
-      └── Sites
-```

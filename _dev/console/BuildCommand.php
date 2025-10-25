@@ -40,10 +40,6 @@ class BuildCommand extends Command
         $output->writeLn("docker compose up -d $app  --build");
         exec("docker compose up -d $app  --build --remove-orphans");
 
-        foreach (explode(",", $_ENV['BURNER_CONTAINERS']) as $container) { 
-             passthru("docker-compose rm -svf $container");
-        }
-
         return Command::SUCCESS;
     }
 }

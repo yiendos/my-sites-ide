@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# a simple wrapper to take cmd variable/ instructions and to pass them to Make
-# which then takes instructions from the corresponding Makefile 
-make -f _dev/Makefile $@
