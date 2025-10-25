@@ -33,7 +33,7 @@ if (class_exists('Yiendos\Deploy\Console\Commands'))
     foreach($commands as $command)
     {
         $object = new ReflectionClass($command);
-        $obj = $object->newInstanceArgs(array($args));
+        $obj = $object->newInstanceArgs([]);
         $application->add($obj);
     }
 }
