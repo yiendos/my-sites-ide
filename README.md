@@ -20,6 +20,8 @@ You can run the same images for your local environment, CI/CD/ staging/ and prod
 
 * `cp env-example .env` 
 
+* `composer install` 
+
 * `php my-sites-ide ide:build` 
 
 Now you can access your default homepage: 
