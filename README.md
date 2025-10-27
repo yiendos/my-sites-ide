@@ -1,36 +1,28 @@
 # my-sites-ide 
 
-Welcome to my-sites-ide, contained within this project is over 8 years of experience working with Docker, condensed, distilled into one lean mean Dev-ops machine. There are many features: 
+Welcome to my-sites-ide, contained within this project is over 8 years of experience working with Docker, condensed, distilled into one lean mean Dev-ops code base. There are many features: 
 
-* Modular - pick which services you require 
-Apache or Nginx or both, Mysql or Mariab or both 
-* Small image size, all images < 200mb
-Yet still contain all the php goods you require for Laravel. 
-* Blazingly fast image build, CI/ CD, deployment of containers  
-Because of the small image size all waiting times are reduced
-* Configurable, the main .env can override the settings of all the docker containers being run. Allowing you full control over how your sites are run, failing that you are free to modify the original Dockerfiles for total configuration-city 
+* Modular - pick which services you require - Apache or Nginx or both, Mysql or Mariab or all  
+* Small image size, all images < 200mb - Yet still contain all the php goodies you require for Laravel. 
+* Blazingly fast build, CI, deployment of containers - Because of the small image size all waiting times are reduced
+* Configurable, the main .env can override the settings of all the docker containers being run
+Allowing you full control over how your sites are run, failing that you are free to modify the original Dockerfiles for total configuration-city 
 
-These images can be used as part of a Continuous Integration/ deployment strategy also. By running the exact same images for your local, CI/CD/ staging/ production environments you can be assured of perfect results everytime. 
+You can run the same images for your local environment, CI/CD/ staging/ and production environments you can be assured of perfect results everytime. 
 
-Coming soon - Container deployment strategies via: 
+## installation 
 
-* Docker compose 
-* Docker swam 
-* Kubernetes
+* `git clone git@github.com:yiendos/my-sites-ide.git`
 
-## Installation 
+* `cd my-sites-ide`
 
-git clone git@github.com:yiendos/my-sites-ide.git 
+* `git checkout feature/31-update` 
 
-cd my-sites-ide
+* `cp env-example .env` 
 
-git checkout feature/31-update 
+* `php my-sites-ide ide:build` 
 
-Create your .env file from the sample `cp env-example .env` 
-
-Build you images `php my-sites-ide ide:build` 
-
-Access you homepage: 
+Now you can access your default homepage: 
 
 * https://localhost/ [nginx]
 
@@ -96,7 +88,7 @@ To change the default behaviour add or remove containers from the `./env` file o
 
 `php my-sites-ide ide:spark --app=fpm,nginx`
 
-### Next steps 
+## Next steps 
 
 Make things more interesting by installing a Laravel site: 
 
@@ -119,19 +111,22 @@ Then access your brand new Laravel site:
 
 * https://example.localhost [nginx]
 
-* https://example.localhost [apache]
+* https://example.localhost:8443 [apache]
 
-#### New site configuration 
+### New site configuration 
 
-You can configure how your servers respond to requests by changing the default configuration files `Repos/example/_build/`. 
+You can configure how your servers respond to requests by changing the default configuration files `Repos/[example]/_build/`. 
 
-If your sites that are hosted under Repos require common code bases, these can be installed and shared via the `Packages` folder
+If your sites, require a common code base, these can be installed and shared via the `Packages` folder
 
 Site specific packages can be installed under the `Repos/[example]/Projects` folder 
 
 ## Hosting Repositories 
 
-my-sites-ide can handle as many github repositories or individual projects you can through at them, some default structure should be applied. First clone any projects to the IDE under the `./Repos` folder, and each project should contain the following folder structure 
+my-sites-ide can handle as many github repositories or individual projects you can throw at them, however some default structure should be applied. 
+
+1. First clone any projects to the IDE under the `./Repos` folder 
+2. Each project should contain the following folder structure 
 
 ```
  PROJECT NAME                           //name of the project/ repository
@@ -142,6 +137,6 @@ my-sites-ide can handle as many github repositories or individual projects you c
    └── Sites                            //where your PHP app should be hosted 
 ``` 
 
-After each time you clone a repository to `./Repos` you should restart your IDE: 
+Remember after each time you clone a repository/ create a new site to `./Repos` you should restart your IDE for these changes to take effect: 
 
 `php my-sites-ide ide:restart`
