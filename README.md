@@ -1,12 +1,15 @@
 # my-sites-ide 
 
+![Screenshot](https://raw.githubusercontent.com/yiendos/my-sites-ide/master/screenshot.png?raw=true)
+
 Welcome to my-sites-ide, contained within this project is over 8 years of experience working with Docker, condensed, distilled into one lean mean Dev-ops code base. There are many features: 
 
 * Modular - pick which services you require - Apache or Nginx or both, Mysql or Mariab or all  
-* Small image size, all images < 200mb - Yet still contain all the php goodies you require for Laravel. 
-* Blazingly fast build, CI, deployment of containers - Because of the small image size all waiting times are reduced
+* Small image size, all images < 200mb - Yet still contain all the php goodies you require for most PHP websites including Laravel. 
+* Blazingly fast build, CI, deployment of containers - Because of the small image sizes, all waiting times are reduced
 * Configurable, the main .env can override the settings of all the docker containers being run
-Allowing you full control over how your sites are run, failing that you are free to modify the original Dockerfiles for total configuration-city 
+
+my-sites-ide gives you full control over how your sites are run, failing that you are free to modify the original Dockerfiles for total configuration-city 
 
 You can run the same images for your local environment, CI/CD/ staging/ and production environments you can be assured of perfect results everytime. 
 
@@ -15,8 +18,6 @@ You can run the same images for your local environment, CI/CD/ staging/ and prod
 * `git clone git@github.com:yiendos/my-sites-ide.git`
 
 * `cd my-sites-ide`
-
-* `git checkout feature/31-update` 
 
 * `cp env-example .env` 
 
