@@ -1,0 +1,21 @@
+services:
+    apache:
+        container_name: "${NAMESPACE}_apache"
+        image: ${NAMESPACE}_apache:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8443:8443"
+        expose:
+            - "8443"
+        environment:
+            FPM_HOST: "fpm:9000"
+        volumes:
+            - ./conf/httpd.conf:/usr/local/apache2/conf/httpd.conf
+            - ./sites-enabled:/usr/local/apache2/conf/sites-enabled
+            - ./../ssl/selfsigned.crt:/usr/local/apache2/conf/server.crt
+            - ./../ssl/selfsigned.key:/usr/local/apache2/conf/server.key
+            - ./../../../../Repos:/opt/repos
+        networks:
+            - my-sites-ide 

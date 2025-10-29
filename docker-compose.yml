@@ -1,0 +1,22 @@
+name: my_sites
+#whilst all the modular compose files are declared here 
+#not of all of them will be run 
+#to define which services run edit ./.env 
+#and change the APP variable 
+#
+#APP=fpm nginx mariadb redis cli cron
+
+#these are your optional local services you can run 
+include: 
+    - ./_dev/environment/preprocessors/fpm/docker-compose.yml
+    - ./_dev/environment/preprocessors/cli/docker-compose.yml
+    - ./_dev/environment/preprocessors/cron/docker-compose.yml
+    - ./_dev/environment/servers/nginx/docker-compose.yml
+    - ./_dev/environment/servers/apache/docker-compose.yml
+    - ./_dev/environment/databases/mysql/docker-compose.yml
+    - ./_dev/environment/databases/mariadb/docker-compose.yml
+    - ./_dev/environment/build/composer/docker-compose.yml
+    - ./_dev/environment/build/node/docker-compose.yml
+    - ./_dev/environment/caching/redis/docker-compose.yml
+networks:
+    my-sites-ide:

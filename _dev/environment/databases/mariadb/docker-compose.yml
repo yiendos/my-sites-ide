@@ -1,0 +1,21 @@
+services:
+    mariadb:
+        container_name: "${NAMESPACE}_db"
+        image: 'mariadb:11.4-noble' 
+        ports:
+            - '3306:3306'
+        env_file: 
+            - ./.env
+            - ./../../../../.env
+        command: ["--sql_mode=${SQL_MODE}"]
+        volumes:
+            - ./conf/my.cnf:/etc/mysql/mariadb.cnf
+            - ./data:/var/lib/mysql
+        networks:
+            - my-sites-ide
+        healthcheck:
+            test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+            start_period: 10s
+            interval: 10s
+            timeout: 5s
+            retries: 3

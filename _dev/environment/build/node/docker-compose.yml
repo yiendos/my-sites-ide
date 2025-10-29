@@ -1,0 +1,15 @@
+services:
+    node:
+        container_name: "${NAMESPACE}_node"
+        image: ${NAMESPACE}_frontend:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
+        env_file: 
+            - ./.env
+            - ./../../../../.env
+        volumes:
+            - './../../../../Repos:/opt/repos'
+            - '../../../../Packages:/opt/Packages'
+#        networks:
+#            - my-sites-ide

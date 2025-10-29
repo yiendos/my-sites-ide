@@ -1,0 +1,8 @@
+vendor/
+node_modules/
+Repos/**/vendor/
+Repos/**/node_modules/
+Repos/**/.git/
+Repos/**/.gitmodules
+Repos/**/.gitignore 
+Repos/**/composer.lock

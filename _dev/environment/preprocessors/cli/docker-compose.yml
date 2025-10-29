@@ -1,0 +1,17 @@
+services:
+    cli:
+        container_name: "${NAMESPACE}_cli"
+        image: ${NAMESPACE}_cli:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
+        env_file: 
+            - ./.env
+            - ./../../../../.env
+        volumes:
+            - './../fpm/conf/docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'
+            - './../../../../Repos:/opt/repos'
+            - './../../../../Packages:/opt/Packages'
+        entrypoint: ["tail", "-f" , "/dev/null"]
+        networks:
+            - my-sites-ide

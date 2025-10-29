@@ -1,6 +1,7 @@
-_mysites/docker/logs*
-_mysites/vendor/*
-_mysites/console/bin/.files/cache/*
-/Sites/*/vendor/*
-/Sites/**/wp-config*
-/Sites/**/configuration.php
+/.env
+vendor/
+deploy
+_dev/environment/databases/**/data/*
+_dev/deployment
+/Packages/*
+Repos/*

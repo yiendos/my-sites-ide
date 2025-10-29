@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+// application.php
+
+require __DIR__.'/vendor/autoload.php';
+
+use Dotenv\Dotenv;
+use Symfony\Component\Console\Application;
+use Yiendos\MySitesIde\DouseCommand;
+use Yiendos\MySitesIde\SparkCommand;
+use Yiendos\MySitesIde\BuildCommand AS ImageBuildCommand;
+use Yiendos\MySitesIde\CreateSiteCommand;
+use Yiendos\MySitesIde\RestartCommand;
+
+$dotenv = Dotenv::createUnsafeImmutable(__DIR__);
+$dotenv->load();
+
+$application = new Application();
+
+#ide
+$application->add(new SparkCommand());
+$application->add(new DouseCommand());
+$application->add(new ImageBuildCommand());
+$application->add(new RestartCommand());
+$application->add(new CreateSiteCommand());
+
+
+/** If the user has a deployment mechanism installed via composer */
+if (class_exists('Yiendos\Deploy\Console\Commands')) 
+{
+    $commands = (new \Yiendos\Deploy\Console\Commands)->getList();
+
+    foreach($commands as $command)
+    {
+        $object = new ReflectionClass($command);
+        $obj = $object->newInstanceArgs([]);
+        $application->add($obj);
+    }
+}
+
+$application->run();

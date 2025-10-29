@@ -1,24 +1,22 @@
 {
-  "name": "yiendos/my-sites-ide",
-  "type": "my-sites-ide",
-  "license": "MPL-2.0",
-  "description": "A dev-ops toolkit, that enables you to create new development environments on the fly, and hook up Continuous Deployment/ Integration processes easily.",
-  "keywords": ["yiendos", "my-sites-ide", "devops", "ide", "docker", "LAMP", "LEMP"],
-  "homepage": "https://github.com/yiendos/my-sites-ide",
-  "authors": [
-      {
-        "name": "my-sites-ide",
-        "email": "paul@place-me.com",
-        "homepage": "https://yiendos.dev"
-      }
-  ],
-  "minimum-stability": "stable",
-  "autoload": {
-    "psr-4": {
-      "MySites\\": "_mysites/console/src"
+    "name": "yiendos/my-sites-ide",
+    "description": "local development environment",
+    "type": "projects",
+    "license": "mit",
+    "autoload": {
+        "psr-4": {
+            "Yiendos\\MySitesIde\\": "_dev/console"
+        }
+    },
+    "authors": [
+        {
+            "name": "yiendos",
+            "email": "yiendos@sbmatrix.com"
+        }
+    ],
+    "require": {
+        "symfony/console": "7.3",
+        "vlucas/phpdotenv": "^5.6",
+        "laravel/installer": "^5.19"
     }
-  },
-  "bin": [
-    "_mysites/console/bin/mysites"
-  ]
 }
