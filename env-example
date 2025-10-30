@@ -1,5 +1,5 @@
 NAMESPACE=my_site
-APP="fpm,nginx,apache,mariadb,redis,cli,cron"
+APP="fpm nginx apache mysql redis cli cron"
 BURNER_CONTAINERS="composer,node"
 SITE=default
 MARIADB_DATABASE=yiendos
