@@ -7,7 +7,7 @@ ARG PHP_PECL_EXTS
 
 WORKDIR /opt/repos
 
-RUN apk add --no-cache ${PHPIZE_DEPS} linux-headers libpng-dev \
+RUN apk add --no-cache ${PHPIZE_DEPS} linux-headers libpng-dev mariadb-client \
         && pecl install ${PHP_PECL_EXTS} xdebug \
         &&  docker-php-ext-configure gd \
         &&  docker-php-ext-install pdo_mysql gd \

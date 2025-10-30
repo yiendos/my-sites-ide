@@ -6,10 +6,13 @@ require __DIR__.'/vendor/autoload.php';
 
 use Dotenv\Dotenv;
 use Symfony\Component\Console\Application;
+use Yiendos\MySitesIde\AssetsCommand;
 use Yiendos\MySitesIde\DouseCommand;
 use Yiendos\MySitesIde\SparkCommand;
 use Yiendos\MySitesIde\BuildCommand AS ImageBuildCommand;
+use Yiendos\MySitesIde\ComposerCommand;
 use Yiendos\MySitesIde\CreateSiteCommand;
+use Yiendos\MySitesIde\RepoCloneCommand;
 use Yiendos\MySitesIde\RestartCommand;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__);
@@ -23,7 +26,9 @@ $application->add(new DouseCommand());
 $application->add(new ImageBuildCommand());
 $application->add(new RestartCommand());
 $application->add(new CreateSiteCommand());
-
+$application->add(new RepoCloneCommand());
+$application->add(new ComposerCommand());
+$application->add(new AssetsCommand());
 
 /** If the user has a deployment mechanism installed via composer */
 if (class_exists('Yiendos\Deploy\Console\Commands')) 

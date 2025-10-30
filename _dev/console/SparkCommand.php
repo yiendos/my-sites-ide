@@ -35,10 +35,9 @@ class SparkCommand extends Command
      */
     public function __invoke(OutputInterface $output,InputInterface $input, SymfonyStyle $io): int
     {
-        $app = str_replace(",", " ", $input->getOption('app'));
+        $app = $input->getOption('app');
 
         $output->writeLn("docker compose up -d $app --remove-orphans");
-
         passthru("docker compose up -d $app --remove-orphans");
 
 $ascii = <<<EOT
