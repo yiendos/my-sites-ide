@@ -52,8 +52,13 @@ class RepoCloneCommand extends Command
             return Command::FAILURE;
         }  
         //lets proceed to clone the repository with the given projectName
-        $this->cloneRepository($io, $repo, $projectName);
+        $clone = $this->cloneRepository($io, $repo, $projectName);
 
+        if ($clone == false)
+        { 
+            $io->error("Something went wrong with the clone process");
+            return Command::FAILURE;
+        }
         //then we need to configure the _build/config files
         $this->copyVhosts($projectName, $io, $output);
 
@@ -75,11 +80,14 @@ class RepoCloneCommand extends Command
      * @param \Symfony\Component\Console\Style\SymfonyStyle $io
      * @param [string] $repo
      * @param [string] $projectName
+     * @return [string|false|null]
      */
     public function cloneRepository($io, $repo, $projectName)
     {
         $io->info("git clone --recurse-submodules $repo Repos/$projectName");
-        passthru("git clone --recurse-submodules $repo Repos/$projectName");
+        $result = passthru("git clone --recurse-submodules $repo Repos/$projectName");
+
+        return $result;
     }
     /**
      * Determine the project name 
@@ -164,7 +172,7 @@ class RepoCloneCommand extends Command
     {
         //not sure I like using a global 
         //https://raw.githubusercontent.com/laravel/laravel/refs/heads/12.x/public/index.php
-        $lavavelIndex = $_ENV['LARAVEL_INDEX']; 
+        $lavavelIndex = getenv('LARAVEL_INDEX'); 
         
         $output->writeLn([
             '',
@@ -190,8 +198,5 @@ class RepoCloneCommand extends Command
         
         $output->writeLn("<info>wget $lavavelIndex -O Repos/$projectName/Sites/public/index.php</>"); 
         exec("wget $lavavelIndex -O Repos/$projectName/Sites/public/index.php");
-
-
-
     }
 }
