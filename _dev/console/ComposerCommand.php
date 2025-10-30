@@ -22,7 +22,7 @@ class ComposerCommand extends Command
     protected function configure(): void
     {
         $this
-            ->setName('ide:install-dependancies')
+            ->setName('ide:composer-install')
             ->setDescription('Ensure that composer dependancies are installed')
             ->addArgument('project', InputArgument::REQUIRED, 'What is the organisation/name for the repository');
         ;

@@ -154,7 +154,7 @@ class RepoCloneCommand extends Command
         $this->createLaravelFolders($projectName, $output);
  
         //now lets install the composer dependencies
-        $installDependencies = new ArrayInput(['command' => 'ide:install-dependancies', 'project' => $projectName]);
+        $installDependencies = new ArrayInput(['command' => 'ide:composer-install', 'project' => $projectName]);
         $application->doRun($installDependencies, $output);
 
         //now lets build the site assets 
