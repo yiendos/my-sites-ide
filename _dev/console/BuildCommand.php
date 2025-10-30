@@ -5,11 +5,9 @@ namespace Yiendos\MySitesIde;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class BuildCommand extends Command
 {
@@ -23,22 +21,25 @@ class BuildCommand extends Command
         $this
             ->setName('ide:build')
             ->setDescription('Build the containers you wish')
-            ->addOption('app', null, InputOption::VALUE_OPTIONAL, 'Which containers you would like to open', 'node fpm nginx apache mariadb redis cli cron composer')
         ;
     }
     /**
      * After the command has been configured, the user has provided input then run the command
      *
-     * @param InputInterface $input
      * @param OutputInterface $output
+     * @param Application $application
      * @return integer
      */
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    public function __invoke(OutputInterface $output, Application $application): int
     {
-        $app = $input->getOption('app');
 
-        $output->writeLn("docker compose up -d $app  --build");
-        exec("docker compose up -d $app  --build --remove-orphans");
+        $output->writeLn("docker compose build");
+        exec("docker compose build");
+
+        $output->writeLn("<info>Now lets spark our containers into life</>");
+
+        $startContainers = new ArrayInput(['command' => 'ide:spark']);
+        $application->doRun($startContainers, $output);
 
         return Command::SUCCESS;
     }

@@ -9,8 +9,8 @@ name: my_sites
 #these are your optional local services you can run 
 include: 
     - ./_dev/environment/preprocessors/fpm/docker-compose.yml
-    - ./_dev/environment/preprocessors/cli/docker-compose.yml
     - ./_dev/environment/preprocessors/cron/docker-compose.yml
+    - ./_dev/environment/preprocessors/cli/docker-compose.yml
     - ./_dev/environment/servers/nginx/docker-compose.yml
     - ./_dev/environment/servers/apache/docker-compose.yml
     - ./_dev/environment/databases/mysql/docker-compose.yml
