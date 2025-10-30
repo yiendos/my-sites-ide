@@ -37,12 +37,12 @@ class BuildCommand extends Command
         //wierdly we need to have the mysql_cron built first 
         //this is because mysql_cli is built FROM it 
         //and will fail because it doesn't exist 
-        $output->writeLn("docker compose build cron");
-        exec("docker compose build cron");
+        $output->writeLn("docker compose --progress plain build cron");
+        passthru("docker compose --progress plain build cron");
 
         //now we proceed to build the rest of the containers
-        $output->writeLn("docker compose build");
-        exec("docker compose build");
+        $output->writeLn("docker compose --progress plain build");
+        passthru("docker compose --progress plain build");
 
         $output->writeLn("<info>Now lets spark our containers into life</>");
 

@@ -1,1 +1,1 @@
-FROM mariadb:11.4-noble as mariadb
+FROM mariadb:11.8.3-noble AS mariadb

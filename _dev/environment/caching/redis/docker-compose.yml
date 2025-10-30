@@ -1,7 +1,11 @@
 services:  
     redis:
           container_name: "${NAMESPACE}_redis"
-          image: "redis:alpine3.22"
+          #image: "redis:alpine3.22"
+          image: ${NAMESPACE}_redis 
+          build: 
+            context: . 
+            dockerfile: Dockerfile
           command: [sh, -c, "rm -f /data/dump.rdb && redis-server --appendonly yes --requirepass $PASSWORD"]
           ports:
           - "6379:6379"
