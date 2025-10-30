@@ -120,8 +120,7 @@ class RepoCloneCommand extends Command
      */
     public function copyVhosts($projectName, $io, $output)
     {
-        //should be provided in via environment
-        $servers = ['nginx', 'apache']; 
+        $servers = explode(' ', getenv('SERVERS')); 
 
         if (file_exists("Repos/$projectName/_build/config"))
         {

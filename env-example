@@ -1,6 +1,6 @@
 NAMESPACE=my_site
 APP="fpm nginx apache mysql redis cli cron"
-BURNER_CONTAINERS="composer,node"
+SERVERS="nginx apache"
 SITE=default
 MARIADB_DATABASE=yiendos
 DOCKER_FILE=_dev/environment/images/local/Dockerfile
