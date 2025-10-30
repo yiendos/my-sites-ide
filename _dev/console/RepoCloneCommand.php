@@ -59,18 +59,23 @@ class RepoCloneCommand extends Command
         $projectName = !is_null($project) ? $project : last(explode("/", $matches[2]));
 
         $io->info("git clone --recurse-submodules $repo Repos/$projectName");
-        
+        passthru("git clone --recurse-submodules $repo Repos/$projectName");
+
         //then we need to configure the _build/config files
         $this->copyVhosts($projectName, $io, $output);
 
         if ($laravel) 
         {
             $this->createLaravelFolders($projectName, $io, $output);
+ 
+            //now lets install the composer dependencies
+            $installDependencies = new ArrayInput(['command' => 'ide:install-dependancies', 'project' => $projectName]);
+            $application->doRun($installDependencies, $output);
 
-            $this->installDependencies($projectName, $io, $output); 
-
-            $this->buildAssets($projectName, $io, $output);
-
+            //now lets build the site assets 
+            $buildAssets = new ArrayInput(['command' => 'ide:build-assets', 'project' => $projectName]);
+            $application->doRun($buildAssets, $output);
+            
             //$this->createDatabase($projectName, $io, $output);
         }
 
@@ -135,60 +140,5 @@ class RepoCloneCommand extends Command
         $io->info("wget $lavavelIndex -O Repos/$projectName/Sites/public/index.php");
         passthru("wget $lavavelIndex -O Repos/$projectName/Sites/public/index.php");
 
-    }
-    /**
-     * Create associated laravel folders 
-     *
-     * @param [string] $projectName
-     * @param \Symfony\Component\Console\Style\SymfonyStyle $io
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @return void
-     */
-    public function installDependencies($projectName, $io, $output)
-    {
-        $output->writeLn('<info>About to use our composer container to install dependencies</>'); 
-
-        $io->info("docker compose run --rm composer --working-dir=$projectName/Sites install --no-scripts --ignore-platform-reqs --no-autoloader --prefer-dist"); 
-        passthru("docker compose run --rm composer --working-dir=$projectName/Sites install --no-scripts --ignore-platform-reqs --no-autoloader --prefer-dist"); 
-
-        $io->info("docker compose run --rm composer --working-dir=$projectName/Sites install --ignore-platform-reqs --prefer-dist");
-        passthru("docker compose run --rm composer --working-dir=$projectName/Sites install --ignore-platform-reqs --prefer-dist");
-    }
-    /**
-     * Create associated laravel folders 
-     *
-     * @param [string] $projectName
-     * @param \Symfony\Component\Console\Style\SymfonyStyle $io
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @return [boolean]
-     */
-    public function buildAssets($projectName, $io, $output)
-    {
-        $output->writeLn('<info>About to build our site assets</>');
-
-        $io->info("docker compose run --rm node /usr/local/bin/npm --prefix $projectName/Sites install"); 
-        passthru("docker compose run --rm node /usr/local/bin/npm --prefix $projectName/Sites install");
-
-        //default for a new site is npm run build 
-        if (file_exists("Repos/$projectName/Sites/vite.config.js")) 
-        {
-            $io->info("docker compose run --rm node /usr/local/bin/npm --prefix $projectName/Sites run build");
-            passthru("docker compose run --rm node /usr/local/bin/npm --prefix $projectName/Sites run build");
-
-            return true;
-        }
-
-        //but we have customised our builds 
-        if (file_exists("Repos/$projectName/Sites/webpack.mix.cjs")) 
-        {
-            $io->info("docker compose run --rm node /usr/local/bin/npm --prefix $projectName/Sites run prod"); 
-            passthru("docker compose run --rm node /usr/local/bin/npm --prefix $projectName/Sites run prod"); 
-
-            return true;
-        }
-
-        $io->warning("Unable to determine your node build environment, please run your build assets command manually");
-
-        return true;
     }
 }
