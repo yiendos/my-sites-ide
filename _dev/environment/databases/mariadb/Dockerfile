@@ -1,0 +1,1 @@
+FROM mariadb:11.8.3-noble AS mariadb

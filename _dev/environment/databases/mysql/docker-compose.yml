@@ -1,7 +1,10 @@
 services:
     mysql:
         container_name: "mysites_db"
-        image: 'mysql:8.0' #mysql:8.4.6
+        image: ${NAMESPACE}_mysql:latest
+        build: 
+            context: . 
+            dockerfile: Dockerfile
         ports:
             - '3306:3306'
         environment:

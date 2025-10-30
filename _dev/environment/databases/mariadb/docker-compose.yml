@@ -1,7 +1,10 @@
 services:
     mariadb:
         container_name: "${NAMESPACE}_db"
-        image: 'mariadb:11.4-noble' 
+        image: ${NAMESPACE}_mariadb:latest
+        build: 
+            context: .
+            dockerfile: Dockerfile
         ports:
             - '3306:3306'
         env_file: 

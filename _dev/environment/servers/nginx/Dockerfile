@@ -1,4 +1,4 @@
-FROM nginx:stable-alpine3.20-slim AS nginx
+FROM nginx:mainline-alpine3.22 AS nginx
 
 WORKDIR /opt/repos
 
