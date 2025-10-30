@@ -33,6 +33,14 @@ class BuildCommand extends Command
     public function __invoke(OutputInterface $output, Application $application): int
     {
 
+        //we first need the cron build 
+        //wierdly we need to have the mysql_cron built first 
+        //this is because mysql_cli is built FROM it 
+        //and will fail because it doesn't exist 
+        $output->writeLn("docker compose build cron");
+        exec("docker compose build cron");
+
+        //now we proceed to build the rest of the containers
         $output->writeLn("docker compose build");
         exec("docker compose build");
 
