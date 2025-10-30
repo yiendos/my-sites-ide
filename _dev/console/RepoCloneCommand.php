@@ -41,42 +41,25 @@ class RepoCloneCommand extends Command
      */
     public function __invoke(OutputInterface $output, Application $application, InputInterface $input, SymfonyStyle $io): int
     {
-        $repo = $input->getArgument('repo'); 
-        $project = $input->getOption('project');
-        $laravel = $input->getOption('laravel'); 
+        $repo           = $input->getArgument('repo'); 
+        $project        = $input->getOption('project');
+        $laravel        = $input->getOption('laravel'); 
+        $projectName    = $this->determineProjectName($repo, $project);
 
-        //lets find out whether we have a valid git clone web url
-        $re = '/(git@github\.com\:)([A-Za-z0-9\/A-ZA-z0-9\.]*)(.git)/m';
-        preg_match($re, $repo, $matches);
-
-        if (!count($matches)) 
+        if (!strlen($projectName)) 
         {
             $io->error('This command expects a fully qualified SSH clone web url');
-
             return Command::FAILURE;
-        }
-
-        $projectName = !is_null($project) ? $project : last(explode("/", $matches[2]));
-
-        $io->info("git clone --recurse-submodules $repo Repos/$projectName");
-        passthru("git clone --recurse-submodules $repo Repos/$projectName");
+        }  
+        //lets proceed to clone the repository with the given projectName
+        $this->cloneRepository($io, $repo, $projectName);
 
         //then we need to configure the _build/config files
         $this->copyVhosts($projectName, $io, $output);
 
-        if ($laravel) 
-        {
-            $this->createLaravelFolders($projectName, $io, $output);
- 
-            //now lets install the composer dependencies
-            $installDependencies = new ArrayInput(['command' => 'ide:install-dependancies', 'project' => $projectName]);
-            $application->doRun($installDependencies, $output);
-
-            //now lets build the site assets 
-            $buildAssets = new ArrayInput(['command' => 'ide:build-assets', 'project' => $projectName]);
-            $application->doRun($buildAssets, $output);
-            
-            //$this->createDatabase($projectName, $io, $output);
+        //@todo refactor into own composer dependancy for my-sites-ide 
+        if ($laravel) {
+            $this->handleLaravel($io, $output, $application, $projectName); 
         }
 
         //now lets restart the servers so the changes are picked up 
@@ -84,6 +67,40 @@ class RepoCloneCommand extends Command
         $application->doRun($restartInput, $output);
 
         return Command::SUCCESS;
+    }
+    /**
+     * Determine the project name 
+     * If the user has provided a $project name use it 
+     * Otherwise use the organisation/project as the basis
+     * @param \Symfony\Component\Console\Style\SymfonyStyle $io
+     * @param [string] $repo
+     * @param [string] $projectName
+     */
+    public function cloneRepository($io, $repo, $projectName)
+    {
+        $io->info("git clone --recurse-submodules $repo Repos/$projectName");
+        passthru("git clone --recurse-submodules $repo Repos/$projectName");
+    }
+    /**
+     * Determine the project name 
+     * If the user has provided a $project name use it 
+     * Otherwise use the organisation/project as the basis
+     *
+     * @param [string] $repo
+     * @param [string] $project
+     * @return [string]
+     */
+    public function determineProjectName($repo, $project)
+    {
+        //lets find out whether we have a valid git clone web url
+        $re = '/(git@github\.com\:)([A-Za-z0-9\/A-ZA-z0-9\.]*)(.git)/m';
+        preg_match($re, $repo, $matches);
+
+        if (!count($matches)) {
+            return '';    
+        }
+
+        return !is_null($project) ? $project : last(explode("/", $matches[2]));
     }
     /**
      * Create the default server vhosts 
@@ -95,7 +112,14 @@ class RepoCloneCommand extends Command
      */
     public function copyVhosts($projectName, $io, $output)
     {
+        //should be provided in via environment
         $servers = ['nginx', 'apache']; 
+
+        if (file_exists("Repos/$projectName/_build/config"))
+        {
+            $io->warning("Default configuration folders already exist");
+            return;
+        }
 
         $output->writeLn("<comment>Going to create the default site vhost configuration</>"); 
         passthru("mkdir -p Repos/$projectName/_build/config");
@@ -111,34 +135,63 @@ class RepoCloneCommand extends Command
         }
     }
     /**
+     * 
+     * @param \Symfony\Component\Console\Style\SymfonyStyle $io
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param \Symfony\Component\Console\Application $application
+     * @param [string] $projectName
+     */
+    public function handleLaravel($io, $output, $application, $projectName)
+    {
+        $this->createLaravelFolders($projectName, $output);
+ 
+        //now lets install the composer dependencies
+        $installDependencies = new ArrayInput(['command' => 'ide:install-dependancies', 'project' => $projectName]);
+        $application->doRun($installDependencies, $output);
+
+        //now lets build the site assets 
+        $buildAssets = new ArrayInput(['command' => 'ide:build-assets', 'project' => $projectName]);
+        $application->doRun($buildAssets, $output);
+    }
+    /**
      * Create associated laravel folders 
      *
      * @param [string] $projectName
-     * @param \Symfony\Component\Console\Style\SymfonyStyle $io
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @return void
      */
-    public function createLaravelFolders($projectName, $io, $output)
+    public function createLaravelFolders($projectName, $output)
     {
         //not sure I like using a global 
         //https://raw.githubusercontent.com/laravel/laravel/refs/heads/12.x/public/index.php
         $lavavelIndex = $_ENV['LARAVEL_INDEX']; 
         
-        $output->writeLn('<comment>Going to make the default Laravel folders (storage | public)</>');
+        $output->writeLn([
+            '',
+            '<comment>Going to make the default Laravel folders (storage | public)</>',
+            ''
+        ]);
 
-        $io->info("mkdir -p Repos/$projectName/Sites/storage/framework/{cache,sessions,testing,views}"); 
-        passthru("mkdir -p Repos/$projectName/Sites/storage/framework/{cache,sessions,testing,views}");
+        $output->writeLn("<info>mkdir -p Repos/$projectName/Sites/storage/framework/{cache,sessions,testing,views}</>"); 
+        exec("mkdir -p Repos/$projectName/Sites/storage/framework/{cache,sessions,testing,views}");
 
-        $io->info("mkdir -p Repos/$projectName/Sites/storage/framework/cache/data"); 
-        passthru("mkdir -p Repos/$projectName/Sites/storage/framework/cache/data");
+        $output->writeLn("<info>mkdir -p Repos/$projectName/Sites/storage/framework/cache/data</>"); 
+        exec("mkdir -p Repos/$projectName/Sites/storage/framework/cache/data");
 
-        $io->info("mkdir -p Repos/$projectName/Sites/public");
-        passthru("mkdir -p Repos/$projectName/Sites/public");
+        $output->writeLn("<info>mkdir -p Repos/$projectName/Sites/public</>"); 
+        exec("mkdir -p Repos/$projectName/Sites/public");
 
-        $output->writeLn('<comment>About to create the default public/index.php file</>'); 
+        $output->writeLn([
+            '',
+            '',
+            '<comment>About to create the default public/index.php file</>',
+            ''
+        ]); 
         
-        $io->info("wget $lavavelIndex -O Repos/$projectName/Sites/public/index.php");
-        passthru("wget $lavavelIndex -O Repos/$projectName/Sites/public/index.php");
+        $output->writeLn("<info>wget $lavavelIndex -O Repos/$projectName/Sites/public/index.php</>"); 
+        exec("wget $lavavelIndex -O Repos/$projectName/Sites/public/index.php");
+
+
 
     }
 }
