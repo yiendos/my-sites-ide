@@ -7,12 +7,11 @@ ARG PHP_PECL_EXTS
 
 WORKDIR /opt/repos
 
-RUN apk add --no-cache ${PHPIZE_DEPS} linux-headers libpng-dev mariadb-client \
+RUN apk add --no-cache ${PHPIZE_DEPS} linux-headers mariadb-client \
         && pecl install ${PHP_PECL_EXTS} xdebug \
-        &&  docker-php-ext-configure gd \
-        &&  docker-php-ext-install pdo_mysql gd \
-        && docker-php-ext-enable ${PHP_PECL_EXTS} xdebug gd \
-        && apk del ${PHPIZE_DEPS} \ 
+        && docker-php-ext-install pdo_mysql \
+        && docker-php-ext-enable ${PHP_PECL_EXTS} xdebug \
+        && apk del ${PHPIZE_DEPS} linux-headers \ 
         && rm -Rf /var/cache/apk/* \ 
         && rm -Rf /etc/apk/* \
         && addgroup -g 20009 web \ 
