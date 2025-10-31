@@ -9,13 +9,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: create fake .env 
-        run: touch .env
-      - name: Build images
-        run: docker compose up -d ${{ secrets.APP }} --build
+      - name: Build cron image first
+        run: docker compose --progress tty build cron
         env: 
             NAMESPACE: ${{ secrets.NAMESPACE }}
-            APP: ${{ secrets.APP }}
+      - name: Build nginx image
+        run: docker compose --progress quiet build nginx
+        env: 
+            NAMESPACE: ${{ secrets.NAMESPACE }}
+      - name: Build fpm image
+        run: docker compose --progress quiet build fpm
+        env: 
+            NAMESPACE: ${{ secrets.NAMESPACE }}
+      - name: Build apache image
+        run: docker compose --progress quiet build apache
+        env: 
+            NAMESPACE: ${{ secrets.NAMESPACE }}
       - name: Run trivy over cron 
         uses: aquasecurity/trivy-action@0.28.0
         with:
