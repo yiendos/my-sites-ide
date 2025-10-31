@@ -10,7 +10,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Build cron image first
-        run: docker compose --progress tty build cron
+        run: docker compose --progress quiet build cron
         env: 
             NAMESPACE: ${{ secrets.NAMESPACE }}
       - name: Build nginx image
