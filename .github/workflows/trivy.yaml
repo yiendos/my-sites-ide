@@ -4,7 +4,10 @@ on:
   #push
   pull_request:
     types: [opened, assigned, review_requested]
-    branches: ['feature/**', 'hotfix/**', 'release/**']
+    branches: 
+      - 'feature/**'
+      - 'hotfix/**'
+      - 'release/**'
 jobs:
   build:
     name: Build
