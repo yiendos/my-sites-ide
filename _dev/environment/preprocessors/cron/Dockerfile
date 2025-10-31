@@ -1,6 +1,6 @@
 ARG PHP_PECL_EXTS="redis"
 
-FROM php:8.3.27-fpm-alpine3.21 AS fpm_server
+FROM php:8.3.27-cli-alpine3.21 AS cron
 
 # We need to declare that we want to use the args in this build step
 ARG PHP_PECL_EXTS
