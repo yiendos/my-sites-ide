@@ -1,0 +1,63 @@
+name: build
+on:
+  push
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build cron image first
+        run: docker compose --progress tty build cron
+        env: 
+            NAMESPACE: ${{ secrets.NAMESPACE }}
+      - name: Build nginx image
+        run: docker compose --progress quiet build nginx
+        env: 
+            NAMESPACE: ${{ secrets.NAMESPACE }}
+      - name: Build fpm image
+        run: docker compose --progress quiet build fpm
+        env: 
+            NAMESPACE: ${{ secrets.NAMESPACE }}
+      - name: Build apache image
+        run: docker compose --progress quiet build apache
+        env: 
+            NAMESPACE: ${{ secrets.NAMESPACE }}
+      - name: Run trivy over cron 
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'my_site_cron'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+      - name: Run trivy over nginx 
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'my_site_nginx'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+      - name: Run trivy over fpm 
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'my_site_fpm'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+      - name: Run trivy over apache 
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: 'my_site_apache'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
