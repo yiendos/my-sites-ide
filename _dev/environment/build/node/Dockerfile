@@ -1,3 +1,3 @@
-FROM node:23.9.0-alpine3.21 AS frontend
+FROM 22.21.1-alpine3.21 AS frontend
 
 WORKDIR /opt/repos/

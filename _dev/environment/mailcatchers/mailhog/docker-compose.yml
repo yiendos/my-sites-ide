@@ -1,0 +1,14 @@
+services:
+    mailhog:
+        container_name: "${NAMESPACE}_mailhog"
+        image: ${NAMESPACE}_mailhog:latest
+        build:
+            context: .
+            dockerfile: Dockerfile
+        env_file: 
+            - ./.env
+            - ./../../../../.env
+        ports:
+            - "8025:8025"
+        networks:
+            - my-sites-ide

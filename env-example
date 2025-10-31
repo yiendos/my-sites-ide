@@ -1,5 +1,5 @@
 NAMESPACE=my_site
-APP="fpm nginx apache mysql redis cli cron"
+APP="fpm nginx apache mysql redis cli cron mailhog"
 SERVERS="nginx apache"
 SITE=default
 MARIADB_DATABASE=yiendos
