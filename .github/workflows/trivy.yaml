@@ -1,4 +1,4 @@
-name: build
+name: Docker image scan for Pull Requests
 on:
   #this will trigger each time you push a commit, useful for debugging
   #push
