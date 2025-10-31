@@ -9,20 +9,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Build cron image first
-        run: docker compose --progress tty build cron
-        env: 
-            NAMESPACE: ${{ secrets.NAMESPACE }}
-      - name: Build nginx image
-        run: docker compose --progress quiet build nginx
-        env: 
-            NAMESPACE: ${{ secrets.NAMESPACE }}
-      - name: Build fpm image
-        run: docker compose --progress quiet build fpm
-        env: 
-            NAMESPACE: ${{ secrets.NAMESPACE }}
-      - name: Build apache image
-        run: docker compose --progress quiet build apache
+      - name: Build images
+        run: docker compose up -d ${{ secrets.APP }} --build
         env: 
             NAMESPACE: ${{ secrets.NAMESPACE }}
       - name: Run trivy over cron 
