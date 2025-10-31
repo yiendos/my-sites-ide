@@ -1,7 +1,10 @@
 name: build
 on:
-  push
-
+  #this will trigger each time you push a commit, useful for debugging
+  #push
+  pull_request:
+    types: [opened, assigned, review_requested]
+    branches: ['feature/**', 'hotfix/**', 'release/**']
 jobs:
   build:
     name: Build
