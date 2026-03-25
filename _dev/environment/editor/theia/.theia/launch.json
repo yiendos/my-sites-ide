@@ -1,0 +1,20 @@
+{
+    // this is an example xdebug configuration 
+    // that can be installed on a Repo basis
+    // /opt/repos is the path on fpm where repos are found
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Listen for Xdebug",
+            "type": "php",
+            "request": "launch",
+            "port": 9003,
+            "xdebugSettings": {
+                "max_data": -1
+            },
+            "pathMappings": {
+                "/opt/repos" : "${workspaceFolder}/"
+            }
+        }
+    ]
+}

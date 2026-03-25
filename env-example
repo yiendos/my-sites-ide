@@ -1,13 +1,12 @@
 NAMESPACE=my_site
-APP="fpm nginx apache mysql redis cli cron mailhog"
+APP="fpm nginx apache mysql redis cli cron mailhog theia"
 SERVERS="nginx apache"
 SITE=default
 MARIADB_DATABASE=yiendos
 DOCKER_FILE=_dev/environment/images/local/Dockerfile
 LARAVEL_INDEX=https://raw.githubusercontent.com/laravel/laravel/refs/heads/12.x/public/index.php
 SQL_MODE=ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
-PROMETHEUS_PASSWORD=_vU2rp*3eBPniL!7JP@aAy2E4LbQ!gQF47
-#       [php section configuration]
+# [php section configuration]
 #default is to prevent all tricky functions
 #however for development, this is less than ideal 
 #to remove these restrictions ensure that the root ./env

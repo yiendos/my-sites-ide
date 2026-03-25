@@ -19,5 +19,6 @@ include:
     - ./_dev/environment/build/node/docker-compose.yml
     - ./_dev/environment/caching/redis/docker-compose.yml
     - ./_dev/environment/mailcatchers/mailhog/docker-compose.yml
+    - ./_dev/environment/editor/theia/docker-compose.yml
 networks:
     my-sites-ide:
