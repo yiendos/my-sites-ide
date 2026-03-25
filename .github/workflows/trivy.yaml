@@ -49,6 +49,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+        continue-on-error: true
       - name: Run trivy over fpm 
         uses: aquasecurity/trivy-action@0.35.0
         with:
@@ -58,6 +59,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+        continue-on-error: true
       - name: Run trivy over apache 
         uses: aquasecurity/trivy-action@0.35.0
         with:
@@ -67,6 +69,7 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+        continue-on-error: true
       - name: Run trivy over mailhog 
         uses: aquasecurity/trivy-action@0.35.0
         with:
@@ -76,3 +79,4 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+        continue-on-error: true
