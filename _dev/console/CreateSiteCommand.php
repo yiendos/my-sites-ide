@@ -45,9 +45,6 @@ class CreateSiteCommand extends Command
         $output->writeLn("mkdir -p Repos/$projectName/_build/config"); 
         passthru("mkdir -p Repos/$projectName/_build/config");
         
-        $output->writeLn("mkdir -p Repos/$projectName/Projects"); 
-        passthru("mkdir -p Repos/$projectName/Projects");
-        
         //then we need to configure the _build/config files
         $this->copyVhosts($projectName);
 
@@ -68,8 +65,8 @@ class CreateSiteCommand extends Command
 
     public function copyVhosts($projectName)
     {
-        $servers = ['nginx', 'apache']; 
-
+        $servers = explode(' ', getenv('SERVERS'));
+        
         foreach($servers as $server)
         {
             $vhost = "Repos/$projectName/_build/config/1-$projectName-$server.conf";
