@@ -35,8 +35,8 @@ class BuildCommand extends Command
         $namespace = getenv('NAMESPACE');
 
         //cli is build from cron so we need to build this first 
-        $output->writeLn("docker compose --progress plain build cron");
-        passthru("docker compose --progress plain build cron");
+        $output->writeLn("docker buildx bake cron -f docker-compose.yml");
+        passthru("docker buildx bake cron -f docker-compose.yml");
 
         //now we proceed to build the rest of the containers
         $output->writeLn("docker compose build --build-arg NAMESPACE=$namespace ");
