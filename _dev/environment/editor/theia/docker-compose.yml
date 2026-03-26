@@ -1,13 +1,13 @@
 services:
   theia:
-    container_name: "${NAMESPACE}_theia" 
+    container_name: "theia" 
     image: "${NAMESPACE}_theia:latest"
     build:
       context: . 
       dockerfile: Dockerfile
     ports:
       - '3000:3000'
-      - '9003:9003' #we need to listen to xdebug running on the fpm container
+      #- '9003:9003' #we need to listen to xdebug running on the fpm container
     env_file: 
       - ./.env
       - ./../../../../.env

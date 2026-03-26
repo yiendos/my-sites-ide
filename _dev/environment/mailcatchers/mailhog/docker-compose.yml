@@ -1,6 +1,6 @@
 services:
     mailhog:
-        container_name: "${NAMESPACE}_mailhog"
+        container_name: "mailhog"
         image: ${NAMESPACE}_mailhog:latest
         build:
             context: .

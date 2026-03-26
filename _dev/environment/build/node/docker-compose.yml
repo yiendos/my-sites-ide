@@ -1,6 +1,6 @@
 services:
     node:
-        container_name: "${NAMESPACE}_node"
+        container_name: "node"
         image: ${NAMESPACE}_frontend:latest
         build:
             context: .

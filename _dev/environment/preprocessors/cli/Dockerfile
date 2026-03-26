@@ -1,1 +1,3 @@
-FROM my_site_cron AS cli
+ARG NAMESPACE=""
+
+FROM ${NAMESPACE}_cron AS cli

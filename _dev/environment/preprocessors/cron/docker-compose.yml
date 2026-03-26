@@ -1,6 +1,6 @@
 services:
     cron:
-        container_name: "${NAMESPACE}_cron"
+        container_name: "cron"
         image: ${NAMESPACE}_cron:latest
         build:
             context: .

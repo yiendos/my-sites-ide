@@ -1,6 +1,6 @@
 services:
     apache:
-        container_name: "${NAMESPACE}_apache"
+        container_name: "apache"
         image: ${NAMESPACE}_apache:latest
         build:
             context: .
