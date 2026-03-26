@@ -1,6 +1,6 @@
 services:
     nginx:
-        container_name: "${NAMESPACE}_nginx"
+        container_name: "nginx"
         image: ${NAMESPACE}_nginx:latest
         build:
             context: .

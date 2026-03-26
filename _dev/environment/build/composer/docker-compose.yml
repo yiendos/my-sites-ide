@@ -1,6 +1,6 @@
 services:
     composer:
-        container_name: "${NAMESPACE}_composer"
+        container_name: "composer"
         image: ${NAMESPACE}_composer:latest
         build:
             context: .

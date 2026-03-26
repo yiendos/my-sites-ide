@@ -1,6 +1,6 @@
 services:
     cli:
-        container_name: "${NAMESPACE}_cli"
+        container_name: "cli"
         image: ${NAMESPACE}_cli:latest
         build:
             context: .

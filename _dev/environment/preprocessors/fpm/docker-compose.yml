@@ -1,6 +1,6 @@
 services:
     fpm:
-        container_name: "${NAMESPACE}_fpm"
+        container_name: "fpm"
         image: ${NAMESPACE}_fpm:latest
         build:
             context: .

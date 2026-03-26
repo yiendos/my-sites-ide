@@ -1,6 +1,6 @@
 services:
     mariadb:
-        container_name: "${NAMESPACE}_db"
+        container_name: "db"
         image: ${NAMESPACE}_mariadb:latest
         build: 
             context: .

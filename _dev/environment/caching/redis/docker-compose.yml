@@ -1,6 +1,6 @@
 services:  
     redis:
-          container_name: "${NAMESPACE}_redis"
+          container_name: "redis"
           #image: "redis:alpine3.22"
           image: ${NAMESPACE}_redis 
           build: 
