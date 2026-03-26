@@ -10,5 +10,6 @@ services:
             - ./../../../../.env
         ports:
             - "8025:8025"
+            - "1025:1025"
         networks:
             - my-sites-ide

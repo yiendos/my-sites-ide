@@ -1,0 +1,20 @@
+services:
+  theia:
+    container_name: "${NAMESPACE}_theia" 
+    image: "${NAMESPACE}_theia:latest"
+    build:
+      context: . 
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+      - '9003:9003' #we need to listen to xdebug running on the fpm container
+    env_file: 
+      - ./.env
+      - ./../../../../.env
+    volumes: 
+      - './../../../../Repos:/home/project/'
+      #this will ensure that all your changes e.g install extensions 
+      - conf:/home/theia 
+#and this is acheived via a named volume
+volumes: 
+  conf:
