@@ -1,6 +1,6 @@
 services:
     mysql:
-        container_name: "mysites_db"
+        container_name: "db"
         image: ${NAMESPACE}_mysql:latest
         build: 
             context: . 
