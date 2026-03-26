@@ -1,6 +1,6 @@
 # We need an apache container which can pass requests to our FPM container,
 # as well as serve any static content..
-FROM httpd:2.4.65-trixie AS apache
+FROM httpd:2.4.66-trixie AS apache
 
 WORKDIR /opt/repos 
 
