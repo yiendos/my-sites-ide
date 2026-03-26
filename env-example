@@ -1,4 +1,4 @@
-NAMESPACE=my_site
+NAMESPACE=my_sites
 APP="fpm nginx apache mysql redis cli cron mailhog theia"
 SERVERS="nginx apache"
 SITE=default
