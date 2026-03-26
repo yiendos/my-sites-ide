@@ -1,4 +1,4 @@
-FROM composer:2.8.12 AS composer_base
+FROM composer:2.9.5 AS composer_base
 
 WORKDIR /opt/repos 
 
