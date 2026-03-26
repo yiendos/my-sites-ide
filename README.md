@@ -27,9 +27,9 @@ You can run the same images for your local environment, CI/CD/ staging/ and prod
 
 Now you can access your default homepage: 
 
-* https://localhost/ [nginx]
+* https://default.localhost/ [nginx]
 
-* https://localhost:8443/ [apache]
+* https://default.localhost:8443/ [apache]
 
 ## See available commands 
 
