@@ -6,8 +6,8 @@ services:
       context: . 
       dockerfile: Dockerfile
     ports:
-      - '3001:3000'
-      #- '9003:9003' #we need to listen to xdebug running on the fpm container
+      - '3000:3000'
+      - '9003:9003' #we need to listen to xdebug running on the fpm container
     env_file: 
       - ./.env
       - ./../../../../.env
