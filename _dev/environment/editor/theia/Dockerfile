@@ -27,6 +27,7 @@ RUN apt update && apt upgrade -y \
 ## Install Claude Code globally via official installer
 RUN curl -fsSL https://claude.ai/install.sh | bash
 RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && . ~/.bashrc
+RUN echo 'export PATH="$PATH:/home/theia/.config/composer/vendor/bin"' >> ~/.bashrc && . ~/.bashrc
 
 #Clean up
 #RUN apt-get clean autoclean \
