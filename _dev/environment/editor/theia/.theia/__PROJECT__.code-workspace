@@ -1,0 +1,31 @@
+{
+	"folders": [
+		{
+			"name": "Packages",
+			"path": "../../Packages"
+		},
+		{
+			"name": "__PROJECT__",
+			"path": "."
+		}
+	],
+	"settings": {},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "Listen for Xdebug",
+				"type": "php",
+				"request": "launch",
+				"port": 9003,
+				"xdebugSettings": {
+					"max_data": -1
+				},
+				"pathMappings": {
+					"/opt/repos/__PROJECT__/Sites/" : "${workspaceFolder:__PROJECT__}/Sites",
+					"/opt/Packages": "${workspaceFolder:Packages}"
+				}
+			}
+		]
+	}
+}
