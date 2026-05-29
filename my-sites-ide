@@ -12,6 +12,7 @@ use Yiendos\MySitesIde\SparkCommand;
 use Yiendos\MySitesIde\BuildCommand AS ImageBuildCommand;
 use Yiendos\MySitesIde\ComposerCommand;
 use Yiendos\MySitesIde\CreateSiteCommand;
+use Yiendos\MySitesIde\CreateSSLCommand;
 use Yiendos\MySitesIde\RepoCloneCommand;
 use Yiendos\MySitesIde\RestartCommand;
 
@@ -29,6 +30,7 @@ $application->add(new CreateSiteCommand());
 $application->add(new RepoCloneCommand());
 $application->add(new ComposerCommand());
 $application->add(new AssetsCommand());
+$application->add(new CreateSSLCommand());
 
 /** If the user has a deployment mechanism installed via composer */
 if (class_exists('Yiendos\Deploy\Console\Commands')) 

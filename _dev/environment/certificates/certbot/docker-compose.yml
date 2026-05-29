@@ -1,0 +1,15 @@
+services:
+  certbot:    
+        image: certbot/dns-cloudflare:latest
+        volumes:
+            - ./../../../../_dev/environment/certificates/certbot/conf:/etc/letsencrypt/:rw
+            - ./../../../../_dev/environment/certificates/certbot/credentials.ini:/etc/credentials.ini
+
+        env_file:
+            - .env
+            - ./../../../../.env
+        environment:
+          - DNS_CLOUDFLARE_EMAIL=${DNS_CLOUDFLARE_EMAIL}
+          - DNS_CLOUDFLARE_API_KEY=${DNS_CLOUDFLARE_API_KEY}
+
+    # docker compose run certbot certonly --dns-cloudflare --dns-cloudflare-credentials /etc/credentials.ini -d local-website.co.uk
