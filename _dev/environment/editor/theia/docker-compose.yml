@@ -12,6 +12,7 @@ services:
       - ./.env
       - ./../../../../.env
     volumes: 
+      - './../../../../Packages:/home/project/Packages'
       - './../../../../Repos:/home/project/'
       #this will ensure that all your changes e.g install extensions 
       - conf:/home/theia 

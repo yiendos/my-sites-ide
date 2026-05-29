@@ -5,3 +5,5 @@ _dev/environment/databases/**/data/*
 _dev/deployment
 /Packages/*
 Repos/*
+_dev/environment/certificates/certbot/conf
+_dev/environment/certificates/certbot/credentials.ini
