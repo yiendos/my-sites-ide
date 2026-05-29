@@ -7,3 +7,5 @@ _dev/deployment
 Repos/*
 _dev/environment/certificates/certbot/conf
 _dev/environment/certificates/certbot/credentials.ini
+!_dev/environment/editor/theia/plugins/.gitkeep 
+_dev/environment/editor/theia/plugins
