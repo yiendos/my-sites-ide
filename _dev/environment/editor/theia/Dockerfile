@@ -23,13 +23,15 @@ RUN apt-get update \
     && php -r "if (hash_file('SHA384', '/tmp/composer-setup.php') !== '$HASH') { echo 'Installer corrupt'; unlink('/tmp/composer-setup.php'); exit(1); } echo 'Installer verified';" \
     && php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer \
     && rm /tmp/composer-setup.php \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \    
+    && mkdir -p /home/theia/.config/psysh
 
-# Switch to theia for user-level installs so paths land under /home/theia
+# Install Laravel installer as root with an explicit COMPOSER_HOME, then fix ownership
+RUN COMPOSER_HOME=/home/theia/.config/composer \
+    composer global require laravel/installer --no-interaction \
+    && chown -R theia:theia /home/theia/
+
 USER theia
-
-# Laravel installer → /home/theia/.config/composer/vendor/bin
-RUN composer global require laravel/installer
 
 # Claude Code CLI → /home/theia/.local/bin
 RUN curl -fsSL https://claude.ai/install.sh | bash
