@@ -1,47 +1,48 @@
-FROM ghcr.io/eclipse-theia/theia-ide/theia-ide:1.69.0
+FROM ghcr.io/eclipse-theia/theia-ide/theia-ide:1.69.0 AS aistudio
 
-#obviously not the best permissions if this image was to ever be published
-#however we are not going to publish this image rather we 
-#give the agent root to enable work to be 
-#conducted in the container 
-USER root 
+USER root
 
 SHELL ["/bin/bash", "-c"]
 
-WORKDIR /
+# System-level installs (need root): PHP 8.4 + Composer binary at /usr/local/bin/composer
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    apt-transport-https lsb-release ca-certificates curl gnupg2 \
+    build-essential wget unzip tree sqlite3 nano \
+    && curl -fsSL https://packages.sury.org/php/apt.gpg \
+    | gpg --dearmor -o /etc/apt/trusted.gpg.d/sury-php.gpg \
+    && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" \
+    | tee /etc/apt/sources.list.d/sury-php.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+    php8.4 php8.4-cli php8.4-fpm php8.4-mysql php8.4-zip php8.4-xml \
+    php8.4-gd php8.4-curl php8.4-mbstring php8.4-sqlite3 php8.4-bcmath \
+    php8.4-soap php8.4-readline php8.4-intl php8.4-common \
+    && HASH=$(curl -sS https://composer.github.io/installer.sig) \
+    && curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php \
+    && php -r "if (hash_file('SHA384', '/tmp/composer-setup.php') !== '$HASH') { echo 'Installer corrupt'; unlink('/tmp/composer-setup.php'); exit(1); } echo 'Installer verified';" \
+    && php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && rm /tmp/composer-setup.php \
+    && rm -rf /var/lib/apt/lists/* \    
+    && mkdir -p /home/theia/.config/psysh
 
-#Install php and composer on on Debian 11 (Bullseye)
-RUN apt update && apt upgrade -y \
-    && apt install -y apt-transport-https lsb-release ca-certificates curl gnupg2 build-essential wget unzip tree sqlite3 nano\ 
-    && curl -fsSL https://packages.sury.org/php/apt.gpg | gpg --dearmor -o /etc/apt/trusted.gpg.d/sury-php.gpg \
-    && echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/sury-php.list \ 
-    && apt update \
-    && apt install -y php8.4 php8.4-cli php8.4-fpm php8.4-mysql php8.4-zip php8.4-xml php8.4-gd php8.4-curl php8.4-mbstring php8.4-sqlite3 php8.4-bcmath php8.4-soap php8.4-readline php8.4-intl php8.4-common \ 
-    && curl -sS https://getcomposer.org/installer -o composer-setup.php \ 
-    && HASH=`curl -sS https://composer.github.io/installer.sig` \ 
-    && php -r "if (hash_file('SHA384', 'composer-setup.php') === '$HASH') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \ 
-    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \ 
-    && composer global require laravel/installer
+# Install Laravel installer as root with an explicit COMPOSER_HOME, then fix ownership
+RUN COMPOSER_HOME=/home/theia/.config/composer \
+    composer global require laravel/installer --no-interaction \
+    && chown -R theia:theia /home/theia/
 
-#
-## Install Claude Code globally via official installer
+USER theia
+
+# Claude Code CLI → /home/theia/.local/bin
 RUN curl -fsSL https://claude.ai/install.sh | bash
-RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && . ~/.bashrc
-RUN echo 'export PATH="$PATH:/home/theia/.config/composer/vendor/bin"' >> ~/.bashrc && . ~/.bashrc
 
-#Clean up
-#RUN apt-get clean autoclean \
-#    && apt-get autoremove --yes \
-#    && rm -rf /var/lib/{apt,dpkg,cache,log}/
-#
-## Install Opencode
-#RUN npm install -g opencode-ai
-#
-## Install OpenAI Codex CLI
-#RUN npm install -g @openai/codex
-#
-## Install Gemini CLI
-#RUN npm install -g @google/gemini-cli
-#
-## Install GitHub Copilot CLI
-#RUN npm install -g @github/copilot
+# PATH references theia's home directories; no ENV HOME hack needed
+ENV PATH="/home/theia/.local/bin:/home/theia/.config/composer/vendor/bin:${PATH}"
+
+# Copy plugins — theia already owns /home/theia/plugins in the base image
+COPY --chown=theia:theia plugins/ /home/theia/plugins/
+
+# Uncomment to add further AI CLI tools at build time:
+# RUN npm install -g opencode-ai
+# RUN npm install -g @openai/codex
+# RUN npm install -g @google/gemini-cli
