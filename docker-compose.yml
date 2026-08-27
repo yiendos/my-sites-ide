@@ -21,5 +21,6 @@ include:
     - ./_dev/environment/mailcatchers/mailhog/docker-compose.yml
     - ./_dev/environment/editor/theia/docker-compose.yml
     - ./_dev/environment/certificates/certbot/docker-compose.yml
+    - ./_dev/environment/security/zaproxy/docker-compose.yml
 networks:
     my-sites-ide:

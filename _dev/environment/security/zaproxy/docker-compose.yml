@@ -1,0 +1,11 @@
+services:
+    zaproxy:
+        container_name: "zaproxy"
+        image: ghcr.io/zaproxy/zaproxy:20260826-weekly
+        volumes:
+            - './reports:/zap/wrk'
+        networks:
+            - my-sites-ide
+
+    # not started by `ide:spark` (deliberately excluded from APP= in .env)
+    # invoked on demand via `php my-sites-ide ide:zap-scan <target>`
