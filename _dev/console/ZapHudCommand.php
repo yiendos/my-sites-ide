@@ -53,6 +53,21 @@ class ZapHudCommand extends Command
             . " -e " . escapeshellarg("ZAP_WEBSWING_OPTS=$zapOpts")
             . " zaproxy zap-webswing.sh";
 
+        // ZAP_TARGET_ALIAS is baked into nginx's network alias at container-creation time
+        // (Compose substitution, see servers/nginx/docker-compose.yml) - not something this
+        // command can change at runtime, so surface it here rather than let it be a silent
+        // stale value someone forgets they changed.
+        $targetAlias = getenv('ZAP_TARGET_ALIAS') ?: 'default.test';
+
+        $io->note([
+            "We are going to start ZAP HUD and expect a network connection to target: $targetAlias",
+            "(this is configured via ZAP_TARGET_ALIAS in the root .env - requires 'docker compose up -d nginx' after changing it)",
+        ]);
+
+        if (!$io->confirm('Do you wish to continue?', true)) {
+            return Command::SUCCESS;
+        }
+
         $output->writeLn([
             "",
             $command,

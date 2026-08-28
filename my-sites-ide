@@ -17,6 +17,8 @@ use Yiendos\MySitesIde\RepoCloneCommand;
 use Yiendos\MySitesIde\RestartCommand;
 use Yiendos\MySitesIde\ZapScanCommand;
 use Yiendos\MySitesIde\ZapHudCommand;
+use Yiendos\MySitesIde\ZapContextCommand;
+use Yiendos\MySitesIde\ZapDaemonCommand;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__);
 $dotenv->load();
@@ -35,6 +37,8 @@ $application->add(new AssetsCommand());
 $application->add(new CreateSSLCommand());
 $application->add(new ZapScanCommand());
 $application->add(new ZapHudCommand());
+$application->add(new ZapContextCommand());
+$application->add(new ZapDaemonCommand());
 
 /** If the user has a deployment mechanism installed via composer */
 if (class_exists('Yiendos\Deploy\Console\Commands')) 
