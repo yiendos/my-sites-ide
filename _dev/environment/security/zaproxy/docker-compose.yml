@@ -4,8 +4,20 @@ services:
         image: ghcr.io/zaproxy/zaproxy:20260826-weekly
         volumes:
             - './reports:/zap/wrk'
+        mem_limit: ${ZAP_MEM_LIMIT:-5g}
+        cpus: '${ZAP_CPUS:-4}'
+        cpuset: '${ZAP_CPUSET:-0,1,2,3}'
+        env_file:
+            - ./.env
+            - ./../../../../.env
+        ports:
+            - '8080:8080'
+            - '8090:8090'
         networks:
             - my-sites-ide
 
     # not started by `ide:spark` (deliberately excluded from APP= in .env)
     # invoked on demand via `php my-sites-ide ide:zap-scan <target>`
+    # or `php my-sites-ide ide:zap-hud` for the browser-based Desktop UI
+    # ports are only published when zap-hud runs `docker compose run --service-ports`
+    # ide:zap-hud - further the pid / service is only ran when you visit the localhost:8080/zap
