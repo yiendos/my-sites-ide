@@ -11,6 +11,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ZapContextCommand extends Command
 {
+    use InteractsWithZapApi;
+
     /**
      * The ability to configure the console command
      *
@@ -40,8 +42,7 @@ class ZapContextCommand extends Command
         $configPath = __DIR__ . "/../environment/security/zaproxy/contexts/{$target}.zap-config.php";
 
         if (!is_file($configPath)) {
-            $io->error("No config found at _dev/environment/security/zaproxy/contexts/{$target}.zap-config.php (copy example.zap-config.php to get started)");
-            return Command::FAILURE;
+            return $this->scaffoldConfig($io, $target, $configPath);
         }
 
         $config = require $configPath;
@@ -180,32 +181,34 @@ class ZapContextCommand extends Command
     }
 
     /**
-     * Call the ZAP API via `docker compose exec` into the running zaproxy
-     * container - the API port isn't reachable directly from the host.
-     *
-     * @param SymfonyStyle $io
-     * @param string $path e.g. "context/action/newContext"
-     * @param array<string, string> $params
-     * @param boolean $allowMissing suppress the "does_not_exist" error (used for removeContext on a first run)
-     * @return array<string, mixed>
+     * Scaffolds a new <target>.zap-config.php from the tracked example
+     * rather than requiring a manual copy - substitutes the example's
+     * placeholder hostname throughout. Can't guess real credentials, login
+     * field names, or an indicator regex, so this always stops short of
+     * actually building anything - the point is removing the copy/rename
+     * step, not the "fill in what only you know" step.
      */
-    private function zapApi(SymfonyStyle $io, string $path, array $params, bool $allowMissing = false): array
+    private function scaffoldConfig(SymfonyStyle $io, string $target, string $configPath): int
     {
-        $command = ['docker', 'compose', 'exec', 'zaproxy', 'curl', '-s', "http://localhost:8090/JSON/{$path}/"];
+        $examplePath = __DIR__ . '/../environment/security/zaproxy/contexts/example.zap-config.php';
 
-        foreach ($params as $key => $value) {
-            $command[] = '--data-urlencode';
-            $command[] = "{$key}={$value}";
+        if (!is_file($examplePath)) {
+            $io->error("No config found at _dev/environment/security/zaproxy/contexts/{$target}.zap-config.php, and no example.zap-config.php to scaffold from.");
+            return Command::FAILURE;
         }
 
-        $commandString = implode(' ', array_map('escapeshellarg', $command));
-        $response = shell_exec($commandString);
-        $decoded = json_decode($response ?? '', true) ?? [];
+        $scaffold = str_replace(
+            ['example.test', 'example\.test'],
+            ["{$target}.test", "{$target}\.test"],
+            file_get_contents($examplePath)
+        );
+        file_put_contents($configPath, $scaffold);
 
-        if (isset($decoded['code']) && !($allowMissing && $decoded['code'] === 'does_not_exist')) {
-            $io->error("ZAP API error on {$path}: " . ($decoded['message'] ?? $response));
-        }
+        $io->warning([
+            "No config existed for '{$target}' - scaffolded _dev/environment/security/zaproxy/contexts/{$target}.zap-config.php from the example.",
+            "Edit its login/indicator/user details for {$target}.test, then run this command again.",
+        ]);
 
-        return $decoded;
+        return Command::FAILURE;
     }
 }
