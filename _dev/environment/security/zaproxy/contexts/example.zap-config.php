@@ -1,10 +1,12 @@
 <?php
 
-// Copy this file to <target>.zap-config.php (gitignored) and run:
-//   php my-sites-ide ide:zap-context <target>
-// against a running `ide:zap-hud` container. Rebuilds the named ZAP context
-// from scratch each time (safe to re-run after editing this file) and exports
-// it to reports/<target>.context, ready for `ide:zap-scan -n -U`.
+// Running `php my-sites-ide ide:zap-context <target>` scaffolds a copy of
+// this file to <target>.zap-config.php (gitignored) automatically if one
+// doesn't exist yet - edit the scaffolded copy's placeholder values, then
+// re-run the same command. It starts a ZAP daemon itself if needed, rebuilds
+// the named context from scratch each time (safe to re-run after editing),
+// and exports it to reports/<target>.context, ready for
+// `ide:zap-scan <url> --context=<target> --user=<name>`.
 
 return [
     // The ZAP context name, and the site's base URL.
@@ -58,4 +60,24 @@ return [
         'username' => 'demo@example.com',
         'password' => 'change-me',
     ],
+
+    // Extra URLs to seed the scan with, beyond whatever the crawler finds by
+    // following links. The crawler only follows plain <a href>/<form> markup -
+    // it misses anything JS-only (fetch/AJAX calls with no matching link) and,
+    // less obviously, links that ARE in the HTML but sit inside a collapsed
+    // nav dropdown (verified empirically: consistently missed across repeated
+    // runs even with a generous crawl duration).
+    //
+    // For a Laravel target, this is worth generating dynamically rather than
+    // hand-maintaining a list that goes stale - see stockman.zap-config.php
+    // for a working example that shells out to `php artisan route:list --json`,
+    // filters to GET routes reachable by the scan's own user, and resolves
+    // any {route-model-binding} parameter to a real database id (the highest-
+    // value case: an /edit route's id flows straight into a query, making it
+    // exactly where IDOR/injection bugs live - skipping every parameterized
+    // route for simplicity would skip the most security-relevant pages).
+    // 'seed_urls' => [
+    //     'https://example.test/orders',
+    //     'https://example.test/orders/42/edit',
+    // ],
 ];
