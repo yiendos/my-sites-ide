@@ -201,7 +201,12 @@ class ZapScanCommand extends Command
         $reportName = "report-" . date('Y-m-d_His');
         $generated = $this->zapApi($io, 'reports/action/generate', [
             'title' => "ZAP scan - {$context}",
-            'template' => 'traditional-html',
+            // "-plus" embeds the actual captured request/response for every
+            // alert instance, not just the description/solution text the
+            // plain template gives - confirmed live, real response bodies
+            // are genuinely present. Real cost: ~60x larger files (14.6MB
+            // vs ~240KB for the same 1030-alert session, tested directly).
+            'template' => 'traditional-html-plus',
             'reportDir' => "/zap/wrk/{$siteName}",
             'reportFileName' => $reportName,
         ]);
