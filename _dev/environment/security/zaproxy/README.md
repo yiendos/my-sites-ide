@@ -84,25 +84,34 @@ validation. ZAP records every proxied request into its session as a side effect;
 Active Scan can then mutate those recorded messages exactly as it would a spidered
 GET.
 
-**Today this is ad hoc and unverified** — there is no checklist, so a missed write
-route is a silent gap, the same way the spider silently missed dropdown-nested
-links before `seed_urls` existed. Don't imply full endpoint coverage from a Phase 5
-pass until the target state below exists.
+This is checklist-driven, not ad hoc, via two pieces:
 
-### Target state — planned, not yet built
+```
+php artisan security:seed-write-routes           # Stockman: {method, uri} manifest
+php my-sites-ide ide:zap-coverage <target>        # diff against what ZAP actually recorded
+```
 
-1. **Non-GET manifest generator** — a companion to `SecuritySeedUrlsCommand`'s
-   `isSeedable()` (`Repos/stockman`), reusing the same route-model-binding
-   resolution and admin/login/infra exclusion filters, but emitting `{method, uri}`
-   pairs for every PUT/PATCH/DELETE/POST route instead of visitable URLs.
-2. That manifest becomes the actual input to Phase 5's walkthrough — a checklist,
-   not a vibe — whether driven by a human in the HUD or, later, a scripted journey
-   (Selenium/Playwright; check first whether Stockman already has Dusk set up
-   before adding new browser-automation infra).
-3. **Coverage diff, not a hope**: after the walkthrough, diff what ZAP actually
-   recorded (`core/view/messages`, filtered by method+URL) against the manifest.
-   Anything with zero matching recorded messages is a route nobody exercised —
-   a visible gap instead of a silent one.
+`security:seed-write-routes` (`Repos/stockman`) generates the manifest the same way
+`security:seed-urls` does — route-model-binding params resolved to real ids, same
+admin/login/infra exclusions — exposed to the context config as `write_routes`.
+After a Phase 5 walkthrough, `ide:zap-coverage <target>` pulls every message ZAP
+recorded this session, hands the raw `{method, url}` list to Stockman's
+`security:coverage-diff` (route-matching has to happen there — it's the only side
+with the route table), and prints covered vs. uncovered. An uncovered entry is a
+route nobody exercised, visible instead of silent.
+
+**Scope limit, accepted rather than solved**: the manifest is built from
+`Route::getRoutes()`, so it only covers traditional route-based write endpoints
+(auth/account flows, the `api/*` create endpoints — 11 routes on Stockman today).
+Stockman's actual quantity-edit/delete interactions are Livewire component actions
+dispatched through one shared endpoint (`livewire-{hash}/update`), not separate
+routes — invisible to any route-table enumeration, no matter how this is extended.
+ZAP itself doesn't care (a proxied Livewire request is scanned exactly like any
+other POST), so Phase 5's manual walkthrough still exercises and scans them fine —
+they just can't appear on this particular checklist, or be confirmed "uncovered" if
+skipped. Closing that would mean a second manifest source (reflection over Livewire
+component classes for public methods bound to `wire:click`/`wire:submit`), not yet
+built.
 
 ## Phase 6 — Fix → re-run as regression
 
@@ -119,5 +128,6 @@ php my-sites-ide ide:zap-context <target>              # build/rebuild auth cont
 php my-sites-ide ide:zap-scan <url> --context=<target> --user=<name>          # baseline
 php my-sites-ide ide:zap-scan <url> --context=<target> --user=<name> --full   # full active scan
 php my-sites-ide ide:zap-hud                            # interactive browser (webswing)
+php my-sites-ide ide:zap-coverage <target>              # diff recorded traffic vs. write_routes
 docker compose stop zaproxy                             # tear down when done
 ```

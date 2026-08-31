@@ -19,6 +19,7 @@ use Yiendos\MySitesIde\ZapScanCommand;
 use Yiendos\MySitesIde\ZapHudCommand;
 use Yiendos\MySitesIde\ZapContextCommand;
 use Yiendos\MySitesIde\ZapDaemonCommand;
+use Yiendos\MySitesIde\ZapCoverageCommand;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__);
 $dotenv->load();
@@ -39,6 +40,7 @@ $application->add(new ZapScanCommand());
 $application->add(new ZapHudCommand());
 $application->add(new ZapContextCommand());
 $application->add(new ZapDaemonCommand());
+$application->add(new ZapCoverageCommand());
 
 /** If the user has a deployment mechanism installed via composer */
 if (class_exists('Yiendos\Deploy\Console\Commands')) 
