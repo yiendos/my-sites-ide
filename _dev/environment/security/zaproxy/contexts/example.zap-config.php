@@ -80,4 +80,15 @@ return [
     //     'https://example.test/orders',
     //     'https://example.test/orders/42/edit',
     // ],
+
+    // Companion to seed_urls, for PUT/PATCH/POST routes - a spider seed has
+    // no body, so seed_urls can never reach a write-only route. This list
+    // isn't scanned automatically; it's the checklist for the browser-based
+    // write-verb walkthrough (see zaproxy/README.md Phase 5) and the input
+    // to `ide:zap-coverage` once built. Generate the same way as seed_urls -
+    // from the target app's own route table, not hand-maintained.
+    // 'write_routes' => [
+    //     ['method' => 'POST', 'uri' => 'https://example.test/orders'],
+    //     ['method' => 'PUT', 'uri' => 'https://example.test/orders/42'],
+    // ],
 ];
