@@ -7,3 +7,8 @@ _dev/deployment
 Repos/*
 _dev/environment/certificates/certbot/conf
 _dev/environment/certificates/certbot/credentials.ini
+_dev/environment/editor/theia/plugins
+_dev/environment/security/zaproxy/reports/*
+!_dev/environment/security/zaproxy/reports/.gitkeep
+_dev/environment/security/zaproxy/contexts/*.zap-config.php
+!_dev/environment/security/zaproxy/contexts/example.zap-config.php
