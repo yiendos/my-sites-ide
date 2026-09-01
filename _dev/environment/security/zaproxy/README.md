@@ -16,6 +16,29 @@ edit the placeholder login URL, indicator regex, poll URL, scope and user creden
 then re-run the same command. Rebuilds the context from scratch every time, so it's
 always safe to re-run after editing. Exports to `reports/<target>.context`.
 
+**Skip the manual-edit step entirely** by passing the details as flags instead — when
+no config exists yet and enough are supplied, a complete config is generated directly
+and the context gets built in the same command, no scaffold-then-edit-then-rerun cycle:
+
+```
+ZAP_TARGET_PASSWORD=<password> php my-sites-ide ide:zap-context <target> \
+  --site-url=https://<target>.test \
+  --login-url=/login \
+  --login-data='email={%username%}&password={%password%}&_token={%_token%}' \
+  --indicator='action="https://<target>\.test/logout"' \
+  --poll-url=/home \
+  --username=demo@example.com
+```
+
+`--login-url`/`--poll-url`/`--logout-url` (defaults to `/logout`) accept a path relative
+to `--site-url` or a full URL either way. Scope (`include`/`exclude`) is derived
+automatically from `--site-url` plus the login/logout URLs — no separate flags needed.
+The password comes from `ZAP_TARGET_PASSWORD`, not a `--password` flag, to keep it out
+of shell history and process listings. This only covers what `example.zap-config.php`
+otherwise leaves for manual editing (`login`/`indicator`/`scope`/`user`) — `seed_urls`/
+`write_routes`/`livewire_actions` still need wiring up by hand per target, same as
+`stockman.zap-config.php` does (a shell-out to the target app's own artisan commands).
+
 ## Phase 1 — CLI: fast baseline (passive only)
 
 ```

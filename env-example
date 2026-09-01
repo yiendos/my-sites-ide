@@ -25,6 +25,14 @@ PHP_DISABLE_FUNCTIONS=
 # much longer) - a scoped manual Active Scan via ide:zap-hud is usually the
 # better way to go deeper on this specific rule.
 #ZAP_ASCAN_DOMXSS_STRENGTH=LOW
+
+# Password for ide:zap-context's CLI-flag config generation (--site-url,
+# --login-url, --username, etc. - see ide:zap-context --help). Deliberately
+# not a --password flag, to keep it out of shell history/process listings.
+# No sensible shared default (every target's demo account differs), so
+# unlike the settings above this is set here only, never in zaproxy/.env -
+# that file is tracked by git, this is a credential even if a low-stakes one.
+#ZAP_TARGET_PASSWORD=
 # How long `ide:zap-scan --full` waits for the active scan before giving up
 # and generating a report anyway - the scan keeps running server-side
 # regardless, this is just the CLI's own patience. Default 1800s (30 min),
