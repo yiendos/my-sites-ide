@@ -119,14 +119,13 @@ class ZapHudCommand extends Command
         $io->newLine();
 
         foreach ($writeRoutes as $route) {
-            $io->writeln("  {$route['method']}  {$route['uri']}");
+            $io->writeln("  * {$route['method']}  {$route['uri']}");
+            $io->newLine();
         }
 
         foreach ($livewireActions as $action) {
-            $io->writeln("  {$action['method']}()  on  {$action['uri']}");
-            $io->writeln("    {$action['blade']}");
+            $io->writeln("  * {$action['method']}()  on  {$action['uri']}");
+            $io->newLine();
         }
-
-        $io->newLine();
     }
 }

@@ -96,10 +96,11 @@ class ZapCoverageCommand extends Command
         }
 
         $io->writeln('Not routes - invisible to the diff above. Trigger each via the HUD, then confirm ZAP recorded the resulting request.');
+        $io->newLine();
 
         foreach ($actions as $action) {
-            $io->writeln("  {$action['method']}()  on  {$action['uri']}");
-            $io->writeln("    {$action['blade']}");
+            $io->writeln("  * {$action['method']}()  on  {$action['uri']}");
+            $io->newLine();
         }
     }
 
