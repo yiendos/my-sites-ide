@@ -206,7 +206,20 @@ class ZapScanCommand extends Command
                 // 1800s as the default gives real headroom without waiting
                 // forever on a genuinely hung scan.
                 $ascanTimeout = (int) (getenv('ZAP_ASCAN_TIMEOUT_SECONDS') ?: 1800);
-                $this->pollUntilComplete($io, 'ascan/view/status', ['scanId' => $ascan['scanAsUser']], $ascanTimeout);
+                $scanId = $ascan['scanAsUser'];
+
+                // Bypasses pollUntilComplete (used as-is for spider, above) since
+                // this is the only wait that needs a prefix showing which rule is
+                // actually running - "40%" alone doesn't say what's taking so long.
+                $this->pollUntil(
+                    $io,
+                    'ascan/view/status',
+                    ['scanId' => $scanId],
+                    fn ($r) => ($r['status'] ?? '0') === '100',
+                    $ascanTimeout,
+                    fn ($r) => ($r['status'] ?? '?') . '%',
+                    fn () => $this->currentAscanPlugin($io, $scanId)
+                );
             } else {
                 $io->warning('Active scan did not return a scan id - not waited on.');
             }
@@ -289,8 +302,9 @@ class ZapScanCommand extends Command
      *
      * @param callable(array<string, mixed>): bool $isDone
      * @param callable(array<string, mixed>): string $describe
+     * @param callable(): string $prefix
      */
-    private function pollUntil(SymfonyStyle $io, string $path, array $params, callable $isDone, int $timeoutSeconds, ?callable $describe = null): void
+    private function pollUntil(SymfonyStyle $io, string $path, array $params, callable $isDone, int $timeoutSeconds, ?callable $describe = null, ?callable $prefix = null): void
     {
         $waited = 0;
 
@@ -308,12 +322,40 @@ class ZapScanCommand extends Command
 
             if ($waited > 0 && $waited % 15 === 0) {
                 $status = $describe ? $describe($result) : '';
-                $io->writeln("  ...still waiting (" . $this->formatDuration($waited) . ' elapsed' . ($status !== '' ? ", {$status}" : '') . ')');
+                $prefixText = $prefix ? $prefix() : '';
+                $io->writeln("  {$prefixText}...still waiting (" . $this->formatDuration($waited) . ' elapsed' . ($status !== '' ? ", {$status}" : '') . ')');
             }
 
             sleep(3);
             $waited += 3;
         }
+    }
+
+    /**
+     * "40%" alone doesn't say what's actually taking so long - a stuck rule
+     * looks identical to a merely slow one from the outside (this is exactly
+     * how the DOM XSS bottleneck went unnoticed until someone dug into
+     * scanProgress by hand). ascan/view/scanProgress has no single "current
+     * rule" field, only a full per-rule breakdown, and no literal "Running"
+     * status either - confirmed live (not assumed) that an in-progress rule's
+     * status is a bare percentage string like "45%", distinct from
+     * "Complete", "Pending", or an OAST-skip message. Returns '' (not found,
+     * or between rules) rather than a stale/wrong name.
+     */
+    private function currentAscanPlugin(SymfonyStyle $io, string $scanId): string
+    {
+        $progress = $this->zapApi($io, 'ascan/view/scanProgress', ['scanId' => $scanId]);
+        $hostProcesses = $progress['scanProgress'][1]['HostProcess'] ?? [];
+
+        foreach ($hostProcesses as $entry) {
+            $plugin = $entry['Plugin'] ?? [];
+
+            if (preg_match('/^\d+%$/', $plugin[3] ?? '')) {
+                return $plugin[0];
+            }
+        }
+
+        return '';
     }
 
     /**
