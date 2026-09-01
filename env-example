@@ -18,6 +18,13 @@ PHP_DISABLE_FUNCTIONS=
 # keep conservative, the zaproxy container is memory-capped - uncomment to override
 #ZAP_ASCAN_THREADS_PER_HOST=2
 #ZAP_ASCAN_DELAY_MS=0
+# DOM XSS (scanner 40026) is uniquely expensive - a real browser per test case,
+# and the sole bottleneck confirmed blocking a full scan against a DOM-heavy
+# app. Default LOW keeps --full scans tractable; raise it here only if you
+# want site-wide MEDIUM/HIGH DOM XSS coverage from the CLI (expect it to take
+# much longer) - a scoped manual Active Scan via ide:zap-hud is usually the
+# better way to go deeper on this specific rule.
+#ZAP_ASCAN_DOMXSS_STRENGTH=LOW
 
 # container resource caps, defaults live inline in zaproxy/docker-compose.yml
 # (5g / 4 cores / cores 0-3) - uncomment and adjust to fit your machine

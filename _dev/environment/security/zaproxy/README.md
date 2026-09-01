@@ -41,7 +41,18 @@ route just 405s or 422s before reaching app code. So any endpoint hit only via a
 `fetch()` with no matching `<a href>`/`<form>` markup is invisible to Phase 1/2
 **if it's a write verb**. GET-shaped JS-fetch endpoints (lookups, `/edit`-style
 param routes) *are* covered — `seed_urls` resolves `{route-model-binding}` params to
-real ids specifically so those get seeded. Write verbs are the actual gap; see Phase 4.
+real ids specifically so those get seeded. Write verbs are the actual gap; see Phase 5.
+
+**Performance note — DOM-based XSS (scanner 40026) is deliberately capped at LOW
+attack strength** (`ZAP_ASCAN_DOMXSS_STRENGTH` in `zaproxy/.env`), confirmed live to
+be uniquely expensive against this app: 929k+ requests, still only 91% done after
+~2 hours, the sole bottleneck blocking every one of the other 77 active-scan rules
+(they run sequentially, not in parallel — nothing else even starts until this one
+finishes). LOW keeps a routine `--full` scan tractable. If you want deeper
+(MEDIUM/HIGH) DOM XSS coverage, don't raise this site-wide — scope a manual Active
+Scan to one page/request via Phase 4's HUD session instead; the cost is roughly
+(DOM sinks in scope) × (payload variants), so a single-page scope makes a higher
+strength affordable in a way scanning the whole site never will be.
 
 ## Phase 3 — CLI: read the evidence, don't trust labels
 

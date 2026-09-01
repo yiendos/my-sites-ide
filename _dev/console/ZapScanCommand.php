@@ -288,17 +288,30 @@ class ZapScanCommand extends Command
             }
 
             if ($waited >= $timeoutSeconds) {
-                $io->warning("Timed out waiting on {$path} after {$timeoutSeconds}s.");
+                $io->warning("Timed out waiting on {$path} after " . $this->formatDuration($timeoutSeconds) . '.');
                 return;
             }
 
             if ($waited > 0 && $waited % 15 === 0) {
                 $status = $describe ? $describe($result) : '';
-                $io->writeln("  ...still waiting ({$waited}s elapsed" . ($status !== '' ? ", {$status}" : '') . ')');
+                $io->writeln("  ...still waiting (" . $this->formatDuration($waited) . ' elapsed' . ($status !== '' ? ", {$status}" : '') . ')');
             }
 
             sleep(3);
             $waited += 3;
         }
+    }
+
+    /**
+     * A full active scan can run for tens of minutes - "885s elapsed" takes a
+     * moment to parse mid-scroll, "14m 45s" doesn't.
+     */
+    private function formatDuration(int $seconds): string
+    {
+        if ($seconds < 60) {
+            return "{$seconds}s";
+        }
+
+        return sprintf('%dm %ds', intdiv($seconds, 60), $seconds % 60);
     }
 }

@@ -108,6 +108,36 @@ class ZapDaemonCommand extends Command
             'Integer' => (string) (getenv('ZAP_ASCAN_DELAY_MS') ?: 0),
         ]);
 
+        // DOM-based XSS (id 40026) spins up a real browser per test case and
+        // was found live to be uniquely expensive against a DOM-heavy app -
+        // 929k+ requests, still only 91% done after ~2 hours, the sole
+        // bottleneck blocking every one of the other 77 active-scan rules
+        // (they're run sequentially, not in parallel, so nothing else even
+        // starts until this one finishes). LOW keeps a routine --full scan
+        // tractable; setScannerAttackStrength only ever touches this one
+        // rule, not a site-wide strength setting - see zaproxy/README.md for
+        // where to go for scoped MEDIUM/HIGH coverage instead.
+        $domXssStrength = getenv('ZAP_ASCAN_DOMXSS_STRENGTH') ?: 'LOW';
+        $this->zapApi($io, 'ascan/action/setScannerAttackStrength', [
+            'id' => '40026',
+            'attackStrength' => $domXssStrength,
+        ]);
+
+        $scanners = $this->zapApi($io, 'ascan/view/scanners', []);
+        $domXssScanner = null;
+
+        foreach ($scanners['scanners'] ?? [] as $scanner) {
+            if ($scanner['id'] === '40026') {
+                $domXssScanner = $scanner;
+                break;
+            }
+        }
+
+        if (($domXssScanner['attackStrength'] ?? null) !== $domXssStrength) {
+            $actual = $domXssScanner['attackStrength'] ?? 'unknown';
+            $io->warning("DOM XSS attack strength did not stick (still {$actual}) - a --full scan may run far longer than expected.");
+        }
+
         return Command::SUCCESS;
     }
 
