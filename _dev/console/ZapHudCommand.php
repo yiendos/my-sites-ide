@@ -67,7 +67,7 @@ class ZapHudCommand extends Command
         // stale value someone forgets they changed.
         $targetAlias = getenv('ZAP_TARGET_ALIAS') ?: 'default.test';
 
-        $this->stopConflictingDaemon($io);
+        $this->stopConflictingContainers($io);
 
         $io->note([
             "We are going to start ZAP HUD and expect a network connection to target: $targetAlias",
@@ -92,29 +92,47 @@ class ZapHudCommand extends Command
     }
 
     /**
-     * The HUD's webswing container and ide:zap-daemon's headless container
-     * share the same zap-home volume (added to persist Insights-addon-uninstall
-     * state across --rm daemon restarts) - meaning they also share ZAP's own
-     * home-directory lock file, and two ZAP processes can never hold that at
-     * once. Confirmed live: with the daemon still running, webswing's ZAP
-     * instance fails to launch on every attempt with "The home directory is
-     * already in use", which Webswing reports to the browser as an immediate
-     * "Session ended" - clicking "New session" just hits the same lock again,
-     * an infinite loop with no error visible outside the container's own
-     * webswing.out log. Running both concurrently was always going to fight
-     * over the same live ZAP session anyway, so stopping the daemon here
-     * isn't a workaround - it's the correct outcome either way.
+     * Two distinct ways a stale container blocks a fresh HUD launch, both
+     * confirmed live:
+     *
+     * 1. ide:zap-daemon's container shares the zap-home volume (added to
+     *    persist Insights-addon-uninstall state across --rm daemon restarts)
+     *    - meaning it also shares ZAP's own home-directory lock file with the
+     *    HUD, and two ZAP processes can never hold that at once. Running both
+     *    concurrently was always going to fight over the same live ZAP
+     *    session anyway, so stopping the daemon here isn't a workaround -
+     *    it's the correct outcome either way.
+     * 2. A second `ide:zap-hud` while one's already running fails outright
+     *    with "port is already allocated" (--service-ports binds the same
+     *    host ports every time) - a much more opaque error than explaining
+     *    up front that only one HUD session can run at a time.
+     *
+     * Both produce a confusing failure with no indication of the real cause
+     * if left to happen - stopped here, explained via $io->note(), same
+     * pattern as each other.
      */
-    private function stopConflictingDaemon(SymfonyStyle $io): void
+    private function stopConflictingContainers(SymfonyStyle $io): void
     {
-        $running = trim((string) shell_exec('docker ps -q --filter name=^zap-daemon$'));
+        $daemonRunning = trim((string) shell_exec('docker ps -q --filter name=^zap-daemon$'));
 
-        if ($running === '') {
-            return;
+        if ($daemonRunning !== '') {
+            $io->note("Stopping ide:zap-daemon's container first - it and the HUD share the same ZAP home directory, so both can't run at once.");
+            shell_exec('docker stop zap-daemon 2>&1');
         }
 
-        $io->note("Stopping ide:zap-daemon's container first - it and the HUD share the same ZAP home directory, so both can't run at once.");
-        shell_exec('docker stop zap-daemon 2>&1');
+        // The HUD's container gets an auto-generated name each run
+        // (<project>-zaproxy-run-<hash>) - matched by substring, not an exact
+        // name, since the hash varies every launch. Stops via command
+        // substitution in one shell call rather than round-tripping the
+        // captured id(s) back through PHP - correctly handles the (unlikely
+        // but possible) case of more than one match, which word-splits fine
+        // as $(...) but wouldn't as a re-interpolated PHP string.
+        $hudRunning = trim((string) shell_exec('docker ps -q --filter name=zaproxy-run'));
+
+        if ($hudRunning !== '') {
+            $io->note('Stopping an existing HUD session first - only one can run at a time (it publishes the same host ports every launch).');
+            shell_exec('docker stop $(docker ps -q --filter name=zaproxy-run) 2>&1');
+        }
     }
 
     /**
