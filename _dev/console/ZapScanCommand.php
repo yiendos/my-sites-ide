@@ -2,6 +2,7 @@
 
 namespace Yiendos\MySitesIde;
 
+use Dotenv\Dotenv;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
@@ -42,6 +43,11 @@ class ZapScanCommand extends Command
      */
     public function __invoke(OutputInterface $output, InputInterface $input, SymfonyStyle $io): int
     {
+        // The bootstrap only loads the root .env, so pull in zaproxy/.env here as the
+        // default source for its own config - safeLoad() + Immutable won't overwrite
+        // whatever the root .env already set, so root still wins on override.
+        Dotenv::createImmutable(__DIR__ . '/../environment/security/zaproxy')->safeLoad();
+
         $target = $input->getArgument('target');
         $full = $input->getOption('full');
         $context = $input->getOption('context');
@@ -192,7 +198,15 @@ class ZapScanCommand extends Command
             ]);
 
             if (isset($ascan['scanAsUser'])) {
-                $this->pollUntilComplete($io, 'ascan/view/status', ['scanId' => $ascan['scanAsUser']], 900);
+                // Confirmed live against a real full scan (after capping DOM XSS
+                // to LOW): spider+passive+active together spanned ~18 minutes -
+                // the old 900s (15min) hardcoded timeout gave up on the active
+                // scan alone at 83%, generating a report before the scan (which
+                // keeps running server-side regardless) had actually finished.
+                // 1800s as the default gives real headroom without waiting
+                // forever on a genuinely hung scan.
+                $ascanTimeout = (int) (getenv('ZAP_ASCAN_TIMEOUT_SECONDS') ?: 1800);
+                $this->pollUntilComplete($io, 'ascan/view/status', ['scanId' => $ascan['scanAsUser']], $ascanTimeout);
             } else {
                 $io->warning('Active scan did not return a scan id - not waited on.');
             }
@@ -267,7 +281,7 @@ class ZapScanCommand extends Command
     }
 
     /**
-     * A silent multi-minute wait (active scan alone can run 900s) is
+     * A silent multi-minute wait (active scan alone can run 30+ minutes) is
      * indistinguishable from a hang from the outside - a real one was
      * mistaken for a stall mid-session because of exactly this. Prints an
      * elapsed-time line (plus whatever $describe reports, e.g. a percentage

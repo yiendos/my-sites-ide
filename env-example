@@ -25,6 +25,11 @@ PHP_DISABLE_FUNCTIONS=
 # much longer) - a scoped manual Active Scan via ide:zap-hud is usually the
 # better way to go deeper on this specific rule.
 #ZAP_ASCAN_DOMXSS_STRENGTH=LOW
+# How long `ide:zap-scan --full` waits for the active scan before giving up
+# and generating a report anyway - the scan keeps running server-side
+# regardless, this is just the CLI's own patience. Default 1800s (30 min),
+# defaults live in zaproxy/.env - raise if your target is larger/slower.
+#ZAP_ASCAN_TIMEOUT_SECONDS=1800
 
 # container resource caps, defaults live inline in zaproxy/docker-compose.yml
 # (5g / 4 cores / cores 0-3) - uncomment and adjust to fit your machine
