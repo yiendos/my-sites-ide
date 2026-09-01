@@ -4,6 +4,7 @@ namespace Yiendos\MySitesIde;
 
 use Dotenv\Dotenv;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -20,6 +21,7 @@ class ZapHudCommand extends Command
         $this
             ->setName('ide:zap-hud')
             ->setDescription('Launch the OWASP ZAP Desktop UI (webswing) in your browser, for interactive login and scope selection')
+            ->addArgument('target', InputArgument::OPTIONAL, 'Config name, matching contexts/<target>.zap-config.php - prints its write_routes/livewire_actions manual-verification checklist before launching')
         ;
     }
     /**
@@ -33,6 +35,12 @@ class ZapHudCommand extends Command
      */
     public function __invoke(OutputInterface $output,InputInterface $input, SymfonyStyle $io): int
     {
+        $target = $input->getArgument('target');
+
+        if ($target !== null) {
+            $this->printChecklist($io, $target);
+        }
+
         // The bootstrap only loads the root .env, so pull in zaproxy/.env here as the
         // default source for its own config - safeLoad() + Immutable won't overwrite
         // whatever the root .env already set, so root still wins on override.
@@ -79,5 +87,46 @@ class ZapHudCommand extends Command
         passthru($command);
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * write_routes/livewire_actions have no automated path into ZAP's
+     * history at all (no crawlable body, no route to enumerate) - printed
+     * here, unconditionally and un-diffed, since this is the moment someone
+     * is actually about to sit down and drive the browser, not a separate
+     * command they have to remember exists. ide:zap-coverage remains the
+     * place to check afterwards what was actually recorded.
+     */
+    private function printChecklist(SymfonyStyle $io, string $target): void
+    {
+        $configPath = __DIR__ . "/../environment/security/zaproxy/contexts/{$target}.zap-config.php";
+
+        if (!is_file($configPath)) {
+            $io->warning("No config found at _dev/environment/security/zaproxy/contexts/{$target}.zap-config.php - skipping the write-route/Livewire checklist.");
+            return;
+        }
+
+        $config = require $configPath;
+        $writeRoutes = $config['write_routes'] ?? [];
+        $livewireActions = $config['livewire_actions'] ?? [];
+
+        if ($writeRoutes === [] && $livewireActions === []) {
+            return;
+        }
+
+        $io->section("Manual verification checklist for {$target}");
+        $io->writeln('Not reachable by the automated CLI scan - trigger each of these in this HUD session so ZAP records them for Active Scan.');
+        $io->newLine();
+
+        foreach ($writeRoutes as $route) {
+            $io->writeln("  {$route['method']}  {$route['uri']}");
+        }
+
+        foreach ($livewireActions as $action) {
+            $io->writeln("  {$action['method']}()  on  {$action['uri']}");
+            $io->writeln("    {$action['blade']}");
+        }
+
+        $io->newLine();
     }
 }

@@ -56,8 +56,13 @@ Shortlist only findings whose captured response actually shows the claimed effec
 ## Phase 4 — Browser (HUD): validate the shortlist live
 
 ```
-php my-sites-ide ide:zap-hud
+php my-sites-ide ide:zap-hud <target>
 ```
+
+Passing `<target>` (matching `contexts/<target>.zap-config.php`) prints that target's
+`write_routes`/`livewire_actions` manual-verification checklist before launching —
+the moment you're actually about to drive the browser is the right moment to see it,
+not a separate command to remember. Omit `<target>` to just launch without it.
 
 Opens the ZAP Desktop UI (webswing) at `http://localhost:8080/zap`. Proxy a real
 browser through it (FoxyProxy scoped to the target host only — check the cert
@@ -136,7 +141,7 @@ don't trust the absence of an alert without checking what was actually covered.
 php my-sites-ide ide:zap-context <target>              # build/rebuild auth context
 php my-sites-ide ide:zap-scan <url> --context=<target> --user=<name>          # baseline
 php my-sites-ide ide:zap-scan <url> --context=<target> --user=<name> --full   # full active scan
-php my-sites-ide ide:zap-hud                            # interactive browser (webswing)
+php my-sites-ide ide:zap-hud <target>                   # interactive browser + manual-verification checklist
 php my-sites-ide ide:zap-coverage <target>              # diff recorded traffic vs. write_routes
 docker compose stop zaproxy                             # tear down when done
 ```
