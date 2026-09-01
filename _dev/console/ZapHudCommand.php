@@ -67,6 +67,8 @@ class ZapHudCommand extends Command
         // stale value someone forgets they changed.
         $targetAlias = getenv('ZAP_TARGET_ALIAS') ?: 'default.test';
 
+        $this->stopConflictingDaemon($io);
+
         $io->note([
             "We are going to start ZAP HUD and expect a network connection to target: $targetAlias",
             "(this is configured via ZAP_TARGET_ALIAS in the root .env - requires 'docker compose up -d nginx' after changing it)",
@@ -87,6 +89,32 @@ class ZapHudCommand extends Command
         passthru($command);
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * The HUD's webswing container and ide:zap-daemon's headless container
+     * share the same zap-home volume (added to persist Insights-addon-uninstall
+     * state across --rm daemon restarts) - meaning they also share ZAP's own
+     * home-directory lock file, and two ZAP processes can never hold that at
+     * once. Confirmed live: with the daemon still running, webswing's ZAP
+     * instance fails to launch on every attempt with "The home directory is
+     * already in use", which Webswing reports to the browser as an immediate
+     * "Session ended" - clicking "New session" just hits the same lock again,
+     * an infinite loop with no error visible outside the container's own
+     * webswing.out log. Running both concurrently was always going to fight
+     * over the same live ZAP session anyway, so stopping the daemon here
+     * isn't a workaround - it's the correct outcome either way.
+     */
+    private function stopConflictingDaemon(SymfonyStyle $io): void
+    {
+        $running = trim((string) shell_exec('docker ps -q --filter name=^zap-daemon$'));
+
+        if ($running === '') {
+            return;
+        }
+
+        $io->note("Stopping ide:zap-daemon's container first - it and the HUD share the same ZAP home directory, so both can't run at once.");
+        shell_exec('docker stop zap-daemon 2>&1');
     }
 
     /**
