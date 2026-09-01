@@ -108,6 +108,25 @@ For each shortlisted finding from Phase 3, replay it through this proxied browse
 same payload, but live: pivot the parameter, chain it with something the scanner
 wouldn't try, confirm it's real before reporting or demoing it.
 
+**Only one ZAP process can run at a time** — `ide:zap-hud` and `ide:zap-daemon` share
+the same ZAP home directory (`zap-home` volume), and only one browser session can be
+connected to a HUD container at once, whether that's a second tab, a different Chrome
+profile, or an old tab that was never properly closed (Webswing sessions don't expire
+on inactivity). Any of these produce the same symptom: the browser stuck in a
+**"Session ended" / "New session" loop**. `ide:zap-hud` itself now stops a conflicting
+daemon or an already-running HUD container before launching, but a *stray* ZAP process
+from an old, still-alive browser tab is a different case — the container looks
+perfectly healthy to Docker, so nothing catches it automatically. Run:
+
+```
+php my-sites-ide ide:zap-hud-fix
+```
+
+It checks the container's real log (`webswing.out` — `docker logs` only ever shows one
+startup line, useless here) for the actual lock error, shows exactly which process(es)
+it found, and asks before killing anything — never touches a genuinely healthy session
+just because a ZAP process happens to be running, since a working one always has one.
+
 ## Phase 5 — Browser (HUD): cover write-verb endpoints
 
 This is the step that actually plugs the Phase 2 gap. `seed_urls` cannot seed a
@@ -176,6 +195,7 @@ php my-sites-ide ide:zap-context <target>              # build/rebuild auth cont
 php my-sites-ide ide:zap-scan <url> --context=<target> --user=<name>          # baseline
 php my-sites-ide ide:zap-scan <url> --context=<target> --user=<name> --full   # full active scan
 php my-sites-ide ide:zap-hud <target>                   # interactive browser + manual-verification checklist
+php my-sites-ide ide:zap-hud-fix                        # diagnose/fix a "Session ended" loop
 php my-sites-ide ide:zap-coverage <target>              # diff recorded traffic vs. write_routes
 docker compose stop zaproxy                             # tear down when done
 ```
