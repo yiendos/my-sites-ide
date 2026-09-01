@@ -162,6 +162,8 @@ class ZapScanCommand extends Command
             $io->writeln("  {$seed}");
         }
 
+        $io->newLine();
+
         foreach ($seeds as $seed) {
             $io->writeln("Spidering {$seed}...");
             $scan = $this->zapApi($io, 'spider/action/scanAsUser', [
@@ -178,6 +180,7 @@ class ZapScanCommand extends Command
             }
         }
 
+        $io->newLine();
         $io->writeln('Waiting for passive scan to finish...');
         $this->pollUntil(
             $io,
@@ -189,6 +192,7 @@ class ZapScanCommand extends Command
         );
 
         if ($full) {
+            $io->newLine();
             $io->writeln('Running active scan...');
             $ascan = $this->zapApi($io, 'ascan/action/scanAsUser', [
                 'contextId' => $contextId,
@@ -225,6 +229,7 @@ class ZapScanCommand extends Command
             }
         }
 
+        $io->newLine();
         $reportName = "report-" . date('Y-m-d_His');
         $generated = $this->zapApi($io, 'reports/action/generate', [
             'title' => "ZAP scan - {$context}",
