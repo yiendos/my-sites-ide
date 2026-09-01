@@ -22,7 +22,7 @@ class ZapCoverageCommand extends Command
     {
         $this
             ->setName('ide:zap-coverage')
-            ->setDescription('Diff a target\'s write_routes manifest against what the current ZAP session actually recorded, e.g. after a Phase 5 HUD walkthrough')
+            ->setDescription('Diff a target\'s write_routes manifest against what the current ZAP session actually recorded, and list any livewire_actions requiring manual verification - e.g. after a Phase 5 HUD walkthrough')
             ->addArgument('target', InputArgument::REQUIRED, 'Config name, matching contexts/<target>.zap-config.php')
         ;
     }
@@ -71,7 +71,36 @@ class ZapCoverageCommand extends Command
         $io->section('Uncovered');
         $io->listing($diff['uncovered'] ?: ['(none)']);
 
+        $this->reportLivewireActions($io, $config['livewire_actions'] ?? []);
+
         return Command::SUCCESS;
+    }
+
+    /**
+     * Purely informational - these actions have no route, so there's nothing
+     * to diff against recorded ZAP traffic (a Livewire request that's already
+     * in history is indistinguishable, method-and-URL-wise, from any other
+     * POST to the same page). Printed unconditionally, every run, since a
+     * silently-skipped section is exactly the kind of gap this whole command
+     * exists to avoid.
+     *
+     * @param array<int, array{component: string, method: string, uri: string, blade: string}> $actions
+     */
+    private function reportLivewireActions(SymfonyStyle $io, array $actions): void
+    {
+        $io->section('Livewire actions - requires manual verification');
+
+        if ($actions === []) {
+            $io->writeln('(none)');
+            return;
+        }
+
+        $io->writeln('Not routes - invisible to the diff above. Trigger each via the HUD, then confirm ZAP recorded the resulting request.');
+
+        foreach ($actions as $action) {
+            $io->writeln("  {$action['method']}()  on  {$action['uri']}");
+            $io->writeln("    {$action['blade']}");
+        }
     }
 
     /**

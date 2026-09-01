@@ -91,4 +91,20 @@ return [
     //     ['method' => 'POST', 'uri' => 'https://example.test/orders'],
     //     ['method' => 'PUT', 'uri' => 'https://example.test/orders/42'],
     // ],
+
+    // A different kind of gap again - a framework with server-driven
+    // components (Livewire, and similar patterns elsewhere) dispatches every
+    // component action through one shared endpoint, with the method name
+    // inside the request payload rather than as a route. No route table
+    // enumeration, however extended, can ever see these - not scanned or
+    // diffed automatically, just surfaced by `ide:zap-coverage` as a manual-
+    // verification checklist (page URL + component/method it's attached to).
+    // See stockman.zap-config.php for a working generator: it walks routes
+    // whose action is a component class, resolves each component's default
+    // view via the framework's own naming convention, then extracts real
+    // wire:click/wire:submit calls from that view (excluding the framework's
+    // own client-side-only directives, which have nothing server-side to test).
+    // 'livewire_actions' => [
+    //     ['component' => 'App\\Livewire\\Orders\\OrderIndex', 'method' => 'delete', 'uri' => 'https://example.test/orders', 'blade' => 'resources/views/livewire/orders/order-index.blade.php:53'],
+    // ],
 ];

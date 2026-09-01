@@ -100,18 +100,27 @@ recorded this session, hands the raw `{method, url}` list to Stockman's
 with the route table), and prints covered vs. uncovered. An uncovered entry is a
 route nobody exercised, visible instead of silent.
 
-**Scope limit, accepted rather than solved**: the manifest is built from
-`Route::getRoutes()`, so it only covers traditional route-based write endpoints
-(auth/account flows, the `api/*` create endpoints — 11 routes on Stockman today).
-Stockman's actual quantity-edit/delete interactions are Livewire component actions
-dispatched through one shared endpoint (`livewire-{hash}/update`), not separate
-routes — invisible to any route-table enumeration, no matter how this is extended.
-ZAP itself doesn't care (a proxied Livewire request is scanned exactly like any
-other POST), so Phase 5's manual walkthrough still exercises and scans them fine —
-they just can't appear on this particular checklist, or be confirmed "uncovered" if
-skipped. Closing that would mean a second manifest source (reflection over Livewire
-component classes for public methods bound to `wire:click`/`wire:submit`), not yet
-built.
+**Scope limit on `write_routes` itself**: built from `Route::getRoutes()`, so it only
+covers traditional route-based write endpoints (auth/account flows, the `api/*`
+create endpoints — 11 routes on Stockman today). Stockman's actual quantity-edit/
+delete interactions are Livewire component actions dispatched through one shared
+endpoint, not separate routes — invisible to any route-table enumeration, no matter
+how `write_routes` is extended. ZAP itself doesn't care (a proxied Livewire request
+is scanned exactly like any other POST) — this only limits what can appear on the
+*checklist*, not what Phase 5's walkthrough can actually exercise and scan.
+
+**Closed via a second, separate manifest**: `security:seed-livewire-actions`
+(`Repos/stockman`) walks every route whose action is a component class, resolves
+that component's Blade view via the framework's own naming convention, and extracts
+real `wire:click`/`wire:submit` calls from it (skipping the framework's own
+client-side-only directives — `$set`, `$toggle` — which have no server-side write
+behind them). Exposed as `livewire_actions` in the context config. Because these
+aren't routes, there's nothing to diff against recorded ZAP traffic — `ide:zap-coverage`
+instead prints them unconditionally, every run, as a manual-verification checklist:
+method name, the page URL to visit, and the exact Blade line the action is wired
+from. Not a substitute for `write_routes`' verified coverage — just makes sure the
+gap is a visible checklist item instead of something a human has to already know to
+look for.
 
 ## Phase 6 — Fix → re-run as regression
 
