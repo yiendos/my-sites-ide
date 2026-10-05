@@ -15,6 +15,7 @@ including ones who haven't used ZAP before.
 ## Contents
 
 - [Architecture](#architecture)
+- [First-time setup](#first-time-setup)
 - [Prerequisites](#prerequisites)
 - [Setup per target](#setup-per-target)
 - [Methodology](#methodology)
@@ -54,6 +55,82 @@ Key facts that shape everything else:
   not optional tuning.
 - **`docker logs` shows almost nothing useful.** The real Webswing log is
   `/zap/webswing/webswing.out` inside the container. ZAP's own logs are under `/home/zap`.
+
+## First-time setup
+
+Several things have to be in place before the first scan works, and most of them fail in
+ways that look like a credentials problem. Work through these in order. The examples use
+`local.smart-kitchen.io`; substitute your target's hostname.
+
+1. **Root `.env` values.** Add both to the root `.env` (gitignored), not `zaproxy/.env`:
+
+   ```
+   ZAP_TARGET_ALIAS=local.smart-kitchen.io
+   ZAP_TARGET_PASSWORD=<demo user's password>
+   ```
+
+   `ZAP_TARGET_ALIAS` must be set explicitly. Its default (`default.test`) won't match
+   your target, and a value left over from another target (`stockman.test`) fails the
+   same way. See [Configuration](#configuration).
+
+2. **Vhost `server_name`.** Check the target's nginx vhost lists the same hostname in
+   `server_name`.
+
+3. **Recreate nginx** so it registers the alias. A restart isn't enough:
+
+   ```
+   docker compose up -d nginx
+   docker inspect nginx    # the hostname should appear under Aliases
+   ```
+
+4. **`/etc/hosts` on your Mac** (for your browser only, used in the HUD phases):
+
+   ```
+   127.0.0.1 local.smart-kitchen.io
+   ```
+
+5. **Demo user.** The target's database needs the scan user (Stockman / smart-kitchen:
+   `demo@example.com` from `DatabaseSeeder`) with a password matching
+   `ZAP_TARGET_PASSWORD`. Reseeding can delete it. See
+   [Target-app requirements](#target-app-requirements).
+
+6. **Reachability check from the container.** Expect the hostname to resolve to the nginx
+   container (not `localhost`) and a `200`:
+
+   ```
+   docker compose exec -T zaproxy sh -c 'getent hosts local.smart-kitchen.io; curl -sk -o /dev/null -w "%{http_code}\n" https://local.smart-kitchen.io/login'
+   ```
+
+   A `000` or a `localhost` address means steps 1 to 3 aren't right yet.
+
+7. **Build the context** with flags ([Option A](#option-a-flags-recommended)). This writes
+   `contexts/local.smart-kitchen.io.zap-config.php` and `reports/local.smart-kitchen.io.context`:
+
+   ```
+   php my-sites-ide ide:zap-context local.smart-kitchen.io \
+     --site-url=https://local.smart-kitchen.io \
+     --login-url=/login \
+     --login-data='email={%username%}&password={%password%}&_token={%_token%}' \
+     --indicator='action="https://local\.smart-kitchen\.io/logout"' \
+     --poll-url=/home \
+     --username=demo@example.com
+   ```
+
+   A hostname containing a dot is used as-is; only a bare name like `stockman` gets
+   `.test` appended. If a scan later reports `No context file at reports/<target>.context`,
+   this step hasn't been run for that exact target name.
+
+8. **Run the baseline scan** (Phase 1):
+
+   ```
+   php my-sites-ide ide:zap-scan https://local.smart-kitchen.io --context=local.smart-kitchen.io --user=demo
+   ```
+
+   `--user` takes the ZAP user's **label** (`demo`), not the login email. Passing
+   `demo@example.com` fails with `No user named 'demo@example.com' found in context`.
+
+If the scan finishes very quickly or the report is empty, go to
+[Troubleshooting](#troubleshooting) before changing credentials.
 
 ## Prerequisites
 
@@ -172,7 +249,8 @@ confirmation. Omit it to launch without the checklist.
 The ZAP Desktop UI opens at `http://localhost:8080/zap`. Then:
 
 1. Proxy a real browser through ZAP, scoped to the target host only. FoxyProxy works well.
-   Browsers never proxy `*.localhost`, so use a non-reserved TLD such as `<target>.test`.
+   Browsers never proxy `*.localhost`, so the hostname must not end in `.localhost`. Use
+   the target's real hostname, such as `local.smart-kitchen.io` or `<target>.test`.
 2. Sanity check: the site's certificate issuer should be ZAP's MITM CA, not the site's
    own certificate. If it's the site's own, traffic isn't going through ZAP.
 3. For each shortlisted finding, replay it through the proxied browser. Pivot the
@@ -243,7 +321,7 @@ the root `.env`, which is gitignored. The root `env-example` lists the override 
 | `ZAP_ASCAN_DOMXSS_STRENGTH` | `LOW` | DOM XSS attack strength. Resolved by scanner name, not id. |
 | `ZAP_ASCAN_TIMEOUT_SECONDS` | `1800` | How long the CLI waits for an active scan. The scan keeps running server-side regardless. |
 | `ZAP_TARGET_PASSWORD` | (unset) | Password for flag-based context generation. Keep it in the root `.env`, not `zaproxy/.env`. |
-| `ZAP_TARGET_ALIAS` | `default.test` | Network alias nginx registers, so the container can resolve the target. Read by `servers/nginx/docker-compose.yml`. |
+| `ZAP_TARGET_ALIAS` | `default.test` | Network alias nginx registers, so the container can resolve the target. Must be the exact hostname the context targets. Read by `servers/nginx/docker-compose.yml`. |
 | `ZAP_MEM_LIMIT` | `5g` | Container memory cap. |
 | `ZAP_CPUS` / `ZAP_CPUSET` | `4` / `0,1,2,3` | CPU quota and affinity. Both are needed. See below. |
 
@@ -322,14 +400,37 @@ rate-limited. Scans need the limits relaxed. Set `SECURITY_API_RATE_LIMIT=0`,
 `.env`, clear the config cache, and restore them after the scan. This is a manual toggle
 for now.
 
-**Target not reachable from the container.** Check that the nginx alias matches
-`ZAP_TARGET_ALIAS`, that the target's vhost `server_name` includes that hostname, and
-that the nginx container was recreated after changing the alias
-(`docker compose up -d nginx`). Changing the alias requires recreating the container, not
-restarting it.
+**Scan logs `Authentication failed for user: demo` and the report is empty, or the
+active scan says `URL Not Found in the Scan Tree`.** This looks like a credentials problem,
+but usually the spider never reached the site. ZAP's own log shows the failed login, and
+the site tree is empty (`docker compose exec -T zaproxy curl -s http://localhost:8090/JSON/core/view/sites/`
+returns `{"sites":[]}`). Check reachability before touching the user:
+
+```
+docker compose exec -T zaproxy sh -c 'getent hosts <target>; curl -sk -o /dev/null -w "%{http_code}\n" https://<target>/login'
+```
+
+A hostname that resolves to `localhost` or nothing, or a status of `000`, means the alias
+is wrong. Fix it with the steps below, then rerun the scan.
+
+**Target not reachable from the container.** The container can only reach the target
+through the nginx network alias. Check three things:
+
+1. `ZAP_TARGET_ALIAS` in the root `.env` is the exact hostname the context targets (for
+   `local.smart-kitchen.io`, not `stockman.test` left over from another target). The
+   default in `servers/nginx/docker-compose.yml` applies only when the variable is unset.
+2. The target's vhost `server_name` includes that hostname.
+3. The nginx container was recreated after changing the alias
+   (`docker compose up -d nginx`). Changing the alias requires recreating the container, not
+   restarting it. Check the result with `docker inspect nginx`, looking for the alias under
+   `Aliases`.
+
+Once the check above returns 200 from `/login`, confirm the demo login works from the
+container before rerunning the scan. Logging in with the demo credentials should redirect
+to `/home`.
 
 **Chrome shows the site's own certificate, not ZAP's.** The browser is bypassing the
-proxy. This is almost always a `*.localhost` hostname. Use `<target>.test`.
+proxy. This is almost always a `*.localhost` hostname. Use a non-`.localhost` hostname.
 
 **Chrome won't let you past a certificate warning.** HSTS was cached for the host. Delete
 the entry at `chrome://net-internals/#hsts`. The dev vhost no longer sends HSTS.
