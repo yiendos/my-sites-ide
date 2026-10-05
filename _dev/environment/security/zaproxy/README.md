@@ -249,7 +249,17 @@ confirmation, and imports the context exported by `ide:zap-context`
 (`reports/<target>.context`) into the HUD automatically. The import happens a few seconds
 after ZAP finishes starting in the browser, and again if a reloaded tab starts a fresh ZAP
 session. It also removes ZAP's empty Default Context, which otherwise blocks Session
-Properties from saving. Omit the target to launch with neither.
+Properties from saving, and locks the session to the target: every other host is excluded
+from the proxy (still loads in the browser, but never appears in the Sites tree), the
+context is set in scope, and ZAP switches to Protected mode so nothing out of scope can be
+attacked. Omit the target to launch with none of this.
+
+With or without a target, each new ZAP session in the HUD also gets the same Active Scan
+limits as the daemon (`ZAP_ASCAN_THREADS_PER_HOST`, `ZAP_ASCAN_DELAY_MS`,
+`ZAP_ASCAN_DOMXSS_STRENGTH`), applied through the API a few seconds after ZAP starts. At
+ZAP's default of 8 threads, a HUD active scan ran 8 headless Firefox instances for the DOM
+XSS rule and the JVM was OOM-killed. The DOM XSS cap applies to the Default Policy, so pick
+that policy in the Active Scan dialog.
 
 To import a context by hand instead, use **File → Import Context** and type
 `/zap/wrk/<target>.context` into File Name. The dialog opens in ZAP's own contexts folder,
