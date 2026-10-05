@@ -244,7 +244,15 @@ php my-sites-ide ide:zap-hud <target>
 ```
 
 Passing the target prints its write-route and Livewire checklist before the launch
-confirmation. Omit it to launch without the checklist.
+confirmation, and imports the context exported by `ide:zap-context`
+(`reports/<target>.context`) into the HUD automatically. The import happens a few seconds
+after ZAP finishes starting in the browser, and again if a reloaded tab starts a fresh ZAP
+session. It also removes ZAP's empty Default Context, which otherwise blocks Session
+Properties from saving. Omit the target to launch with neither.
+
+To import a context by hand instead, use **File → Import Context** and type
+`/zap/wrk/<target>.context` into File Name. The dialog opens in ZAP's own contexts folder,
+not the `reports/` mount.
 
 The ZAP Desktop UI opens at `http://localhost:8080/zap`. Then:
 
@@ -304,7 +312,7 @@ confirm what was actually covered before trusting the absence of an alert.
 | `ide:zap-context <target> [flags]` | Build or rebuild the auth context. Starts the daemon if needed. Scaffolds or writes the config. |
 | `ide:zap-scan <url> [--context=] [--user=] [--full]` | Scan. With `--context`, uses the API-driven authenticated path. Without it, uses the unauthenticated wrapper scripts. |
 | `ide:zap-daemon` | Start the headless daemon if it isn't running, reusing one that is. Used by the two commands above, rarely needed directly. |
-| `ide:zap-hud [<target>]` | Launch the interactive browser UI. Stops a conflicting daemon or HUD first. Optional target prints the checklist. |
+| `ide:zap-hud [<target>]` | Launch the interactive browser UI. Stops a conflicting daemon or HUD first. Optional target prints the checklist and auto-imports its context. |
 | `ide:zap-hud-fix` | Diagnose a stuck "Session ended" loop. Shows the lock error and the PIDs it finds, and asks before killing anything. |
 | `ide:zap-coverage <target>` | Diff recorded traffic against `write_routes`. Print the `livewire_actions` checklist. |
 | `docker compose stop zaproxy` | Stop the container. Required after a HUD session. The daemon is `--rm`, so stopping it also removes it. |
@@ -380,6 +388,15 @@ log and identifies which one applies.
    closing a tab or switching Chrome profiles can leave a ZAP process holding the lock.
    The container still looks healthy to Docker, so nothing catches this automatically.
    `ide:zap-hud-fix` finds it and offers to kill it.
+
+**HUD: "Failed to save the options: The URL to Poll must be specified for context Default
+Context".** ZAP's built-in Default Context starts with a poll-URL verification strategy and
+no poll URL, and Session Properties validates every context on save. Delete Default
+Context (right-click it in the Sites tree). `ide:zap-hud <target>` removes it for you.
+
+**HUD: no target context in the Sites tree.** Each HUD browser session is a fresh ZAP
+session. Launch with `ide:zap-hud <target>` so it's imported, and check
+`reports/<target>.context` exists. If it doesn't, run `ide:zap-context <target>` first.
 
 **"Empty reply from server" when calling the API from the host.** Expected. Use the
 `ide:*` commands, which go through `docker compose exec`.

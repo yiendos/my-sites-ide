@@ -12,6 +12,36 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class ZapHudCommand extends Command
 {
     /**
+     * Webswing only starts ZAP once a browser opens /zap, and starts a fresh ZAP
+     * process (fresh session, no contexts) for every new browser session - so a
+     * one-off import at launch can't work. This runs in the background alongside
+     * webswing, polling ZAP's API, and imports the context into any session that
+     * doesn't have it yet.
+     *
+     * It also removes ZAP's built-in "Default Context": in this ZAP version it
+     * starts with a poll-URL verification strategy but no poll URL, so Session
+     * Properties refuses to save anything ("The URL to Poll must be specified for
+     * context Default Context") until it's fixed or gone.
+     */
+    private const CONTEXT_WATCHER = <<<'SH'
+        (while true; do
+          list=$(curl -s http://localhost:8090/JSON/context/view/contextList/)
+          case "$list" in
+            *contextList*)
+              case "$list" in
+                *\""$ZAP_HUD_CONTEXT_NAME"\"*) ;;
+                *)
+                  curl -s -o /dev/null "http://localhost:8090/JSON/context/action/removeContext/?contextName=Default%20Context"
+                  curl -s -o /dev/null "http://localhost:8090/JSON/context/action/importContext/?contextFile=$ZAP_HUD_CONTEXT_FILE"
+                  ;;
+              esac
+              ;;
+          esac
+          sleep 3
+        done) &
+        SH;
+
+    /**
      * The ability to configure the console command
      *
      * @return void
@@ -58,8 +88,17 @@ class ZapHudCommand extends Command
             . " -config ascan.delayInMs=$delayInMs";
 
         $command = "docker compose run --rm --service-ports --user zap"
-            . " -e " . escapeshellarg("ZAP_WEBSWING_OPTS=$zapOpts")
-            . " zaproxy zap-webswing.sh";
+            . " -e " . escapeshellarg("ZAP_WEBSWING_OPTS=$zapOpts");
+
+        $context = $target !== null ? $this->resolveContext($io, $target) : null;
+
+        if ($context !== null) {
+            $command .= " -e " . escapeshellarg("ZAP_HUD_CONTEXT_NAME={$context['name']}")
+                . " -e " . escapeshellarg("ZAP_HUD_CONTEXT_FILE=" . rawurlencode($context['file']))
+                . " zaproxy sh -c " . escapeshellarg(self::CONTEXT_WATCHER . ' exec zap-webswing.sh');
+        } else {
+            $command .= " zaproxy zap-webswing.sh";
+        }
 
         // ZAP_TARGET_ALIAS is baked into nginx's network alias at container-creation time
         // (Compose substitution, see servers/nginx/docker-compose.yml) - not something this
@@ -133,6 +172,29 @@ class ZapHudCommand extends Command
             $io->note('Stopping an existing HUD session first - only one can run at a time (it publishes the same host ports every launch).');
             shell_exec('docker stop $(docker ps -q --filter name=zaproxy-run) 2>&1');
         }
+    }
+
+    /**
+     * The context exported by ide:zap-context - its name comes from the config's
+     * `target` key (the hostname), which needn't match the command argument.
+     *
+     * @return array{name: string, file: string}|null
+     */
+    private function resolveContext(SymfonyStyle $io, string $target): ?array
+    {
+        $hostContextFile = __DIR__ . "/../environment/security/zaproxy/reports/{$target}.context";
+
+        if (!is_file($hostContextFile)) {
+            $io->warning("No exported context at _dev/environment/security/zaproxy/reports/{$target}.context - run `ide:zap-context {$target}` first. Launching without it.");
+            return null;
+        }
+
+        $configPath = __DIR__ . "/../environment/security/zaproxy/contexts/{$target}.zap-config.php";
+        $name = is_file($configPath) ? ((require $configPath)['target'] ?? $target) : $target;
+
+        $io->note("The '{$name}' context will be imported automatically once ZAP has started in the browser.");
+
+        return ['name' => $name, 'file' => "/zap/wrk/{$target}.context"];
     }
 
     /**
