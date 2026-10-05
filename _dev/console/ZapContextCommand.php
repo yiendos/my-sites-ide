@@ -306,16 +306,18 @@ class ZapContextCommand extends Command
             return Command::FAILURE;
         }
 
+        $host = str_contains($target, '.') ? $target : "{$target}.test";
+
         $scaffold = str_replace(
             ['example.test', 'example\.test'],
-            ["{$target}.test", "{$target}\.test"],
+            [$host, str_replace('.', '\.', $host)],
             file_get_contents($examplePath)
         );
         file_put_contents($configPath, $scaffold);
 
         $io->warning([
             "No config existed for '{$target}' - scaffolded _dev/environment/security/zaproxy/contexts/{$target}.zap-config.php from the example.",
-            "Edit its login/indicator/user details for {$target}.test, then run this command again.",
+            "Edit its login/indicator/user details for {$host}, then run this command again.",
         ]);
 
         return Command::FAILURE;
