@@ -66,9 +66,10 @@ class ZapHudCommand extends Command
     public function __invoke(OutputInterface $output,InputInterface $input, SymfonyStyle $io): int
     {
         $target = $input->getArgument('target');
+        $config = $target !== null ? $this->loadConfig($io, $target) : null;
 
-        if ($target !== null) {
-            $this->printChecklist($io, $target);
+        if ($config !== null) {
+            $this->printChecklist($io, $target, $config);
         }
 
         // The bootstrap only loads the root .env, so pull in zaproxy/.env here as the
@@ -90,7 +91,7 @@ class ZapHudCommand extends Command
         $command = "docker compose run --rm --service-ports --user zap"
             . " -e " . escapeshellarg("ZAP_WEBSWING_OPTS=$zapOpts");
 
-        $context = $target !== null ? $this->resolveContext($io, $target) : null;
+        $context = $target !== null ? $this->resolveContext($io, $target, $config) : null;
 
         if ($context !== null) {
             $command .= " -e " . escapeshellarg("ZAP_HUD_CONTEXT_NAME={$context['name']}")
@@ -180,7 +181,7 @@ class ZapHudCommand extends Command
      *
      * @return array{name: string, file: string}|null
      */
-    private function resolveContext(SymfonyStyle $io, string $target): ?array
+    private function resolveContext(SymfonyStyle $io, string $target, ?array $config): ?array
     {
         $hostContextFile = __DIR__ . "/../environment/security/zaproxy/reports/{$target}.context";
 
@@ -189,12 +190,27 @@ class ZapHudCommand extends Command
             return null;
         }
 
-        $configPath = __DIR__ . "/../environment/security/zaproxy/contexts/{$target}.zap-config.php";
-        $name = is_file($configPath) ? ((require $configPath)['target'] ?? $target) : $target;
+        $name = $config['target'] ?? $target;
 
         $io->note("The '{$name}' context will be imported automatically once ZAP has started in the browser.");
 
         return ['name' => $name, 'file' => "/zap/wrk/{$target}.context"];
+    }
+
+    /**
+     * Required once - a config's manifest keys can shell out to the target
+     * app's artisan commands, so each require costs a few seconds.
+     */
+    private function loadConfig(SymfonyStyle $io, string $target): ?array
+    {
+        $configPath = __DIR__ . "/../environment/security/zaproxy/contexts/{$target}.zap-config.php";
+
+        if (!is_file($configPath)) {
+            $io->warning("No config found at _dev/environment/security/zaproxy/contexts/{$target}.zap-config.php - skipping the write-route/Livewire checklist.");
+            return null;
+        }
+
+        return require $configPath;
     }
 
     /**
@@ -205,16 +221,8 @@ class ZapHudCommand extends Command
      * command they have to remember exists. ide:zap-coverage remains the
      * place to check afterwards what was actually recorded.
      */
-    private function printChecklist(SymfonyStyle $io, string $target): void
+    private function printChecklist(SymfonyStyle $io, string $target, array $config): void
     {
-        $configPath = __DIR__ . "/../environment/security/zaproxy/contexts/{$target}.zap-config.php";
-
-        if (!is_file($configPath)) {
-            $io->warning("No config found at _dev/environment/security/zaproxy/contexts/{$target}.zap-config.php - skipping the write-route/Livewire checklist.");
-            return;
-        }
-
-        $config = require $configPath;
         $writeRoutes = $config['write_routes'] ?? [];
         $livewireActions = $config['livewire_actions'] ?? [];
 

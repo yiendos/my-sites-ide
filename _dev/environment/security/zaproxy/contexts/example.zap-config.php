@@ -8,9 +8,22 @@
 // and exports it to reports/<target>.context, ready for
 // `ide:zap-scan <url> --context=<target> --user=<name>`.
 
+// The target app's root inside the fpm container (/opt/repos/<repo>/deploy).
+// ide:zap-coverage runs security:coverage-diff there, and $artisan below
+// generates the seed_urls/write_routes/livewire_actions manifests from it.
+$appPath = '/opt/repos/example/deploy';
+
+$artisan = static function (string $command) use ($appPath): array {
+    $json = shell_exec("docker exec -w {$appPath} fpm php artisan {$command} 2>/dev/null");
+
+    return json_decode(trim((string) $json), true) ?? [];
+};
+
 return [
     // The ZAP context name, and the site's base URL.
     'target' => 'example.test',
+
+    'app_path' => $appPath,
 
     'login' => [
         // Submitted URL for the login form.
@@ -69,13 +82,15 @@ return [
     // runs even with a generous crawl duration).
     //
     // For a Laravel target, this is worth generating dynamically rather than
-    // hand-maintaining a list that goes stale - see stockman.zap-config.php
-    // for a working example that shells out to `php artisan route:list --json`,
-    // filters to GET routes reachable by the scan's own user, and resolves
+    // hand-maintaining a list that goes stale. Stockman / smart-kitchen ship a
+    // `security:seed-urls` artisan command (uncomment the $artisan line below)
+    // that filters to GET routes reachable by the scan's own user, and resolves
     // any {route-model-binding} parameter to a real database id (the highest-
     // value case: an /edit route's id flows straight into a query, making it
     // exactly where IDOR/injection bugs live - skipping every parameterized
     // route for simplicity would skip the most security-relevant pages).
+    // 'seed_urls' => $artisan('security:seed-urls'),
+    // or by hand:
     // 'seed_urls' => [
     //     'https://example.test/orders',
     //     'https://example.test/orders/42/edit',
@@ -87,6 +102,8 @@ return [
     // write-verb walkthrough (see zaproxy/README.md Phase 5) and the input
     // to `ide:zap-coverage` once built. Generate the same way as seed_urls -
     // from the target app's own route table, not hand-maintained.
+    // 'write_routes' => $artisan('security:seed-write-routes'),
+    // or by hand:
     // 'write_routes' => [
     //     ['method' => 'POST', 'uri' => 'https://example.test/orders'],
     //     ['method' => 'PUT', 'uri' => 'https://example.test/orders/42'],
@@ -99,11 +116,13 @@ return [
     // enumeration, however extended, can ever see these - not scanned or
     // diffed automatically, just surfaced by `ide:zap-coverage` as a manual-
     // verification checklist (page URL + component/method it's attached to).
-    // See stockman.zap-config.php for a working generator: it walks routes
+    // `security:seed-livewire-actions` is a working generator: it walks routes
     // whose action is a component class, resolves each component's default
     // view via the framework's own naming convention, then extracts real
     // wire:click/wire:submit calls from that view (excluding the framework's
     // own client-side-only directives, which have nothing server-side to test).
+    // 'livewire_actions' => $artisan('security:seed-livewire-actions'),
+    // or by hand:
     // 'livewire_actions' => [
     //     ['component' => 'App\\Livewire\\Orders\\OrderIndex', 'method' => 'delete', 'uri' => 'https://example.test/orders', 'blade' => 'resources/views/livewire/orders/order-index.blade.php:53'],
     // ],

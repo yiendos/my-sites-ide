@@ -182,6 +182,7 @@ and user, and run the command again.
 
 | Key | Purpose |
 |---|---|
+| `app_path` | The target app's root inside the `fpm` container (`/opt/repos/<repo>/deploy`). `ide:zap-coverage` runs `security:coverage-diff` there, and the config's `$artisan` helper generates the three manifests below from it |
 | `login` | Form-based login: URL, request body (`{%username%}`, `{%password%}`, and any other name such as `{%_token%}` to scrape a fresh CSRF token before each attempt) |
 | `indicator` | Regex that is present only when logged in (the logout form), plus a poll URL used to re-verify the session |
 | `scope` | Include/exclude regexes for what ZAP may crawl |
@@ -451,6 +452,13 @@ proxy. This is almost always a `*.localhost` hostname. Use a non-`.localhost` ho
 
 **Chrome won't let you past a certificate warning.** HSTS was cached for the host. Delete
 the entry at `chrome://net-internals/#hsts`. The dev vhost no longer sends HSTS.
+
+If deleting the target's own entry doesn't help, the policy is on a **parent domain**. A
+local hostname under a real domain (`local.smart-kitchen.io`) inherits production's
+`Strict-Transport-Security: ...; includeSubDomains` once that browser profile has visited
+the live site. Query the parent (`smart-kitchen.io`) on the same page, look for
+`dynamic_sts_include_subdomains: true`, and delete the parent domain. Visiting production
+again re-applies it, so use a dedicated browser profile for ZAP work.
 
 ## Known false positives
 

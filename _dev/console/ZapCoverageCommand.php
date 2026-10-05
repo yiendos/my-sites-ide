@@ -46,6 +46,11 @@ class ZapCoverageCommand extends Command
         $config = require $configPath;
         $host = parse_url($config['target'], PHP_URL_HOST) ?? $config['target'];
 
+        if (empty($config['app_path'])) {
+            $io->error("No 'app_path' in contexts/{$target}.zap-config.php - set it to the target app's root inside the fpm container (e.g. /opt/repos/<repo>/deploy), where security:coverage-diff runs.");
+            return Command::FAILURE;
+        }
+
         $daemonExit = $this->getApplication()->find('ide:zap-daemon')->run(new ArrayInput([]), $output);
 
         if ($daemonExit !== Command::SUCCESS) {
@@ -57,11 +62,12 @@ class ZapCoverageCommand extends Command
         $io->writeln(count($recorded) . " recorded request(s) for {$host} this session.");
 
         $recordedJson = escapeshellarg(json_encode($recorded));
-        $diffJson = shell_exec("docker exec -w /opt/repos/stockman/deploy fpm php artisan security:coverage-diff --recorded={$recordedJson} 2>/dev/null");
+        $appPath = escapeshellarg($config['app_path']);
+        $diffJson = shell_exec("docker exec -w {$appPath} fpm php artisan security:coverage-diff --recorded={$recordedJson} 2>/dev/null");
         $diff = json_decode(trim((string) $diffJson), true);
 
         if ($diff === null) {
-            $io->error('security:coverage-diff did not return valid JSON - is the Stockman container up?');
+            $io->error("security:coverage-diff did not return valid JSON from {$config['app_path']} in the fpm container - is fpm up, and does the app have the security:* commands?");
             return Command::FAILURE;
         }
 
