@@ -25,6 +25,12 @@ PHP_DISABLE_FUNCTIONS=
 # much longer) - a scoped manual Active Scan via ide:zap-hud is usually the
 # better way to go deeper on this specific rule.
 #ZAP_ASCAN_DOMXSS_STRENGTH=LOW
+# Database-specific injection rules to run, comma-separated (mysql, postgresql,
+# oracle, mssql, hypersonic, sqlite, mongodb). Rules for other databases are
+# disabled - their time-based probes can't find anything and are slow. Empty
+# (the default in zaproxy/.env) runs them all. The generic SQL Injection rule
+# always runs.
+#ZAP_ASCAN_DATABASES=mysql
 
 # Password for ide:zap-context's CLI-flag config generation (--site-url,
 # --login-url, --username, etc. - see ide:zap-context --help). Deliberately

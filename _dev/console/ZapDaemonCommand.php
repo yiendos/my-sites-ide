@@ -7,6 +7,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Yiendos\MySitesIde\InteractsWithZapApi; 
 
 class ZapDaemonCommand extends Command
 {
@@ -158,7 +159,49 @@ class ZapDaemonCommand extends Command
             }
         }
 
+        $this->applyDatabaseRules($io);
+
         return Command::SUCCESS;
+    }
+
+    /**
+     * Time-based injection rules for databases the target doesn't use can't
+     * find anything, and they're slow by design (each probe waits on a sleep
+     * payload) - against a MySQL-only app, the Oracle/PostgreSQL/MsSQL/
+     * Hypersonic/MongoDB rules spent long stretches of a 75k-request scan at
+     * near-zero CPU. ZAP_ASCAN_DATABASES limits them to the listed databases;
+     * the result is read back rather than trusting the setters' "OK".
+     */
+    private function applyDatabaseRules(SymfonyStyle $io): void
+    {
+        $regexes = $this->databaseRuleRegexes($io);
+        $scanners = $this->zapApi($io, 'ascan/view/scanners', [])['scanners'] ?? [];
+        $idsMatching = fn (string $regex): array => $regex === '' ? [] : array_column(
+            array_filter($scanners, fn (array $scanner): bool => (bool) preg_match("/{$regex}/", $scanner['name'])),
+            'id'
+        );
+
+        $enable = $idsMatching($regexes['enable']);
+        $disable = $idsMatching($regexes['disable']);
+
+        if ($enable !== []) {
+            $this->zapApi($io, 'ascan/action/enableScanners', ['ids' => implode(',', $enable)]);
+        }
+
+        if ($disable !== []) {
+            $this->zapApi($io, 'ascan/action/disableScanners', ['ids' => implode(',', $disable)]);
+        }
+
+        $stillEnabled = array_column(array_filter(
+            $this->zapApi($io, 'ascan/view/scanners', [])['scanners'] ?? [],
+            fn (array $scanner): bool => in_array($scanner['id'], $disable, true) && $scanner['enabled'] === 'true'
+        ), 'name');
+
+        if ($stillEnabled !== []) {
+            $io->warning('Database rules did not disable: ' . implode(', ', $stillEnabled) . '.');
+        } elseif ($disable !== []) {
+            $io->writeln('Skipping database rules not in ZAP_ASCAN_DATABASES: ' . count($disable) . ' disabled.');
+        }
     }
 
     /**

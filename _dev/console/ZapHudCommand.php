@@ -8,9 +8,12 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Yiendos\MySitesIde\InteractsWithZapApi; 
 
 class ZapHudCommand extends Command
 {
+    use InteractsWithZapApi;
+
     /**
      * Webswing only starts ZAP once a browser opens /zap, and starts a fresh ZAP
      * process (fresh session, no contexts) for every new browser session - so a
@@ -34,9 +37,12 @@ class ZapHudCommand extends Command
      * (an extension-owned setting, same as in ide:zap-daemon), and a HUD scan at
      * ZAP's default 8 threads ran 8 headless Firefoxes for the DOM XSS rule and
      * got the JVM OOM-killed. Any session whose thread count doesn't match is a
-     * fresh one, so the limits are (re)applied then.
+     * fresh one, so the limits are (re)applied then - including enabling only
+     * the database-specific rules for ZAP_ASCAN_DATABASES (resolved by name
+     * with jq, which the image ships).
      */
     private const CONTEXT_WATCHER = <<<'SH'
+        ids() { curl -s http://localhost:8090/JSON/ascan/view/scanners/ | jq -r --arg re "$1" '[.scanners[] | select(.name | test($re)) | .id] | join(",")'; }
         (while true; do
           threads=$(curl -s http://localhost:8090/JSON/ascan/view/optionThreadPerHost/)
           case "$threads" in
@@ -46,7 +52,9 @@ class ZapHudCommand extends Command
                 *)
                   curl -s -o /dev/null "http://localhost:8090/JSON/ascan/action/setOptionThreadPerHost/?Integer=$ZAP_HUD_THREADS"
                   curl -s -o /dev/null "http://localhost:8090/JSON/ascan/action/setOptionDelayInMs/?Integer=$ZAP_HUD_DELAY_MS"
-                  curl -s -o /dev/null "http://localhost:8090/JSON/ascan/action/setScannerAttackStrength/?id=40026&attackStrength=$ZAP_HUD_DOMXSS_STRENGTH"
+                  curl -s -o /dev/null "http://localhost:8090/JSON/ascan/action/setScannerAttackStrength/?id=$(ids '^Cross Site Scripting \(DOM Based\)$')&attackStrength=$ZAP_HUD_DOMXSS_STRENGTH"
+                  [ -n "$ZAP_HUD_DB_ENABLE" ] && curl -s -o /dev/null "http://localhost:8090/JSON/ascan/action/enableScanners/?ids=$(ids "$ZAP_HUD_DB_ENABLE")"
+                  [ -n "$ZAP_HUD_DB_DISABLE" ] && curl -s -o /dev/null "http://localhost:8090/JSON/ascan/action/disableScanners/?ids=$(ids "$ZAP_HUD_DB_DISABLE")"
                   ;;
               esac
               ;;
@@ -119,12 +127,15 @@ class ZapHudCommand extends Command
             . " -config ascan.delayInMs=$delayInMs";
 
         $domXssStrength = getenv('ZAP_ASCAN_DOMXSS_STRENGTH') ?: 'LOW';
+        $databaseRules = $this->databaseRuleRegexes($io);
 
         $command = "docker compose run --rm --service-ports --user zap"
             . " -e " . escapeshellarg("ZAP_WEBSWING_OPTS=$zapOpts")
             . " -e " . escapeshellarg("ZAP_HUD_THREADS=$threadsPerHost")
             . " -e " . escapeshellarg("ZAP_HUD_DELAY_MS=$delayInMs")
-            . " -e " . escapeshellarg("ZAP_HUD_DOMXSS_STRENGTH=$domXssStrength");
+            . " -e " . escapeshellarg("ZAP_HUD_DOMXSS_STRENGTH=$domXssStrength")
+            . " -e " . escapeshellarg("ZAP_HUD_DB_ENABLE={$databaseRules['enable']}")
+            . " -e " . escapeshellarg("ZAP_HUD_DB_DISABLE={$databaseRules['disable']}");
 
         $context = $target !== null ? $this->resolveContext($io, $target, $config) : null;
 

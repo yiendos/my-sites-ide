@@ -338,6 +338,7 @@ the root `.env`, which is gitignored. The root `env-example` lists the override 
 | `ZAP_ASCAN_THREADS_PER_HOST` | `2` | Active Scan threads per host. Applied through the API, then read back to confirm. |
 | `ZAP_ASCAN_DELAY_MS` | `0` | Delay between Active Scan requests. |
 | `ZAP_ASCAN_DOMXSS_STRENGTH` | `LOW` | DOM XSS attack strength. Resolved by scanner name, not id. |
+| `ZAP_ASCAN_DATABASES` | (empty) | Database-specific injection rules to keep, comma-separated: `mysql`, `postgresql`, `oracle`, `mssql`, `hypersonic`, `sqlite`, `mongodb`. The rest are disabled, since their time-based probes can't find anything against another database and are slow. Empty runs them all. The generic SQL Injection rule always runs. Applied by `ide:zap-daemon` and in each HUD session, matched by rule name. |
 | `ZAP_ASCAN_TIMEOUT_SECONDS` | `1800` | How long the CLI waits for an active scan. The scan keeps running server-side regardless. |
 | `ZAP_TARGET_PASSWORD` | (unset) | Password for flag-based context generation. Keep it in the root `.env`, not `zaproxy/.env`. |
 | `ZAP_TARGET_ALIAS` | `default.test` | Network alias nginx registers, so the container can resolve the target. Must be the exact hostname the context targets. Read by `servers/nginx/docker-compose.yml`. |

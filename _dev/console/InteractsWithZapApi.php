@@ -37,4 +37,49 @@ trait InteractsWithZapApi
 
         return $decoded;
     }
+
+    /**
+     * Database-specific Active Scan rules, matched by name (not pinned IDs -
+     * same reasoning as the DOM XSS lookup in ide:zap-daemon). The generic
+     * "SQL Injection" rule isn't listed, so it always runs.
+     *
+     * @return array<string, string> database => rule-name regex
+     */
+    private static function databaseRulePatterns(): array
+    {
+        return [
+            'mysql' => '^SQL Injection - MySQL',
+            'postgresql' => '^SQL Injection - PostgreSQL',
+            'oracle' => '^SQL Injection - Oracle',
+            'mssql' => '^SQL Injection - MsSQL',
+            'hypersonic' => '^SQL Injection - Hypersonic',
+            'sqlite' => '^SQL Injection - SQLite',
+            'mongodb' => '^NoSQL Injection - MongoDB',
+        ];
+    }
+
+    /**
+     * Splits the database rules into those to enable and disable, from
+     * ZAP_ASCAN_DATABASES (comma-separated, e.g. "mysql"). Unset or empty
+     * means every database rule runs. Both halves are always applied, since
+     * the policy persists in the zap-home volume - a rule disabled for one
+     * target would otherwise stay disabled for the next.
+     *
+     * @return array{enable: string, disable: string} combined regexes, '' when nothing matches
+     */
+    private function databaseRuleRegexes(SymfonyStyle $io): array
+    {
+        $patterns = self::databaseRulePatterns();
+        $wanted = array_filter(array_map('trim', explode(',', strtolower((string) getenv('ZAP_ASCAN_DATABASES')))));
+
+        foreach (array_diff($wanted, array_keys($patterns)) as $unknown) {
+            $io->warning("Unknown database '{$unknown}' in ZAP_ASCAN_DATABASES - expected one of: " . implode(', ', array_keys($patterns)) . '.');
+        }
+
+        $enable = $wanted === [] ? $patterns : array_intersect_key($patterns, array_flip($wanted));
+        $disable = array_diff_key($patterns, $enable);
+        $combine = fn (array $list): string => $list === [] ? '' : '(' . implode('|', $list) . ')';
+
+        return ['enable' => $combine($enable), 'disable' => $combine($disable)];
+    }
 }
