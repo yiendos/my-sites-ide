@@ -14,6 +14,18 @@
             "email": "yiendos@sbmatrix.com"
         }
     ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "Packages/*/my-sites-ide-*",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
+    "scripts": {
+        "post-autoload-dump": "Yiendos\\MySitesIde\\Plugins\\Discover::run"
+    },
     "require": {
         "symfony/console": "7.3",
         "vlucas/phpdotenv": "^5.6",
