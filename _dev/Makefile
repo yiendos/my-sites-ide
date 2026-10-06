@@ -63,7 +63,7 @@ clone:
 build:
 
 	@echo "Building containers"
-	docker compose --env-file .env up -d composer node fpm nginx apache mariadb redis cli cron  --build
+	docker compose --env-file .env up -d composer node fpm nginx mariadb redis cli cron  --build
 	
 build-wait:
 
