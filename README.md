@@ -204,7 +204,8 @@ Describe it in the plugin's own `composer.json`:
         "env":         ".env",
         "env-example": "env-example",
         "services":    ["zaproxy"],
-        "autostart":   false
+        "autostart":   false,
+        "hooks":       { "site-created": ["servers:apache-vhost"] }
     }
 }
 ```
@@ -213,6 +214,7 @@ Describe it in the plugin's own `composer.json`:
 - `compose` - included into the stack. Reach the project root with `${IDE_ROOT}`, never `../../..` - the package lives in `vendor/`.
 - `env` - the plugin's defaults, loaded after the root `.env`, so the user's values win (for both commands and compose interpolation).
 - `services` / `autostart` - with `autostart: true`, `ide:spark` starts these alongside `APP`.
+- `hooks` - commands the IDE runs on its events. `site-created` runs once `ide:create-site` / `ide:repo-clone` has the site's `Repos/<site>/_build/config` in place, with the site as the `site` argument - how a server plugin adds its own vhost.
 
 Commands find the project root through the `IDE_ROOT` environment variable, which the CLI sets.
 
