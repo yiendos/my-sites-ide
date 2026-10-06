@@ -19,6 +19,7 @@ including ones who haven't used ZAP before.
 - [Prerequisites](#prerequisites)
 - [Setup per target](#setup-per-target)
 - [Methodology](#methodology)
+- [Stopping and restarting](#stopping-and-restarting)
 - [Command reference](#command-reference)
 - [Configuration](#configuration)
 - [Reports and sensitive files](#reports-and-sensitive-files)
@@ -267,6 +268,8 @@ To import a context by hand instead, use **File → Import Context** and type
 `/zap/wrk/<target>.context` into File Name. The dialog opens in ZAP's own contexts folder,
 not the `reports/` mount.
 
+To start from a clean ZAP session, see [Stopping and restarting](#stopping-and-restarting).
+
 The ZAP Desktop UI opens at `http://localhost:8080/zap`. Then:
 
 1. Proxy a real browser through ZAP, scoped to the target host only. FoxyProxy works well.
@@ -278,7 +281,8 @@ The ZAP Desktop UI opens at `http://localhost:8080/zap`. Then:
    parameter, chain it with something the scanner wouldn't try, and confirm it is real
    before reporting or demoing it.
 
-Close the HUD tab and stop the container when finished. See
+Close the HUD tab and stop ZAP when finished (see
+[Stopping and restarting](#stopping-and-restarting)). See
 [Troubleshooting](#troubleshooting) for the "Session ended" loop.
 
 ### Phase 5: browser (HUD), cover write-verb endpoints
@@ -318,6 +322,60 @@ it's gone. For a write-verb finding from Phase 5, repeat that walkthrough, since
 CLI regression path for it yet. Apply the Phase 3 scrutiny to a clean result as well:
 confirm what was actually covered before trusting the absence of an alert.
 
+## Stopping and restarting
+
+### Stopping
+
+```
+php my-sites-ide ide:zap-stop
+```
+
+Stops the HUD and the daemon, whichever are running. Both are started with `--rm`, so
+stopping also removes the container. The ZAP session itself is kept in the `zap-home`
+volume until you prune it.
+
+Stop ZAP after every HUD session. Closing the browser tab isn't enough: Webswing sessions
+never time out, so the ZAP process behind the tab keeps running, holds the `zap-home` lock
+and keeps the single browser slot taken.
+
+### Restarting
+
+```
+php my-sites-ide ide:zap-stop
+php my-sites-ide ide:zap-hud <target>
+```
+
+Every launch starts a fresh ZAP session with the target context imported. Restart:
+
+- **Between big scans.** JVM memory stays high after a scan (about half of the budget
+  while idle), so the next scan starts with less headroom.
+- **When switching browser or Chrome profile.** Webswing allows one browser client
+  (`maxClients: 1`), tied to the browser that opened `/zap`. Any other browser, profile or
+  incognito window is refused until the HUD is restarted.
+- **When the HUD shows "Session ended" in a loop.** Try `ide:zap-hud-fix` first (see
+  [Troubleshooting](#troubleshooting)).
+
+### Starting from a clean slate
+
+To start with no history, alerts or saved sessions from earlier runs:
+
+```
+php my-sites-ide ide:zap-stop
+php my-sites-ide ide:zap-prune --logs
+php my-sites-ide ide:zap-hud <target>
+```
+
+`ide:zap-prune` lists the saved sessions and asks before deleting them. Add `--dry-run`
+to only list them. If you also want fresh credentials and seed URLs, run
+`ide:zap-context <target>` before `ide:zap-hud`. Leave `contexts/<target>.zap-config.php`
+in place: it's written by hand and isn't regenerated.
+
+Then open `http://localhost:8080/zap` in one browser profile only. Use a dedicated Chrome
+profile for the proxied browser: if the target's parent domain sends HSTS with
+`includeSubDomains` (prod `smart-kitchen.io` does), Chrome won't let you click through
+ZAP's certificate. If that profile has already cached the policy, delete the parent
+domain's entry in `chrome://net-internals/#hsts`.
+
 ## Command reference
 
 | Command | What it does |
@@ -329,7 +387,7 @@ confirm what was actually covered before trusting the absence of an alert.
 | `ide:zap-hud-fix` | Diagnose a stuck "Session ended" loop. Shows the lock error and the PIDs it finds, and asks before killing anything. |
 | `ide:zap-prune [--keep=N] [--older-than=DAYS] [--logs] [--dry-run]` | Reclaim `zap-home` volume space. Lists every saved session (both `sessions/`, auto-created per HUD session, and `session/`, saved by name) with size and age, then deletes them after confirmation. Never deletes the session ZAP has open. `--logs` also removes rotated `zap.log.N` files. A 75k-request scan's session is about 2 GB. |
 | `ide:zap-coverage <target>` | Diff recorded traffic against `write_routes`. Print the `livewire_actions` checklist. |
-| `docker compose stop zaproxy` | Stop the container. Required after a HUD session. The daemon is `--rm`, so stopping it also removes it. |
+| `ide:zap-stop` | Stop the HUD and daemon containers, ending the current ZAP session. Required after a HUD session, and the way to free Webswing's single browser slot ("Maximum number of clients reached"). Both are `--rm`, so stopping also removes them. |
 
 ## Configuration
 
@@ -403,6 +461,14 @@ log and identifies which one applies.
    closing a tab or switching Chrome profiles can leave a ZAP process holding the lock.
    The container still looks healthy to Docker, so nothing catches this automatically.
    `ide:zap-hud-fix` finds it and offers to kill it.
+
+**HUD: "Too many connections" / "Maximum number of clients reached [1]" in
+`webswing.out`.** The image's `webswing.config` sets `maxClients: 1`, and sessions are tied
+to the browser that opened them (`CONTINUE_FOR_BROWSER`). Opening `/zap` from another
+Chrome profile, browser or incognito window while a session is running counts as a second
+client. Go back to the original browser, or run `ide:zap-stop` and relaunch with
+`ide:zap-hud`. Don't raise `maxClients`: each client starts its own ZAP JVM, which doubles
+memory, and both share the `zap-home` lock, which brings back the "Session ended" loop.
 
 **HUD: "Failed to save the options: The URL to Poll must be specified for context Default
 Context".** ZAP's built-in Default Context starts with a poll-URL verification strategy and
