@@ -186,7 +186,7 @@ Don't `composer require` a plugin - that writes to the tracked `composer.json`. 
 | Namespace | `<Vendor>\MySitesIde\<Category>\<Service>` | `Yiendos\MySitesIde\Security\Zaproxy` |
 | Compose service | `<service>` | `zaproxy` |
 | Env prefix | `<SHORT>_` | `ZAP_` |
-| Commands | `ide:<short>-<action>` | `ide:zap-scan` |
+| Commands | `<category>:<short>-<action>` | `security:zap-scan` |
 | User data | `storage/plugins/<service>/` | `storage/plugins/zaproxy/` |
 
 Categories: preprocessor, server, database, build, cache, mailcatcher, editor, certificate, security, deploy.
