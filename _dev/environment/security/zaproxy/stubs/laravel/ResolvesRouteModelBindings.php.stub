@@ -1,0 +1,148 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\User;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
+
+/**
+ * Shared by security:seed-urls and security:seed-write-routes - both need to
+ * skip the same internal/infra/admin routes and resolve {route-model-binding}
+ * parameters to real database ids the same way. Only the HTTP-verb gate
+ * differs between the two commands, so that stays on each command itself.
+ */
+trait ResolvesRouteModelBindings
+{
+    /**
+     * Route prefixes that aren't real app pages worth seeding. Adjust for
+     * this app's own internal/package routes.
+     *
+     * @var string[]
+     */
+    private const SKIPPED_URI_PREFIXES = ['livewire-', 'storage/', 'reset-password/', '_boost', 'sanctum/'];
+
+    /**
+     * Whether a route is internal/infra, login/logout, or admin-only - none
+     * of which are worth seeding regardless of HTTP verb (login/logout are
+     * already excluded from the scan's context scope; admin-only routes
+     * would just 403, since the scan runs as a non-admin user).
+     */
+    private function isInternalOrAdmin(Route $route): bool
+    {
+        $uri = $route->uri();
+
+        foreach (self::SKIPPED_URI_PREFIXES as $prefix) {
+            if (str_starts_with($uri, $prefix)) {
+                return true;
+            }
+        }
+
+        if ($uri === 'up' || in_array($uri, ['login', 'logout'], true)) {
+            return true;
+        }
+
+        // Adjust to however this app gates its admin-only routes
+        return in_array('can:admin', $route->gatherMiddleware(), true);
+    }
+
+    /**
+     * Whether a route is a write-verb (non-GET) app endpoint worth manifesting
+     * - GET-capable routes are security:seed-urls's job. Shared with
+     * security:coverage-diff, which needs the identical candidate set to
+     * check recorded ZAP traffic against.
+     */
+    private function isWriteSeedable(Route $route): bool
+    {
+        $verbs = array_diff($route->methods(), ['HEAD', 'OPTIONS']);
+
+        if (empty($verbs) || in_array('GET', $verbs, true)) {
+            return false;
+        }
+
+        return ! $this->isInternalOrAdmin($route);
+    }
+
+    /**
+     * A route can be registered against multiple write verbs at once
+     * (Route::match(['put', 'patch'], ...)) - picks the first non-HEAD/OPTIONS
+     * one deterministically, since callers only need one representative verb
+     * per uri.
+     */
+    private function primaryMethod(Route $route): string
+    {
+        return array_values(array_diff($route->methods(), ['HEAD', 'OPTIONS']))[0];
+    }
+
+    /**
+     * Resolve each distinct {param} across the given routes to a real
+     * database id, via Laravel's own route-model-binding naming convention
+     * ({order} -> App\Models\Order), scoped to the given user's own records
+     * where the model actually has a user_id column.
+     *
+     * @param  Collection<int, Route>  $routes
+     * @return array<string, string|int|null>
+     */
+    private function resolveRouteParameters($routes, ?User $user): array
+    {
+        $paramNames = $routes
+            ->flatMap(fn ($route) => $route->parameterNames())
+            ->unique();
+
+        $resolved = [];
+
+        foreach ($paramNames as $param) {
+            $model = 'App\\Models\\'.ucfirst($param);
+
+            if (! class_exists($model)) {
+                $resolved[$param] = null;
+
+                continue;
+            }
+
+            $query = $model::query();
+
+            if ($user && Schema::hasColumn((new $model)->getTable(), 'user_id')) {
+                $query->where('user_id', $user->id);
+            }
+
+            $resolved[$param] = $query->first()?->getKey();
+        }
+
+        return $resolved;
+    }
+
+    /**
+     * Substitute resolved values into a route uri's {param} placeholders.
+     * An optional {param?} with no resolved value is dropped from the uri
+     * entirely; a required one with no resolved value skips the route
+     * altogether, rather than seeding a scan with a guaranteed 404.
+     *
+     * @param  array<string, string|int|null>  $resolved
+     */
+    private function buildSeedUrl(string $uri, array $resolved): ?string
+    {
+        if (! preg_match_all('/\{(\w+)(\??)\}/', $uri, $matches, PREG_SET_ORDER)) {
+            return $uri;
+        }
+
+        foreach ($matches as [$placeholder, $param, $optional]) {
+            $value = $resolved[$param] ?? null;
+
+            if ($value === null) {
+                if ($optional === '?') {
+                    $uri = str_replace('/'.$placeholder, '', $uri);
+
+                    continue;
+                }
+
+                return null;
+            }
+
+            $uri = str_replace($placeholder, (string) $value, $uri);
+        }
+
+        return $uri;
+    }
+}

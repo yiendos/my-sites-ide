@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\User;
+use Illuminate\Console\Command;
+use Illuminate\Routing\Route;
+use Illuminate\Support\Facades\Route as RouteFacade;
+
+class SecuritySeedUrlsCommand extends Command
+{
+    use ResolvesRouteModelBindings;
+
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'security:seed-urls {--user={{ scan_user }}} {--base-url={{ base_url }}}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Generate seed URLs for security scanning from the route table, with route-model-binding parameters resolved to real records';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
+    {
+        $user = User::where('email', $this->option('user'))->first();
+        $baseUrl = rtrim($this->option('base-url'), '/');
+
+        $routes = collect(RouteFacade::getRoutes())->filter(fn ($route) => $this->isSeedable($route));
+
+        $resolved = $this->resolveRouteParameters($routes, $user);
+
+        $seedUrls = $routes
+            ->map(fn ($route) => $this->buildSeedUrl($route->uri(), $resolved))
+            ->filter()
+            ->map(fn ($uri) => $baseUrl.'/'.ltrim($uri, '/'))
+            ->values();
+
+        $this->output->write($seedUrls->toJson());
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Whether a route is a real, GET-reachable app page worth seeding -
+     * excludes write-only routes (nothing to visit with a GET, no body to
+     * submit - see security:seed-write-routes for those), and whatever
+     * ResolvesRouteModelBindings excludes regardless of verb.
+     */
+    private function isSeedable(Route $route): bool
+    {
+        if (! in_array('GET', $route->methods(), true)) {
+            return false;
+        }
+
+        return ! $this->isInternalOrAdmin($route);
+    }
+}

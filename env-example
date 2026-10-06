@@ -8,7 +8,52 @@ LARAVEL_INDEX=https://raw.githubusercontent.com/laravel/laravel/refs/heads/12.x/
 SQL_MODE=ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 # [php section configuration]
 #default is to prevent all tricky functions
-#however for development, this is less than ideal 
+#however for development, this is less than ideal
 #to remove these restrictions ensure that the root ./env
-#has the following line present, and no fmaunctions are provided 
+#has the following line present, and no fmaunctions are provided
 PHP_DISABLE_FUNCTIONS=
+
+# [OWASP ZAP configuration]
+# Active Scan concurrency for ide:zap-hud, defaults live in zaproxy/.env (2 / 0ms)
+# keep conservative, the zaproxy container is memory-capped - uncomment to override
+#ZAP_ASCAN_THREADS_PER_HOST=2
+#ZAP_ASCAN_DELAY_MS=0
+# DOM XSS (scanner 40026) is uniquely expensive - a real browser per test case,
+# and the sole bottleneck confirmed blocking a full scan against a DOM-heavy
+# app. Default LOW keeps --full scans tractable; raise it here only if you
+# want site-wide MEDIUM/HIGH DOM XSS coverage from the CLI (expect it to take
+# much longer) - a scoped manual Active Scan via ide:zap-hud is usually the
+# better way to go deeper on this specific rule.
+#ZAP_ASCAN_DOMXSS_STRENGTH=LOW
+# Database-specific injection rules to run, comma-separated (mysql, postgresql,
+# oracle, mssql, hypersonic, sqlite, mongodb). Rules for other databases are
+# disabled - their time-based probes can't find anything and are slow. Empty
+# (the default in zaproxy/.env) runs them all. The generic SQL Injection rule
+# always runs.
+#ZAP_ASCAN_DATABASES=mysql
+
+# Password for ide:zap-context's CLI-flag config generation (--site-url,
+# --login-url, --username, etc. - see ide:zap-context --help). Deliberately
+# not a --password flag, to keep it out of shell history/process listings.
+# No sensible shared default (every target's demo account differs), so
+# unlike the settings above this is set here only, never in zaproxy/.env -
+# that file is tracked by git, this is a credential even if a low-stakes one.
+#ZAP_TARGET_PASSWORD=
+# How long `ide:zap-scan --full` waits for the active scan before giving up
+# and generating a report anyway - the scan keeps running server-side
+# regardless, this is just the CLI's own patience. Default 1800s (30 min),
+# defaults live in zaproxy/.env - raise if your target is larger/slower.
+#ZAP_ASCAN_TIMEOUT_SECONDS=1800
+
+# container resource caps, defaults live inline in zaproxy/docker-compose.yml
+# (5g / 4 cores / cores 0-3) - uncomment and adjust to fit your machine
+#ZAP_MEM_LIMIT=5g
+#ZAP_CPUS=4
+#ZAP_CPUSET=0,1,2,3
+
+# the site nginx aliases onto the my-sites-ide network, so a browser proxied through
+# ZAP can reach it (see the *.localhost proxy-bypass gotcha), default lives inline in
+# servers/nginx/docker-compose.yml (default.test) - one hostname at a time, uncomment
+# and set to whichever site you're scanning (requires `docker compose up -d nginx` to
+# take effect, and that hostname must be in the target site's own nginx vhost server_name)
+#ZAP_TARGET_ALIAS=default.test

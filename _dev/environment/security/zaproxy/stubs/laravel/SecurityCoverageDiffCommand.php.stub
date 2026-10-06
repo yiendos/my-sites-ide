@@ -1,0 +1,86 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\User;
+use Illuminate\Console\Command;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route as RouteFacade;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+
+class SecurityCoverageDiffCommand extends Command
+{
+    use ResolvesRouteModelBindings;
+
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'security:coverage-diff {--recorded=} {--user={{ scan_user }}}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Diff recorded {method, url} traffic (from a ZAP session, via ide:zap-coverage) against the write-route manifest from security:seed-write-routes, to show which write endpoints were actually exercised';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
+    {
+        $recorded = json_decode((string) $this->option('recorded'), true) ?: [];
+        $user = User::where('email', $this->option('user'))->first();
+
+        $writeRoutes = collect(RouteFacade::getRoutes())->filter(fn ($route) => $this->isWriteSeedable($route));
+        $resolved = $this->resolveRouteParameters($writeRoutes, $user);
+
+        // Key candidates by "METHOD uri-pattern" (e.g. "POST api/shopping-list-items")
+        // rather than route name - not every route is named, but every route
+        // has a stable uri() pattern.
+        $candidates = $writeRoutes
+            ->filter(fn ($route) => $this->buildSeedUrl($route->uri(), $resolved) !== null)
+            ->mapWithKeys(fn ($route) => [$this->primaryMethod($route).' '.$route->uri() => $route->uri()]);
+
+        $matchedKeys = collect($recorded)
+            ->map(fn ($entry) => $this->matchRecordedEntry($entry))
+            ->filter()
+            ->unique();
+
+        $covered = $candidates->only($candidates->keys()->intersect($matchedKeys));
+        $uncovered = $candidates->diffKeys($covered);
+
+        $this->output->write(json_encode([
+            'covered' => $covered->values(),
+            'uncovered' => $uncovered->values(),
+        ]));
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Matches one recorded {method, url} entry back to a real route's
+     * "METHOD uri-pattern" key, via Laravel's own routing match logic rather
+     * than any manual pattern-matching - this is exactly why the diff has to
+     * happen inside the target app rather than in my-sites-ide, which has no access
+     * to the route table at all. Returns null for anything that isn't a real
+     * app route (a static asset, a 404, browser noise) - not every recorded
+     * request is meaningful, and match() throws rather than returning null
+     * for those.
+     */
+    private function matchRecordedEntry(array $entry): ?string
+    {
+        try {
+            $path = parse_url($entry['url'] ?? '', PHP_URL_PATH) ?: '/';
+            $request = Request::create($path, $entry['method'] ?? 'GET');
+            $route = RouteFacade::getRoutes()->match($request);
+
+            return $this->primaryMethod($route).' '.$route->uri();
+        } catch (NotFoundHttpException|MethodNotAllowedHttpException) {
+            return null;
+        }
+    }
+}

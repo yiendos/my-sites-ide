@@ -1,0 +1,132 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\User;
+use Illuminate\Console\Command;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Route as RouteFacade;
+use Illuminate\Support\Str;
+use Livewire\Component as LivewireComponent;
+
+class SecuritySeedLivewireActionsCommand extends Command
+{
+    use ResolvesRouteModelBindings;
+
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'security:seed-livewire-actions {--user={{ scan_user }}} {--base-url={{ base_url }}}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Generate a manifest of Livewire component write actions (wire:click/wire:submit) with the page URL and blade location each is triggered from - invisible to route-based scanning entirely, since a Livewire action is a method name inside a payload, not a route';
+
+    /**
+     * Livewire's own built-in directives ($set, $toggle, $refresh, $parent...)
+     * just mutate client-visible component state - no server-side write logic
+     * behind them worth flagging for security testing.
+     */
+    private const IGNORED_ACTION_PREFIX = '$';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
+    {
+        $user = User::where('email', $this->option('user'))->first();
+        $baseUrl = rtrim($this->option('base-url'), '/');
+
+        $routes = collect(RouteFacade::getRoutes())
+            ->filter(fn ($route) => $this->isLivewireRoute($route))
+            ->filter(fn ($route) => ! $this->isInternalOrAdmin($route));
+
+        $resolved = $this->resolveRouteParameters($routes, $user);
+
+        $manifest = $routes
+            ->flatMap(function ($route) use ($resolved, $baseUrl) {
+                $uri = $this->buildSeedUrl($route->uri(), $resolved);
+
+                if ($uri === null) {
+                    return [];
+                }
+
+                return $this->actionsForComponent($route->getActionName())
+                    ->map(fn ($action) => [
+                        'component' => $route->getActionName(),
+                        'method' => $action['method'],
+                        'uri' => $baseUrl.'/'.ltrim($uri, '/'),
+                        'blade' => $action['blade'],
+                    ]);
+            })
+            ->values();
+
+        $this->output->write($manifest->toJson());
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * A full-page Livewire route's action is the bare component class name,
+     * with no "@method" suffix - confirmed live via getActionName(), not
+     * assumed from route:list's already-cleaned-up display output.
+     */
+    private function isLivewireRoute($route): bool
+    {
+        $action = $route->getActionName();
+
+        return class_exists($action) && is_subclass_of($action, LivewireComponent::class);
+    }
+
+    /**
+     * Resolves a component's default Blade view via Livewire's own naming
+     * convention (StudlyCase namespace segments -> kebab-case path segments
+     * under resources/views/livewire/), then extracts every real wire:click/
+     * wire:submit action call. Confirmed live against every routed component
+     * in the app - not assumed from Livewire's docs, which is exactly the
+     * kind of framework-internals guess that's cost this project before.
+     *
+     * Only covers components that are themselves directly routed (all of
+     * them, in this app, as of this command being written) - a component
+     * only ever embedded inside another page's view has no route to resolve
+     * a URL from, so it's silently skipped rather than guessed at.
+     *
+     * @return Collection<int, array{method: string, blade: string}>
+     */
+    private function actionsForComponent(string $componentClass): Collection
+    {
+        $segments = explode('\\', Str::after($componentClass, 'App\\Livewire\\'));
+        $path = collect($segments)->map(fn ($segment) => Str::kebab($segment))->implode('/');
+        $bladePath = base_path("resources/views/livewire/{$path}.blade.php");
+
+        if (! is_file($bladePath)) {
+            return collect();
+        }
+
+        $actions = collect();
+
+        foreach (file($bladePath) as $lineNumber => $line) {
+            if (! preg_match_all('/wire:(?:click|submit)(?:\.\w+)*="([^"]+)"/', $line, $matches)) {
+                continue;
+            }
+
+            foreach ($matches[1] as $expression) {
+                if (str_starts_with($expression, self::IGNORED_ACTION_PREFIX)) {
+                    continue;
+                }
+
+                $actions->push([
+                    'method' => Str::before($expression, '('),
+                    'blade' => "resources/views/livewire/{$path}.blade.php:".($lineNumber + 1),
+                ]);
+            }
+        }
+
+        return $actions->unique('method')->values();
+    }
+}
