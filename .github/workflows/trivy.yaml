@@ -11,10 +11,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      #docker-compose.yml includes the plugin compose file composer generates on install,
-      #only core images are scanned here, so stand in the empty no-plugins version
-      - name: No plugins compose file
-        run: echo '{}' > docker-compose.plugins.yml
+      #docker-compose.yml includes docker-compose.plugins.yml, which plugin discovery
+      #generates on composer's post-autoload-dump - no dependencies need installing for it,
+      #and with no composer.local.json in CI it's the empty, no-plugins version
+      - name: Generate plugins compose file
+        run: composer dump-autoload --no-interaction
       - name: Build cron image first
         run: docker compose --progress quiet build cron
         env: 
