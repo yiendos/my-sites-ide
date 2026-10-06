@@ -29,6 +29,19 @@
     "require": {
         "symfony/console": "7.3",
         "vlucas/phpdotenv": "^5.6",
-        "laravel/installer": "^5.19"
+        "laravel/installer": "^5.19",
+        "wikimedia/composer-merge-plugin": "^2.1"
+    },
+    "extra": {
+        "merge-plugin": {
+            "include": [
+                "composer.local.json"
+            ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "wikimedia/composer-merge-plugin": true
+        }
     }
 }

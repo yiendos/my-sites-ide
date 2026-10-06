@@ -11,3 +11,5 @@ _dev/environment/editor/theia/plugins
 /storage/*
 /_dev/cache
 /docker-compose.plugins.yml
+/composer.local.json
+/composer.lock

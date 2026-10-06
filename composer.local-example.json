@@ -1,0 +1,5 @@
+{
+    "require": {
+        "yiendos/my-sites-ide-security-zaproxy": "@dev"
+    }
+}
