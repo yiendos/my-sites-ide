@@ -327,6 +327,7 @@ confirm what was actually covered before trusting the absence of an alert.
 | `ide:zap-daemon` | Start the headless daemon if it isn't running, reusing one that is. Used by the two commands above, rarely needed directly. |
 | `ide:zap-hud [<target>]` | Launch the interactive browser UI. Stops a conflicting daemon or HUD first. Optional target prints the checklist and auto-imports its context. |
 | `ide:zap-hud-fix` | Diagnose a stuck "Session ended" loop. Shows the lock error and the PIDs it finds, and asks before killing anything. |
+| `ide:zap-prune [--keep=N] [--older-than=DAYS] [--logs] [--dry-run]` | Reclaim `zap-home` volume space. Lists every saved session (both `sessions/`, auto-created per HUD session, and `session/`, saved by name) with size and age, then deletes them after confirmation. Never deletes the session ZAP has open. `--logs` also removes rotated `zap.log.N` files. A 75k-request scan's session is about 2 GB. |
 | `ide:zap-coverage <target>` | Diff recorded traffic against `write_routes`. Print the `livewire_actions` checklist. |
 | `docker compose stop zaproxy` | Stop the container. Required after a HUD session. The daemon is `--rm`, so stopping it also removes it. |
 
