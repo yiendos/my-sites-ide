@@ -189,7 +189,7 @@ Don't `composer require` a plugin - that writes to the tracked `composer.json`. 
 | Commands | `<category>:<short>-<action>` | `security:zap-scan` |
 | User data | `storage/plugins/<service>/` | `storage/plugins/zaproxy/` |
 
-Categories: preprocessor, server, database, build, cache, mailcatcher, editor, certificate, security, deploy.
+Categories follow the `_dev/environment/` folders: preprocessors, servers, databases, build, caching, mailcatchers, editor, certificates - plus security, deploy.
 
 ### Writing a plugin
 
