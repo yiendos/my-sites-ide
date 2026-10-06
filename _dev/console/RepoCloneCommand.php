@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Yiendos\MySitesIde\Plugins\Hooks;
 
 class RepoCloneCommand extends Command
 {
@@ -61,6 +62,9 @@ class RepoCloneCommand extends Command
         }
         //then we need to configure the _build/config files
         $this->copyVhosts($projectName, $io, $output);
+
+        //plugins add their own site configuration (e.g. the apache plugin's vhost)
+        Hooks::run('site-created', ['site' => $projectName], $application, $output);
 
         //@todo refactor into own composer dependancy for my-sites-ide 
         if ($laravel) {
@@ -133,6 +137,11 @@ class RepoCloneCommand extends Command
 
         foreach($servers as $server)
         {
+            //servers provided by a plugin (e.g. apache) create their vhost through the site-created hook
+            if (!file_exists("_dev/environment/servers/$server/sample.vhost")) {
+                continue;
+            }
+
             $vhost = "Repos/$projectName/_build/config/1-$projectName-$server.conf";
 
             $io->info("cp _dev/environment/servers/$server/sample.vhost $vhost"); 

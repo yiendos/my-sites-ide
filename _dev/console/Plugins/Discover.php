@@ -96,6 +96,7 @@ final class Discover
                 'env-example' => $file('env-example'),
                 'services' => $manifest['services'] ?? [],
                 'autostart' => (bool) ($manifest['autostart'] ?? false),
+                'hooks' => array_map(fn ($commands): array => (array) $commands, $manifest['hooks'] ?? []),
             ];
         }
 

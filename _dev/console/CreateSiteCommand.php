@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Yiendos\MySitesIde\Plugins\Hooks;
 
 class CreateSiteCommand extends Command
 {
@@ -48,6 +49,9 @@ class CreateSiteCommand extends Command
         //then we need to configure the _build/config files
         $this->copyVhosts($projectName);
 
+        //plugins add their own site configuration (e.g. the apache plugin's vhost)
+        Hooks::run('site-created', ['site' => $projectName], $application, $output);
+
         /** If the user has a deployment mechanism installed via composer */
         if (class_exists('Yiendos\Deploy\Console\Commands')) 
         {
@@ -69,6 +73,11 @@ class CreateSiteCommand extends Command
         
         foreach($servers as $server)
         {
+            //servers provided by a plugin (e.g. apache) create their vhost through the site-created hook
+            if (!file_exists("_dev/environment/servers/$server/sample.vhost")) {
+                continue;
+            }
+
             $vhost = "Repos/$projectName/_build/config/1-$projectName-$server.conf";
             passthru("cp _dev/environment/servers/$server/sample.vhost $vhost");
             file_put_contents($vhost, str_replace("__PROJECT__", $projectName, file_get_contents($vhost)));
