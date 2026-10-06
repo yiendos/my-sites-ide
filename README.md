@@ -157,3 +157,63 @@ For example: If you named one project `yiendos` via the `.env` NAMESPACE variabl
 For another project: if you named this project `paul` via the `.env` NAMESPACE variable, images would be named `paul_fpm` etc
 
 This way your projects are sandboxed.
+
+
+## Plugins
+
+Extra services (security scanners, alternative servers, deployment targets) install as Composer packages of type `my-sites-ide-plugin`, e.g. [yiendos/my-sites-ide-security-zaproxy](https://github.com/yiendos/my-sites-ide-security-zaproxy).
+
+Which plugins you use is your choice, so they're listed in your own `composer.local.json` (git ignored, merged into `composer.json` by [wikimedia/composer-merge-plugin](https://github.com/wikimedia/composer-merge-plugin)) rather than the tracked `composer.json`. `composer.lock` is git ignored for the same reason - every installation's set of plugins differs.
+
+```
+php my-sites-ide ide:plugin-search                              # find plugins on Packagist
+cp composer.local-example.json composer.local.json              # first time only, then list your plugins under "require"
+composer update                                                 # install them
+php my-sites-ide ide:plugin-env yiendos/my-sites-ide-security-zaproxy   # optional: copy its options into .env, commented out
+php my-sites-ide ide:plugin-list                                # what's installed
+```
+
+Don't `composer require` a plugin - that writes to the tracked `composer.json`. A plugin that isn't on Packagist can be added through a `repositories` entry in `composer.local.json`, which is merged too.
+
+`composer install`/`update` discovers installed plugins and generates `docker-compose.plugins.yml` (included by `docker-compose.yml`), so a plugin's console commands, docker services and `.env` defaults are picked up without editing any core file. A plugin's user data lives in `storage/plugins/<service>/`, never in `vendor/`.
+
+### Naming
+
+| Thing | Pattern | Example |
+|---|---|---|
+| Package / repository | `<vendor>/my-sites-ide-<category>-<service>` | `yiendos/my-sites-ide-security-zaproxy` |
+| Composer type | `my-sites-ide-plugin` | |
+| Namespace | `<Vendor>\MySitesIde\<Category>\<Service>` | `Yiendos\MySitesIde\Security\Zaproxy` |
+| Compose service | `<service>` | `zaproxy` |
+| Env prefix | `<SHORT>_` | `ZAP_` |
+| Commands | `ide:<short>-<action>` | `ide:zap-scan` |
+| User data | `storage/plugins/<service>/` | `storage/plugins/zaproxy/` |
+
+Categories: preprocessor, server, database, build, cache, mailcatcher, editor, certificate, security, deploy.
+
+### Writing a plugin
+
+Describe it in the plugin's own `composer.json`:
+
+```json
+"type": "my-sites-ide-plugin",
+"extra": {
+    "my-sites-ide": {
+        "commands":    "src/Console",
+        "compose":     "docker-compose.yml",
+        "env":         ".env",
+        "env-example": "env-example",
+        "services":    ["zaproxy"],
+        "autostart":   false
+    }
+}
+```
+
+- `commands` - a directory (every Symfony `Command` in it is registered, class names via the package's PSR-4 autoload) or a list of directories/class names.
+- `compose` - included into the stack. Reach the project root with `${IDE_ROOT}`, never `../../..` - the package lives in `vendor/`.
+- `env` - the plugin's defaults, loaded after the root `.env`, so the user's values win (for both commands and compose interpolation).
+- `services` / `autostart` - with `autostart: true`, `ide:spark` starts these alongside `APP`.
+
+Commands find the project root through the `IDE_ROOT` environment variable, which the CLI sets.
+
+To develop a plugin locally, clone it into `Packages/<vendor>/my-sites-ide-<category>-<service>` - the root `composer.json` has a path repository for `Packages/*/my-sites-ide-*`, so adding `"<vendor>/<package>": "@dev"` to `composer.local.json` and running `composer update` symlinks your working copy into `vendor/`. Nothing is committed to my-sites-ide - which plugins you've cloned is up to you.
