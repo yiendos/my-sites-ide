@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Console\Commands;
+
+use App\Models\User;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Route as RouteFacade;
+
+class SecuritySeedWriteRoutesCommand extends Command
+{
+    use ResolvesRouteModelBindings;
+
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'security:seed-write-routes {--user={{ scan_user }}} {--base-url={{ base_url }}}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Generate a {method, uri} manifest of PUT/PATCH/DELETE/POST routes with route-model-binding parameters resolved to real records - the routes security:seed-urls structurally cannot reach, since a spider seed has no request body';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle(): int
+    {
+        $user = User::where('email', $this->option('user'))->first();
+        $baseUrl = rtrim($this->option('base-url'), '/');
+
+        $routes = collect(RouteFacade::getRoutes())->filter(fn ($route) => $this->isWriteSeedable($route));
+
+        $resolved = $this->resolveRouteParameters($routes, $user);
+
+        $manifest = $routes
+            ->map(function ($route) use ($resolved, $baseUrl) {
+                $uri = $this->buildSeedUrl($route->uri(), $resolved);
+
+                if ($uri === null) {
+                    return null;
+                }
+
+                return [
+                    'method' => $this->primaryMethod($route),
+                    'uri' => $baseUrl.'/'.ltrim($uri, '/'),
+                ];
+            })
+            ->filter()
+            ->values();
+
+        $this->output->write($manifest->toJson());
+
+        return self::SUCCESS;
+    }
+}

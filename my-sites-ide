@@ -23,6 +23,7 @@ use Yiendos\MySitesIde\ZapCoverageCommand;
 use Yiendos\MySitesIde\ZapHudFixCommand;
 use Yiendos\MySitesIde\ZapPruneCommand;
 use Yiendos\MySitesIde\ZapStopCommand;
+use Yiendos\MySitesIde\ZapInstallManifestsCommand;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__);
 $dotenv->load();
@@ -47,6 +48,7 @@ $application->add(new ZapCoverageCommand());
 $application->add(new ZapHudFixCommand());
 $application->add(new ZapPruneCommand());
 $application->add(new ZapStopCommand());
+$application->add(new ZapInstallManifestsCommand());
 
 /** If the user has a deployment mechanism installed via composer */
 if (class_exists('Yiendos\Deploy\Console\Commands')) 

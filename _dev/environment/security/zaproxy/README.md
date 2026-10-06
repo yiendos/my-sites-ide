@@ -37,6 +37,7 @@ host (my-sites-ide CLI)
   |- ide:zap-hud      --> docker compose run --service-ports zaproxy zap-webswing.sh   (browser UI on :8080)
   |                       + scripts/hud-watcher.sh in the background, configuring each ZAP session via the API
   |- ide:zap-hud-fix  --> reads webswing.out inside the container, offers to kill stray ZAP processes
+  |- ide:zap-install-manifests --> copies stubs/laravel/*.php.stub into the target app, edits its zap-config
 
 zaproxy container (ghcr.io/zaproxy/zaproxy, pinned tag in docker-compose.yml)
   - reports/        bind-mounted to /zap/wrk (gitignored output)
@@ -230,28 +231,44 @@ All four commands:
 `security:seed-livewire-actions` only sees components that have their own route. A
 component that only appears inside another page's view has no URL, so it's skipped.
 
-**Turning them on.** Neither the scaffolded config nor the one `ide:zap-context` writes
-from flags includes the manifests, and nothing warns when they're missing (an earlier
-full scan ran with no seed URLs because these lines were commented out). Add them to `contexts/<target>.zap-config.php` by hand:
+**Turning them on.** One command copies the four commands into a Laravel target and
+wires them into its config:
 
-```php
-'seed_urls' => $artisan('security:seed-urls'),
-'write_routes' => $artisan('security:seed-write-routes'),
-'livewire_actions' => $artisan('security:seed-livewire-actions'),
+```
+php my-sites-ide ide:zap-install-manifests <target>
 ```
 
-`$artisan` runs the command in the `fpm` container at `app_path` and decodes its JSON. If
-the command fails, it returns an empty list without an error, so a missing or broken
-manifest looks exactly like a target with no routes. Check the output by hand after setting one up:
+- It copies the templates from `stubs/laravel/` into the app's `app/Console/Commands/`,
+  filling in the scan user (from the config's `user.username`) and the base URL (from
+  its login URL) as the commands' defaults. Override either with `--user` or
+  `--base-url`.
+- It never overwrites a file the app already has, because that copy may have local
+  changes. `--force` overwrites.
+- It adds whatever the config is missing: the `$artisan` helper, `app_path` and the three
+  manifest keys. A config written by `ide:zap-context` has none of these, so on the first
+  run pass `--app-path=/opt/repos/<repo>/deploy`. Anything already there is left alone,
+  and a commented-out key counts as missing.
+- It finishes by running `security:seed-urls` in the `fpm` container and reporting how
+  many URLs it found.
+
+Re-running it is safe. After installing, check the skipped route prefixes and the
+admin-middleware check in the app's `ResolvesRouteModelBindings.php`; the template's
+defaults suit a typical Laravel app but may not match this one.
+
+The check matters because `$artisan` returns an empty list on any failure, without an
+error. A missing or broken manifest looks exactly like a target with no routes, and an
+earlier full scan ran with no seed URLs because these config lines were commented out.
+To check a manifest by hand:
 
 ```
 docker exec -w /opt/repos/smart-kitchen-io/deploy fpm php artisan security:seed-urls
 ```
 
-**Adding them to another Laravel app.** Copy the four `Security*Command.php` files and the
-`ResolvesRouteModelBindings` trait from `Repos/smart-kitchen-io/deploy/app/Console/Commands/`,
-then adjust the skipped prefixes, the admin middleware name and the default `--user` and
-`--base-url`. For a non-Laravel target, any command that prints the same JSON shape works.
+**The templates** in `stubs/laravel/` are the reference copies. smart-kitchen keeps its
+own, so a fix made there needs copying back into the template. The templates declare
+each command's signature with the `$signature` property rather than the newer
+`#[Signature]` attribute, so they work on older Laravel versions too. For a non-Laravel
+target, any command that prints the same JSON shape works.
 
 ## Methodology
 
@@ -442,6 +459,7 @@ domain's entry in `chrome://net-internals/#hsts`.
 | `ide:zap-hud-fix` | Diagnose a stuck "Session ended" loop. Shows the lock error and the PIDs it finds, and asks before killing anything. |
 | `ide:zap-prune [--keep=N] [--older-than=DAYS] [--logs] [--dry-run]` | Reclaim `zap-home` volume space. Lists every saved session (both `sessions/`, auto-created per HUD session, and `session/`, saved by name) with size and age, then deletes them after confirmation. Never deletes the session ZAP has open. `--logs` also removes rotated `zap.log.N` files. A 75k-request scan's session is about 2 GB. |
 | `ide:zap-coverage <target>` | Diff recorded traffic against `write_routes`. Print the `livewire_actions` checklist. |
+| `ide:zap-install-manifests <target> [--app-path=] [--user=] [--base-url=] [--force]` | Copy the `security:*` manifest commands into a Laravel target and add the manifest keys to its config. See [Route manifests](#route-manifests). |
 | `ide:zap-stop` | Stop the HUD and daemon containers, ending the current ZAP session. Required after a HUD session, and the way to free Webswing's single browser slot ("Maximum number of clients reached"). Both are `--rm`, so stopping also removes them. |
 
 ## Configuration
@@ -633,8 +651,8 @@ A target needs:
   routed directly. A component embedded only in another page's view has no URL to visit.
 - **Rate-limit overrides are manual.** Relaxing the limits during a scan is a manual `.env`
   edit.
-- **Config generation covers only the auth fields.** `seed_urls`, `write_routes` and
-  `livewire_actions` are still hand-wired per target.
+- **Config generation covers only the auth fields.** `ide:zap-context` doesn't add the
+  manifests; run `ide:zap-install-manifests` afterwards.
 - **Auth-form generation is not automated.** Deriving the login URL and indicator from the
   target's own routes is possible but not built. Credentials should stay a deliberate
   manual step.
