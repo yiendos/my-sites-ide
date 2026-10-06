@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Yiendos\MySitesIde\Plugins\Discover;
 
 class SparkCommand extends Command
 {
@@ -36,6 +37,17 @@ class SparkCommand extends Command
     public function __invoke(OutputInterface $output,InputInterface $input, SymfonyStyle $io): int
     {
         $app = $input->getOption('app');
+
+        // an explicit --app is taken as-is, otherwise plugins marked autostart join APP
+        // (an empty APP already starts every service, plugins included)
+        if (!$input->hasParameterOption('--app') && trim((string) $app) !== '') {
+            $autostart = array_merge(...array_values(array_map(
+                fn (array $plugin): array => $plugin['autostart'] ? $plugin['services'] : [],
+                Discover::load(),
+            )));
+
+            $app = implode(' ', array_unique([...preg_split('/\s+/', trim($app)), ...$autostart]));
+        }
 
         $output->writeLn("docker compose up -d $app --remove-orphans");
         passthru("docker compose up -d $app --remove-orphans");

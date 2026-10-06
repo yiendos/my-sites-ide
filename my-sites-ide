@@ -6,6 +6,7 @@ require __DIR__.'/vendor/autoload.php';
 
 use Dotenv\Dotenv;
 use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
 use Yiendos\MySitesIde\AssetsCommand;
 use Yiendos\MySitesIde\DouseCommand;
 use Yiendos\MySitesIde\SparkCommand;
@@ -15,18 +16,17 @@ use Yiendos\MySitesIde\CreateSiteCommand;
 use Yiendos\MySitesIde\CreateSSLCommand;
 use Yiendos\MySitesIde\RepoCloneCommand;
 use Yiendos\MySitesIde\RestartCommand;
-use Yiendos\MySitesIde\ZapScanCommand;
-use Yiendos\MySitesIde\ZapHudCommand;
-use Yiendos\MySitesIde\ZapContextCommand;
-use Yiendos\MySitesIde\ZapDaemonCommand;
-use Yiendos\MySitesIde\ZapCoverageCommand;
-use Yiendos\MySitesIde\ZapHudFixCommand;
-use Yiendos\MySitesIde\ZapPruneCommand;
-use Yiendos\MySitesIde\ZapStopCommand;
-use Yiendos\MySitesIde\ZapInstallManifestsCommand;
+use Yiendos\MySitesIde\PluginDiscoverCommand;
+use Yiendos\MySitesIde\PluginEnvCommand;
+use Yiendos\MySitesIde\PluginListCommand;
+use Yiendos\MySitesIde\PluginSearchCommand;
+use Yiendos\MySitesIde\Plugins\Discover;
 
 $dotenv = Dotenv::createUnsafeImmutable(__DIR__);
 $dotenv->load();
+
+// the contract plugins use to find the project root (also in _dev/cache/ide.env for compose)
+putenv('IDE_ROOT=' . __DIR__);
 
 $application = new Application();
 
@@ -40,15 +40,28 @@ $application->add(new RepoCloneCommand());
 $application->add(new ComposerCommand());
 $application->add(new AssetsCommand());
 $application->add(new CreateSSLCommand());
-$application->add(new ZapScanCommand());
-$application->add(new ZapHudCommand());
-$application->add(new ZapContextCommand());
-$application->add(new ZapDaemonCommand());
-$application->add(new ZapCoverageCommand());
-$application->add(new ZapHudFixCommand());
-$application->add(new ZapPruneCommand());
-$application->add(new ZapStopCommand());
-$application->add(new ZapInstallManifestsCommand());
+$application->add(new PluginListCommand());
+$application->add(new PluginDiscoverCommand());
+$application->add(new PluginEnvCommand());
+$application->add(new PluginSearchCommand());
+
+#plugins - every installed Composer package of type my-sites-ide-plugin
+foreach (Discover::load() as $plugin)
+{
+    // after the root .env, and immutable, so the user's root values always win
+    if ($plugin['env'] !== null)
+    {
+        Dotenv::createUnsafeImmutable(__DIR__ . '/' . dirname($plugin['env']), basename($plugin['env']))->safeLoad();
+    }
+
+    foreach ($plugin['commands'] as $class)
+    {
+        if (is_subclass_of($class, Command::class) && !(new ReflectionClass($class))->isAbstract())
+        {
+            $application->add(new $class());
+        }
+    }
+}
 
 /** If the user has a deployment mechanism installed via composer */
 if (class_exists('Yiendos\Deploy\Console\Commands')) 

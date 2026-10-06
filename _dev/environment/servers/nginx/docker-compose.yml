@@ -19,4 +19,4 @@ services:
         networks:
             my-sites-ide:
                 aliases:
-                    - ${ZAP_TARGET_ALIAS:-default.test}
+                    - ${IDE_SITE_ALIAS:-default.test}
