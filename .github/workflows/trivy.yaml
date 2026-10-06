@@ -11,6 +11,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      #docker-compose.yml includes the plugin compose file composer generates on install,
+      #only core images are scanned here, so stand in the empty no-plugins version
+      - name: No plugins compose file
+        run: echo '{}' > docker-compose.plugins.yml
       - name: Build cron image first
         run: docker compose --progress quiet build cron
         env: 
