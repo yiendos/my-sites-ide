@@ -15,69 +15,12 @@ class ZapHudCommand extends Command
     use InteractsWithZapApi;
 
     /**
-     * Webswing only starts ZAP once a browser opens /zap, and starts a fresh ZAP
-     * process (fresh session, no contexts) for every new browser session - so a
-     * one-off import at launch can't work. This runs in the background alongside
-     * webswing, polling ZAP's API, and imports the context into any session that
-     * doesn't have it yet.
-     *
-     * It also removes ZAP's built-in "Default Context": in this ZAP version it
-     * starts with a poll-URL verification strategy but no poll URL, so Session
-     * Properties refuses to save anything ("The URL to Poll must be specified for
-     * context Default Context") until it's fixed or gone.
-     *
-     * Then locks the session to the target: everything else is excluded from
-     * the proxy (still passed through to the browser, just never recorded -
-     * no connectivitycheck.gstatic.com etc. cluttering the Sites tree), the
-     * context is marked in scope, and Protected mode stops any scan or attack
-     * touching anything out of scope.
-     *
-     * Runs with or without a target, because it also applies the active-scan
-     * limits: `-config ascan.threadPerHost` in ZAP_WEBSWING_OPTS doesn't stick
-     * (an extension-owned setting, same as in ide:zap-daemon), and a HUD scan at
-     * ZAP's default 8 threads ran 8 headless Firefoxes for the DOM XSS rule and
-     * got the JVM OOM-killed. Any session whose thread count doesn't match is a
-     * fresh one, so the limits are (re)applied then - including enabling only
-     * the database-specific rules for ZAP_ASCAN_DATABASES (resolved by name
-     * with jq, which the image ships).
+     * Configures each ZAP session Webswing starts (scan limits, database rules,
+     * and with a target: context import, proxy exclusion, Protected mode) by
+     * polling the API from inside the container - see the script for why.
+     * Mounted read-only from zaproxy/scripts/ (zaproxy/docker-compose.yml).
      */
-    private const CONTEXT_WATCHER = <<<'SH'
-        ids() { curl -s http://localhost:8090/JSON/ascan/view/scanners/ | jq -r --arg re "$1" '[.scanners[] | select(.name | test($re)) | .id] | join(",")'; }
-        (while true; do
-          threads=$(curl -s http://localhost:8090/JSON/ascan/view/optionThreadPerHost/)
-          case "$threads" in
-            *ThreadPerHost*)
-              case "$threads" in
-                *\""$ZAP_HUD_THREADS"\"*) ;;
-                *)
-                  curl -s -o /dev/null "http://localhost:8090/JSON/ascan/action/setOptionThreadPerHost/?Integer=$ZAP_HUD_THREADS"
-                  curl -s -o /dev/null "http://localhost:8090/JSON/ascan/action/setOptionDelayInMs/?Integer=$ZAP_HUD_DELAY_MS"
-                  curl -s -o /dev/null "http://localhost:8090/JSON/ascan/action/setScannerAttackStrength/?id=$(ids '^Cross Site Scripting \(DOM Based\)$')&attackStrength=$ZAP_HUD_DOMXSS_STRENGTH"
-                  [ -n "$ZAP_HUD_DB_ENABLE" ] && curl -s -o /dev/null "http://localhost:8090/JSON/ascan/action/enableScanners/?ids=$(ids "$ZAP_HUD_DB_ENABLE")"
-                  [ -n "$ZAP_HUD_DB_DISABLE" ] && curl -s -o /dev/null "http://localhost:8090/JSON/ascan/action/disableScanners/?ids=$(ids "$ZAP_HUD_DB_DISABLE")"
-                  ;;
-              esac
-              ;;
-          esac
-          [ -z "$ZAP_HUD_CONTEXT_NAME" ] && { sleep 3; continue; }
-          list=$(curl -s http://localhost:8090/JSON/context/view/contextList/)
-          case "$list" in
-            *contextList*)
-              case "$list" in
-                *\""$ZAP_HUD_CONTEXT_NAME"\"*) ;;
-                *)
-                  curl -s -o /dev/null "http://localhost:8090/JSON/context/action/removeContext/?contextName=Default%20Context"
-                  curl -s -o /dev/null "http://localhost:8090/JSON/context/action/importContext/?contextFile=$ZAP_HUD_CONTEXT_FILE"
-                  curl -s -o /dev/null "http://localhost:8090/JSON/context/action/setContextInScope/?contextName=$ZAP_HUD_CONTEXT_NAME&booleanInScope=true"
-                  curl -s -o /dev/null "http://localhost:8090/JSON/core/action/excludeFromProxy/?regex=$ZAP_HUD_PROXY_EXCLUDE"
-                  curl -s -o /dev/null "http://localhost:8090/JSON/core/action/setMode/?mode=protect"
-                  ;;
-              esac
-              ;;
-          esac
-          sleep 3
-        done) &
-        SH;
+    private const HUD_WATCHER = '/zap/scripts/hud-watcher.sh';
 
     /**
      * The ability to configure the console command
@@ -145,7 +88,7 @@ class ZapHudCommand extends Command
                 . " -e " . escapeshellarg("ZAP_HUD_PROXY_EXCLUDE=" . rawurlencode($context['proxy_exclude']));
         }
 
-        $command .= " zaproxy sh -c " . escapeshellarg(self::CONTEXT_WATCHER . ' exec zap-webswing.sh');
+        $command .= " zaproxy sh -c " . escapeshellarg('sh ' . self::HUD_WATCHER . ' & exec zap-webswing.sh');
 
         // ZAP_TARGET_ALIAS is baked into nginx's network alias at container-creation time
         // (Compose substitution, see servers/nginx/docker-compose.yml) - not something this

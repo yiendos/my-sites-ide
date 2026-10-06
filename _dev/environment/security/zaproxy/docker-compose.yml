@@ -4,6 +4,8 @@ services:
         image: ghcr.io/zaproxy/zaproxy:20260826-weekly
         volumes:
             - './reports:/zap/wrk'
+            # Helper scripts run inside the container (e.g. hud-watcher.sh, started by ide:zap-hud)
+            - './scripts:/zap/scripts:ro'
             # Persists addon-management state (not scan data - core/action/newSession
             # resets that regardless) across otherwise-stateless --rm container runs.
             # Needed so an addon uninstall (see ide:zap-daemon) actually sticks before

@@ -34,10 +34,12 @@ host (my-sites-ide CLI)
   |- ide:zap-scan / ide:zap-context / ide:zap-coverage  --> docker compose exec zaproxy curl :8090/JSON/...
   |- ide:zap-daemon   --> docker compose run -d --rm zaproxy zap.sh -daemon ...
   |- ide:zap-hud      --> docker compose run --service-ports zaproxy zap-webswing.sh   (browser UI on :8080)
+  |                       + scripts/hud-watcher.sh in the background, configuring each ZAP session via the API
   |- ide:zap-hud-fix  --> reads webswing.out inside the container, offers to kill stray ZAP processes
 
 zaproxy container (ghcr.io/zaproxy/zaproxy, pinned tag in docker-compose.yml)
   - reports/        bind-mounted to /zap/wrk (gitignored output)
+  - scripts/        bind-mounted read-only to /zap/scripts (helpers run inside the container)
   - zap-home        named volume at /home/zap (addon state, and the ZAP home-dir lock)
   - network my-sites-ide, so it reaches target sites by their hostname
 ```
