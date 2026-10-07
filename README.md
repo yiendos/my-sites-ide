@@ -4,7 +4,7 @@
 
 Welcome to my-sites-ide, contained within this project is over 8 years of experience working with Docker, condensed, distilled into one lean mean Dev-ops code base. There are many features: 
 
-* Modular - pick which services you require - Nginx, Apache or Caddy as [plugins](#plugins), Mysql or Mariab or all  
+* Modular - pick which services you require - Nginx, Apache or Caddy, MySQL or MariaDB, Redis - all as [plugins](#plugins)  
 * Small image size, all images < 200mb - Yet still contain all the php goodies you require for most PHP websites including Laravel. 
 * Blazingly fast build, CI, deployment of containers - Because of the small image sizes, all waiting times are reduced
 * Configurable, the main .env can override the settings of all the docker containers being run
@@ -77,19 +77,19 @@ In terms of running containers on the IDE you have the choice of:
 * Apache (plugin: [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache))
 * Caddy (plugin: [yiendos/my-sites-ide-servers-caddy](https://github.com/yiendos/my-sites-ide-servers-caddy))
 * MailHog (plugin: [yiendos/my-sites-ide-servers-mailhog](https://github.com/yiendos/my-sites-ide-servers-mailhog)) - catches the mail your sites send, http://localhost:8025
-* Mariadb 
-* MySQL
-* Redis 
+* MySQL (plugin: [yiendos/my-sites-ide-databases-mysql](https://github.com/yiendos/my-sites-ide-databases-mysql)) - sites connect to `mysql:3306`
+* MariaDB (plugin: [yiendos/my-sites-ide-databases-mariadb](https://github.com/yiendos/my-sites-ide-databases-mariadb)) - sites connect to `mariadb:3306`
+* Redis (plugin: [yiendos/my-sites-ide-caching-redis](https://github.com/yiendos/my-sites-ide-caching-redis)) - sites connect to `redis:6379`
 
 A default list of Applications are defined in the `./env` file: 
 
-`APP="mysql redis theia"`
+`APP="theia"`
 
 And these are the default containers that will run when you invoke: 
 
 `php my-sites-ide ide:spark` 
 
-Plugins marked autostart - PHP, the web servers (nginx, apache, caddy), MailHog - start alongside them on their own, so they don't need listing in `APP`. A service in `APP` that no longer exists (e.g. `cron`, which the PHP plugin folded into `cli`) is skipped with a warning.
+Plugins marked autostart - PHP, the web servers (nginx, apache, caddy), MySQL, Redis, MailHog - start alongside them on their own, so they don't need listing in `APP`. A service in `APP` that no longer exists (e.g. `cron`, which the PHP plugin folded into `cli`) is skipped with a warning.
 
 To change the default behaviour add or remove containers from the `./env` file or provide further options via the spark command: 
 
@@ -186,6 +186,9 @@ Extra services (security scanners, alternative servers, deployment targets) inst
 | [yiendos/my-sites-ide-preprocessors-php](https://github.com/yiendos/my-sites-ide-preprocessors-php) | PHP - php-fpm serving your sites, and a cli container for artisan, queues and background jobs | yes |
 | [yiendos/my-sites-ide-servers-nginx](https://github.com/yiendos/my-sites-ide-servers-nginx) | nginx web server, https://<site>.localhost | yes |
 | [yiendos/my-sites-ide-servers-mailhog](https://github.com/yiendos/my-sites-ide-servers-mailhog) | MailHog, catches the mail your sites send - http://localhost:8025 | yes |
+| [yiendos/my-sites-ide-databases-mysql](https://github.com/yiendos/my-sites-ide-databases-mysql) | MySQL 8.4, data kept in `storage/plugins/mysql/` | yes |
+| [yiendos/my-sites-ide-caching-redis](https://github.com/yiendos/my-sites-ide-caching-redis) | Redis, for cache, sessions and queues | yes |
+| [yiendos/my-sites-ide-databases-mariadb](https://github.com/yiendos/my-sites-ide-databases-mariadb) | MariaDB 11.8, data kept in `storage/plugins/mariadb/` | no - add `mariadb` to `APP` |
 | [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache) | Apache web server, https://<site>.localhost:8443 | yes |
 | [yiendos/my-sites-ide-servers-caddy](https://github.com/yiendos/my-sites-ide-servers-caddy) | Caddy web server with trusted local HTTPS, https://<site>.localhost:9443 | yes |
 | [yiendos/my-sites-ide-build-composer](https://github.com/yiendos/my-sites-ide-build-composer) | Composer in a container - installs a site's PHP dependencies, including on `ide:repo-clone --laravel` | no - run on demand |
@@ -193,7 +196,7 @@ Extra services (security scanners, alternative servers, deployment targets) inst
 | [yiendos/my-sites-ide-certificates-certbot-cloudflare](https://github.com/yiendos/my-sites-ide-certificates-certbot-cloudflare) | real Let's Encrypt certificates through Cloudflare DNS | no - run on demand |
 | [yiendos/my-sites-ide-security-zaproxy](https://github.com/yiendos/my-sites-ide-security-zaproxy) | OWASP ZAP security scanning | no - run on demand |
 
-`composer.local-example.json` holds the default stack - PHP, nginx and MailHog, the services `ide:spark` used to run before they became plugins. Add any of the others to your own `composer.local.json`.
+`composer.local-example.json` holds the default stack - PHP, nginx, MailHog, MySQL and Redis, the services `ide:spark` used to run before they became plugins. Add any of the others to your own `composer.local.json`.
 
 Which plugins you use is your choice, so they're listed in your own `composer.local.json` (git ignored, merged into `composer.json` by [wikimedia/composer-merge-plugin](https://github.com/wikimedia/composer-merge-plugin)) rather than the tracked `composer.json`. `composer.lock` is git ignored for the same reason - every installation's set of plugins differs.
 
