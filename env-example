@@ -1,7 +1,7 @@
 NAMESPACE=my_sites
-#apache is a plugin now (yiendos/my-sites-ide-servers-apache) - once installed it starts
-#with ide:spark and creates its own site vhosts, so it needn't be listed here
-APP="fpm nginx mysql redis cli cron mailhog theia"
+#servers are plugins now (e.g. yiendos/my-sites-ide-servers-nginx) - once installed they start
+#with ide:spark and create their own site vhosts, so they needn't be listed here
+APP="fpm mysql redis cli cron mailhog theia"
 SERVERS="nginx"
 SITE=default
 MARIADB_DATABASE=yiendos
@@ -19,10 +19,3 @@ PHP_DISABLE_FUNCTIONS=
 # plugin settings live with each plugin - to copy a plugin's options in here,
 # commented out, run: php my-sites-ide ide:plugin-env <vendor/package>
 
-# [server network alias]
-# the site nginx aliases onto the my-sites-ide network, so other containers (e.g. a
-# proxy like the zaproxy plugin) can reach it by hostname, default lives inline in
-# servers/nginx/docker-compose.yml (default.test) - one hostname at a time, uncomment
-# and set to whichever site you're scanning (requires `docker compose up -d nginx` to
-# take effect, and that hostname must be in the target site's own nginx vhost server_name)
-#IDE_SITE_ALIAS=default.test

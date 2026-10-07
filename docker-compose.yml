@@ -4,14 +4,13 @@ name: "" #by having a blank name, the project folder will be used instead
 #to define which services run edit ./.env 
 #and change the APP variable 
 #
-#APP=fpm nginx mariadb redis cli cron
+#APP=fpm mariadb redis cli cron
 
 #these are your optional local services you can run 
 include: 
     - ./_dev/environment/preprocessors/fpm/docker-compose.yml
     - ./_dev/environment/preprocessors/cron/docker-compose.yml
     - ./_dev/environment/preprocessors/cli/docker-compose.yml
-    - ./_dev/environment/servers/nginx/docker-compose.yml
     - ./_dev/environment/databases/mysql/docker-compose.yml
     - ./_dev/environment/databases/mariadb/docker-compose.yml
     - ./_dev/environment/build/composer/docker-compose.yml
