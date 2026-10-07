@@ -219,3 +219,7 @@ Describe it in the plugin's own `composer.json`:
 Commands find the project root through the `IDE_ROOT` environment variable, which the CLI sets.
 
 To develop a plugin locally, clone it into `Packages/<vendor>/my-sites-ide-<category>-<service>` - the root `composer.json` has a path repository for `Packages/*/my-sites-ide-*`, so adding `"<vendor>/<package>": "@dev"` to `composer.local.json` and running `composer update` symlinks your working copy into `vendor/`. Nothing is committed to my-sites-ide - which plugins you've cloned is up to you.
+
+### Certificates
+
+Sites use the IDE's self-signed certificate (`_dev/environment/servers/ssl/`) unless a certificate plugin issues a real one. Those plugins share one store, `storage/certificates/`, in the Let's Encrypt layout (`live/<domain>/fullchain.pem` linking into `archive/`). nginx always mounts it, at `/etc/nginx/ssl/live` and `/etc/nginx/ssl/archive`. Without a certificate plugin it's just empty (`ide:spark` creates it), so nginx starts either way. With [yiendos/my-sites-ide-certificates-certbot-cloudflare](https://github.com/yiendos/my-sites-ide-certificates-certbot-cloudflare) installed, `certificates:certbot-create <domain>` fills it, replacing the old `ide:ssl`.
