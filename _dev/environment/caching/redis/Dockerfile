@@ -1,1 +1,0 @@
-FROM redis:alpine3.22 AS redis
