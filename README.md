@@ -218,7 +218,7 @@ Describe it in the plugin's own `composer.json`:
 
 Commands find the project root through the `IDE_ROOT` environment variable, which the CLI sets.
 
-To develop a plugin locally, clone it into `Packages/<vendor>/my-sites-ide-<category>-<service>` - the root `composer.json` has a path repository for `Packages/*/my-sites-ide-*`, so adding `"<vendor>/<package>": "@dev"` to `composer.local.json` and running `composer update` symlinks your working copy into `vendor/`. Nothing is committed to my-sites-ide - which plugins you've cloned is up to you.
+To develop a plugin locally, clone it into `Packages/<vendor>/my-sites-ide-<category>-<service>` - the root `composer.json` has a path repository for `Packages/*/my-sites-ide-*`, so adding `"<vendor>/<package>": "@dev"` to `composer.local.json` and running `composer update` symlinks your working copy into `vendor/`. Nothing is committed to my-sites-ide - which plugins you've cloned is up to you. Discover reads each plugin's own `composer.json`, so manifest edits in your clone apply after `php my-sites-ide ide:plugin-discover`, committed or not.
 
 ### Certificates
 

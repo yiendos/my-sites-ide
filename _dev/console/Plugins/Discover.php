@@ -83,8 +83,15 @@ final class Discover
                 continue;
             }
 
-            $manifest = $package['extra']['my-sites-ide'] ?? [];
             $path = self::normalise('vendor/composer/' . $package['install-path']);
+
+            // the plugin's own composer.json wins over Composer's copy: for a
+            // Packages/ clone, installed.json only refreshes when the clone's
+            // commit changes, so uncommitted manifest edits would go unseen
+            $own = json_decode((string) @file_get_contents(Ide::path("{$path}/composer.json")), true);
+            $package = array_replace($package, array_intersect_key(is_array($own) ? $own : [], array_flip(['description', 'autoload', 'extra'])));
+
+            $manifest = $package['extra']['my-sites-ide'] ?? [];
             $file = fn (string $key): ?string => isset($manifest[$key]) ? "{$path}/{$manifest[$key]}" : null;
 
             $plugins[$package['name']] = [
