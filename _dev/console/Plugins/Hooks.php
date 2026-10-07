@@ -17,9 +17,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  *                         site's Repos/<site>/_build/config in place, before
  *                         the IDE restarts
  * - site-dependencies  {site}  after ide:repo-clone --laravel has made the
- *                         Laravel folders, before the site's assets are
- *                         built - how a build plugin installs the site's
+ *                         Laravel folders, before site-assets - how a
+ *                         build plugin installs the site's
  *                         dependencies (e.g. build:composer-install)
+ * - site-assets  {site}  straight after site-dependencies, so a site's
+ *                         assets build with its dependencies in place -
+ *                         how a build plugin builds them (e.g.
+ *                         build:node-assets)
  */
 final class Hooks
 {

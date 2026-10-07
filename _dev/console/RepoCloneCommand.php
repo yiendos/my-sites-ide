@@ -151,9 +151,10 @@ class RepoCloneCommand extends Command
             $io->warning("No plugin installs dependencies - add yiendos/my-sites-ide-build-composer to composer.local.json for composer install");
         }
 
-        //now lets build the site assets 
-        $buildAssets = new ArrayInput(['command' => 'ide:build-assets', 'project' => $projectName]);
-        $application->doRun($buildAssets, $output);
+        //then build plugins build the site's assets (e.g. the node plugin's npm install and build)
+        if (!Hooks::run('site-assets', ['site' => $projectName], $application, $output)) {
+            $io->warning("No plugin builds assets - add yiendos/my-sites-ide-build-node to composer.local.json for npm install and build");
+        }
     }
     /**
      * Create associated laravel folders 
