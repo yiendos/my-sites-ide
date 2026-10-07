@@ -175,7 +175,7 @@ php my-sites-ide ide:plugin-list                                # what's install
 
 Don't `composer require` a plugin - that writes to the tracked `composer.json`. A plugin that isn't on Packagist can be added through a `repositories` entry in `composer.local.json`, which is merged too.
 
-`composer install`/`update` discovers installed plugins and generates `docker-compose.plugins.yml` (included by `docker-compose.yml`), so a plugin's console commands, docker services and `.env` defaults are picked up without editing any core file. A plugin's user data lives in `storage/plugins/<service>/`, never in `vendor/`.
+`composer install`/`update` discovers installed plugins and generates `docker-compose.plugins.yml` (included by `docker-compose.yml`), so a plugin's console commands, docker services and `.env` defaults are picked up without editing any core file. A plugin's user data lives in `storage/plugins/<service>/`, never in `vendor/` - with `"storage": true` the IDE creates that folder and mounts it at `/storage` in the plugin's containers.
 
 ### Naming
 
@@ -205,6 +205,7 @@ Describe it in the plugin's own `composer.json`:
         "env-example": "env-example",
         "services":    ["zaproxy"],
         "autostart":   false,
+        "storage":     true,
         "hooks":       { "site-created": ["servers:apache-vhost"] }
     }
 }
@@ -214,6 +215,7 @@ Describe it in the plugin's own `composer.json`:
 - `compose` - included into the stack. Reach the project root with `${IDE_ROOT}`, never `../../..` - the package lives in `vendor/`.
 - `env` - the plugin's defaults, loaded after the root `.env`, so the user's values win (for both commands and compose interpolation).
 - `services` / `autostart` - with `autostart: true`, `ide:spark` starts these alongside `APP`.
+- `storage` - with `true`, the IDE creates `storage/plugins/<service>/` (`<service>` from the package name) and mounts it at `/storage` in every one of `services` - git ignored, outside `vendor/`, so it survives `composer update`. Commands reach it on the host through `IDE_ROOT`. Discover writes the mount as an override in `_dev/cache/storage/`, merged into the plugin's own compose file.
 - `hooks` - commands the IDE runs on its events. `site-created` runs once `ide:create-site` / `ide:repo-clone` has the site's `Repos/<site>/_build/config` in place, with the site as the `site` argument - how a server plugin adds its own vhost.
 
 Commands find the project root through the `IDE_ROOT` environment variable, which the CLI sets.
