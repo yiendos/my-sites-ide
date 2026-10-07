@@ -20,10 +20,6 @@ jobs:
         run: docker compose --progress quiet build cron
         env: 
             NAMESPACE: ${{ secrets.NAMESPACE }}
-      - name: Build nginx image
-        run: docker compose --progress quiet build nginx
-        env: 
-            NAMESPACE: ${{ secrets.NAMESPACE }}
       - name: Build fpm image
         run: docker compose --progress quiet build fpm
         env: 
@@ -41,16 +37,6 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-      - name: Run trivy over nginx 
-        uses: aquasecurity/trivy-action@0.35.0
-        with:
-          image-ref: 'my_site_nginx'
-          format: 'table'
-          exit-code: 0
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-        continue-on-error: true
       - name: Run trivy over fpm 
         uses: aquasecurity/trivy-action@0.35.0
         with:

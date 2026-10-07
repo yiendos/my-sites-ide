@@ -60,10 +60,10 @@ class RepoCloneCommand extends Command
             $io->error("Something went wrong with the clone process");
             return Command::FAILURE;
         }
-        //then we need to configure the _build/config files
-        $this->copyVhosts($projectName, $io, $output);
+        //then we need the _build/config folder, for the site's own configuration
+        $this->createConfigFolder($projectName, $io, $output);
 
-        //plugins add their own site configuration (e.g. the apache plugin's vhost)
+        //server plugins add their own site configuration (e.g. the nginx plugin's vhost)
         Hooks::run('site-created', ['site' => $projectName], $application, $output);
 
         //@todo refactor into own composer dependancy for my-sites-ide 
@@ -115,40 +115,25 @@ class RepoCloneCommand extends Command
         return !is_null($project) ? $project : last(explode("/", $matches[2]));
     }
     /**
-     * Create the default server vhosts 
+     * Create the site's _build/config folder - server plugins write their
+     * vhosts into it through the site-created hook, unless the repository
+     * already brings its own
      *
      * @param [string] $projectName
      * @param \Symfony\Component\Console\Style\SymfonyStyle $io
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @return void
      */
-    public function copyVhosts($projectName, $io, $output)
+    public function createConfigFolder($projectName, $io, $output)
     {
-        $servers = explode(' ', getenv('SERVERS')); 
-
         if (file_exists("Repos/$projectName/_build/config"))
         {
             $io->warning("Default configuration folders already exist");
             return;
         }
 
-        $output->writeLn("<comment>Going to create the default site vhost configuration</>"); 
+        $output->writeLn("<comment>Going to create the default site configuration folder</>"); 
         passthru("mkdir -p Repos/$projectName/_build/config");
-
-        foreach($servers as $server)
-        {
-            //servers provided by a plugin (e.g. apache) create their vhost through the site-created hook
-            if (!file_exists("_dev/environment/servers/$server/sample.vhost")) {
-                continue;
-            }
-
-            $vhost = "Repos/$projectName/_build/config/1-$projectName-$server.conf";
-
-            $io->info("cp _dev/environment/servers/$server/sample.vhost $vhost"); 
-            passthru("cp _dev/environment/servers/$server/sample.vhost $vhost");
-
-            file_put_contents($vhost, str_replace("__PROJECT__", $projectName, file_get_contents($vhost)));
-        }
     }
     /**
      * 

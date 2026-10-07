@@ -46,10 +46,7 @@ class CreateSiteCommand extends Command
         $output->writeLn("mkdir -p Repos/$projectName/_build/config"); 
         passthru("mkdir -p Repos/$projectName/_build/config");
         
-        //then we need to configure the _build/config files
-        $this->copyVhosts($projectName);
-
-        //plugins add their own site configuration (e.g. the apache plugin's vhost)
+        //server plugins add their own site configuration (e.g. the nginx plugin's vhost)
         Hooks::run('site-created', ['site' => $projectName], $application, $output);
 
         /** If the user has a deployment mechanism installed via composer */
@@ -65,22 +62,5 @@ class CreateSiteCommand extends Command
         $application->doRun($restartInput, $output);
 
         return Command::SUCCESS;
-    }
-
-    public function copyVhosts($projectName)
-    {
-        $servers = explode(' ', getenv('SERVERS'));
-        
-        foreach($servers as $server)
-        {
-            //servers provided by a plugin (e.g. apache) create their vhost through the site-created hook
-            if (!file_exists("_dev/environment/servers/$server/sample.vhost")) {
-                continue;
-            }
-
-            $vhost = "Repos/$projectName/_build/config/1-$projectName-$server.conf";
-            passthru("cp _dev/environment/servers/$server/sample.vhost $vhost");
-            file_put_contents($vhost, str_replace("__PROJECT__", $projectName, file_get_contents($vhost)));
-        }
     }
 }

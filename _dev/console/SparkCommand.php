@@ -49,8 +49,8 @@ class SparkCommand extends Command
             $app = implode(' ', array_unique([...preg_split('/\s+/', trim($app)), ...$autostart]));
         }
 
-        // nginx mounts the shared certificate store whether or not a certificate plugin
-        // is installed - create it here, or Docker creates it owned by root on Linux hosts
+        // server plugins (e.g. nginx) mount the shared certificate store whether or not a
+        // certificate plugin is installed - create it here, or Docker creates it owned by root on Linux hosts
         foreach (['live', 'archive'] as $directory) {
             if (!is_dir(Ide::path("storage/certificates/{$directory}"))) {
                 mkdir(Ide::path("storage/certificates/{$directory}"), 0755, true);
