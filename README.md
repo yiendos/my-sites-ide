@@ -178,6 +178,7 @@ Extra services (security scanners, alternative servers, deployment targets) inst
 | [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache) | Apache web server, https://<site>.localhost:8443 | yes |
 | [yiendos/my-sites-ide-servers-caddy](https://github.com/yiendos/my-sites-ide-servers-caddy) | Caddy web server with trusted local HTTPS, https://<site>.localhost:9443 | yes |
 | [yiendos/my-sites-ide-build-composer](https://github.com/yiendos/my-sites-ide-build-composer) | Composer in a container - installs a site's PHP dependencies, including on `ide:repo-clone --laravel` | no - run on demand |
+| [yiendos/my-sites-ide-build-node](https://github.com/yiendos/my-sites-ide-build-node) | Node and npm in a container - installs a site's npm dependencies and builds its assets, including on `ide:repo-clone --laravel` | no - run on demand |
 | [yiendos/my-sites-ide-certificates-certbot-cloudflare](https://github.com/yiendos/my-sites-ide-certificates-certbot-cloudflare) | real Let's Encrypt certificates through Cloudflare DNS | no - run on demand |
 | [yiendos/my-sites-ide-security-zaproxy](https://github.com/yiendos/my-sites-ide-security-zaproxy) | OWASP ZAP security scanning | no - run on demand |
 
@@ -236,7 +237,7 @@ Describe it in the plugin's own `composer.json`:
 - `env` - the plugin's defaults, loaded after the root `.env`, so the user's values win (for both commands and compose interpolation).
 - `services` / `autostart` - with `autostart: true`, `ide:spark` starts these alongside `APP`.
 - `storage` - with `true`, the IDE creates `storage/plugins/<service>/` (`<service>` from the package name) and mounts it at `/storage` in every one of `services` - git ignored, outside `vendor/`, so it survives `composer update`. Commands reach it on the host through `IDE_ROOT`. Discover writes the mount as an override in `_dev/cache/storage/`, merged into the plugin's own compose file.
-- `hooks` - commands the IDE runs on its events. `site-created` runs once `ide:create-site` / `ide:repo-clone` has the site's `Repos/<site>/_build/config` in place, with the site as the `site` argument - how a server plugin adds its own vhost. `site-dependencies` runs during `ide:repo-clone --laravel`, once the Laravel folders exist and before the assets are built, also with `site` - how the composer plugin installs the site's dependencies.
+- `hooks` - commands the IDE runs on its events. `site-created` runs once `ide:create-site` / `ide:repo-clone` has the site's `Repos/<site>/_build/config` in place, with the site as the `site` argument - how a server plugin adds its own vhost. `site-dependencies` runs during `ide:repo-clone --laravel`, once the Laravel folders exist, also with `site` - how the composer plugin installs the site's dependencies. `site-assets` runs straight after it, with `site` - how the node plugin builds the site's assets.
 
 Commands find the project root through the `IDE_ROOT` environment variable, which the CLI sets.
 
