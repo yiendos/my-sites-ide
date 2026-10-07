@@ -76,6 +76,7 @@ In terms of running containers on the IDE you have the choice of:
 * Nginx (plugin: [yiendos/my-sites-ide-servers-nginx](https://github.com/yiendos/my-sites-ide-servers-nginx))
 * Apache (plugin: [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache))
 * Caddy (plugin: [yiendos/my-sites-ide-servers-caddy](https://github.com/yiendos/my-sites-ide-servers-caddy))
+* MailHog (plugin: [yiendos/my-sites-ide-servers-mailhog](https://github.com/yiendos/my-sites-ide-servers-mailhog)) - catches the mail your sites send, http://localhost:8025
 * Mariadb 
 * MySQL
 * Redis 
@@ -168,11 +169,24 @@ This way your projects are sandboxed.
 
 Extra services (security scanners, alternative servers, deployment targets) install as Composer packages of type `my-sites-ide-plugin`, e.g. [yiendos/my-sites-ide-security-zaproxy](https://github.com/yiendos/my-sites-ide-security-zaproxy) or [yiendos/my-sites-ide-servers-nginx](https://github.com/yiendos/my-sites-ide-servers-nginx).
 
+### Available plugins
+
+| Plugin | What it adds | Starts with `ide:spark` |
+|---|---|---|
+| [yiendos/my-sites-ide-servers-nginx](https://github.com/yiendos/my-sites-ide-servers-nginx) | nginx web server, https://<site>.localhost | yes |
+| [yiendos/my-sites-ide-servers-mailhog](https://github.com/yiendos/my-sites-ide-servers-mailhog) | MailHog, catches the mail your sites send - http://localhost:8025 | yes |
+| [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache) | Apache web server, https://<site>.localhost:8443 | yes |
+| [yiendos/my-sites-ide-servers-caddy](https://github.com/yiendos/my-sites-ide-servers-caddy) | Caddy web server with trusted local HTTPS, https://<site>.localhost:9443 | yes |
+| [yiendos/my-sites-ide-certificates-certbot-cloudflare](https://github.com/yiendos/my-sites-ide-certificates-certbot-cloudflare) | real Let's Encrypt certificates through Cloudflare DNS | no - run on demand |
+| [yiendos/my-sites-ide-security-zaproxy](https://github.com/yiendos/my-sites-ide-security-zaproxy) | OWASP ZAP security scanning | no - run on demand |
+
+`composer.local-example.json` holds the default stack - nginx and MailHog, the services `ide:spark` used to run before they became plugins. Add any of the others to your own `composer.local.json`.
+
 Which plugins you use is your choice, so they're listed in your own `composer.local.json` (git ignored, merged into `composer.json` by [wikimedia/composer-merge-plugin](https://github.com/wikimedia/composer-merge-plugin)) rather than the tracked `composer.json`. `composer.lock` is git ignored for the same reason - every installation's set of plugins differs.
 
 ```
 php my-sites-ide ide:plugin-search                              # find plugins on Packagist
-cp composer.local-example.json composer.local.json              # first time only, then list your plugins under "require"
+cp composer.local-example.json composer.local.json              # first time only: the default stack, then add your plugins under "require"
 composer update                                                 # install them
 php my-sites-ide ide:plugin-env yiendos/my-sites-ide-security-zaproxy   # optional: copy its options into .env, commented out
 php my-sites-ide ide:plugin-list                                # what's installed
@@ -194,7 +208,7 @@ Don't `composer require` a plugin - that writes to the tracked `composer.json`. 
 | Commands | `<category>:<short>-<action>` | `security:zap-scan` |
 | User data | `storage/plugins/<service>/` | `storage/plugins/zaproxy/` |
 
-Categories follow the `_dev/environment/` folders: preprocessors, servers, databases, build, caching, mailcatchers, editor, certificates - plus security, deploy.
+Categories follow the `_dev/environment/` folders: preprocessors, servers, databases, build, caching, editor, certificates - plus security, deploy.
 
 ### Writing a plugin
 

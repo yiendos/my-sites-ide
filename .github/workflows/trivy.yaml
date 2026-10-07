@@ -24,10 +24,6 @@ jobs:
         run: docker compose --progress quiet build fpm
         env: 
             NAMESPACE: ${{ secrets.NAMESPACE }}
-      - name: Build mailhog image
-        run: docker compose --progress quiet build mailhog
-        env: 
-            NAMESPACE: ${{ secrets.NAMESPACE }}
       - name: Run trivy over cron 
         uses: aquasecurity/trivy-action@0.35.0
         with:
@@ -41,16 +37,6 @@ jobs:
         uses: aquasecurity/trivy-action@0.35.0
         with:
           image-ref: 'my_site_fpm'
-          format: 'table'
-          exit-code: 0
-          ignore-unfixed: true
-          vuln-type: 'os,library'
-          severity: 'CRITICAL,HIGH'
-        continue-on-error: true
-      - name: Run trivy over mailhog 
-        uses: aquasecurity/trivy-action@0.35.0
-        with:
-          image-ref: 'my_site_mailhog'
           format: 'table'
           exit-code: 0
           ignore-unfixed: true
