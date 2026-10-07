@@ -16,6 +16,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  * - site-created  {site}  after ide:create-site / ide:repo-clone has the
  *                         site's Repos/<site>/_build/config in place, before
  *                         the IDE restarts
+ * - site-dependencies  {site}  after ide:repo-clone --laravel has made the
+ *                         Laravel folders, before the site's assets are
+ *                         built - how a build plugin installs the site's
+ *                         dependencies (e.g. build:composer-install)
  */
 final class Hooks
 {
@@ -26,10 +30,12 @@ final class Hooks
      * @param array<string, mixed> $arguments
      * @param Application $application
      * @param OutputInterface $output
-     * @return void
+     * @return int how many hooked commands ran
      */
-    public static function run(string $event, array $arguments, Application $application, OutputInterface $output): void
+    public static function run(string $event, array $arguments, Application $application, OutputInterface $output): int
     {
+        $ran = 0;
+
         foreach (Discover::load() as $package => $plugin) {
             foreach ($plugin['hooks'][$event] ?? [] as $command) {
                 if (!$application->has($command)) {
@@ -39,7 +45,10 @@ final class Hooks
 
                 $output->writeLn("php my-sites-ide {$command} " . implode(' ', $arguments));
                 $application->doRun(new ArrayInput(['command' => $command, ...$arguments]), $output);
+                $ran++;
             }
         }
+
+        return $ran;
     }
 }
