@@ -4,7 +4,7 @@
 
 Welcome to my-sites-ide, contained within this project is over 8 years of experience working with Docker, condensed, distilled into one lean mean Dev-ops code base. There are many features: 
 
-* Modular - pick which services you require - Nginx, plus Apache as a [plugin](#plugins), Mysql or Mariab or all  
+* Modular - pick which services you require - Nginx, Apache or Caddy as [plugins](#plugins), Mysql or Mariab or all  
 * Small image size, all images < 200mb - Yet still contain all the php goodies you require for most PHP websites including Laravel. 
 * Blazingly fast build, CI, deployment of containers - Because of the small image sizes, all waiting times are reduced
 * Configurable, the main .env can override the settings of all the docker containers being run
@@ -21,13 +21,15 @@ You can run the same images for your local environment, CI/CD/ staging/ and prod
 
 * `cp env-example .env` 
 
+* `cp composer.local-example.json composer.local.json` - your plugins, including the web server ([nginx](https://github.com/yiendos/my-sites-ide-servers-nginx) by default)
+
 * `composer install` 
 
 * `php my-sites-ide ide:build` 
 
 Now you can access your default homepage: 
 
-* https://default.localhost/ [nginx]
+* https://default.localhost/ [nginx, with the [nginx plugin](https://github.com/yiendos/my-sites-ide-servers-nginx) installed]
 
 * https://default.localhost:8443/ [apache, with the [apache plugin](https://github.com/yiendos/my-sites-ide-servers-apache) installed]
 
@@ -71,8 +73,9 @@ For help and guidance relating to any command
 In terms of running containers on the IDE you have the choice of: 
 
 * PHP-FPM 
-* Nginx 
+* Nginx (plugin: [yiendos/my-sites-ide-servers-nginx](https://github.com/yiendos/my-sites-ide-servers-nginx))
 * Apache (plugin: [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache))
+* Caddy (plugin: [yiendos/my-sites-ide-servers-caddy](https://github.com/yiendos/my-sites-ide-servers-caddy))
 * Mariadb 
 * MySQL
 * Redis 
@@ -81,11 +84,13 @@ In terms of running containers on the IDE you have the choice of:
 
 A default list of Applications are defined in the `./env` file: 
 
-`APP="fpm,nginx,mariadb,redis,cli,cron"`
+`APP="fpm,mariadb,redis,cli,cron"`
 
 And these are the default containers that will run when you invoke: 
 
 `php my-sites-ide ide:spark` 
+
+Server plugins (nginx, apache, caddy) start alongside them on their own - they don't need listing in `APP`.
 
 To change the default behaviour add or remove containers from the `./env` file or provide further options via the spark command: 
 
@@ -112,7 +117,7 @@ This will create a new Laravel instance under `./Repos/example`
 
 Then access your brand new Laravel site: 
 
-* https://example.localhost [nginx]
+* https://example.localhost [nginx plugin]
 
 * https://example.localhost:8443 [apache plugin]
 
@@ -136,7 +141,7 @@ my-sites-ide can handle as many github repositories or individual projects you c
    ├── _build
    │   ├── config
    │   │   ├── 1-default-apache.conf    //provide a vhost configuration for apache (if you are using the apache plugin)
-   │   │   └── 1-default-nginx.conf     //provide a vhost configuration for nginx (if you are using)
+   │   │   └── 1-default-nginx.conf     //provide a vhost configuration for nginx (if you are using the nginx plugin)
    └── Sites                            //where your PHP app should be hosted 
 ``` 
 
@@ -161,7 +166,7 @@ This way your projects are sandboxed.
 
 ## Plugins
 
-Extra services (security scanners, alternative servers, deployment targets) install as Composer packages of type `my-sites-ide-plugin`, e.g. [yiendos/my-sites-ide-security-zaproxy](https://github.com/yiendos/my-sites-ide-security-zaproxy) or [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache).
+Extra services (security scanners, alternative servers, deployment targets) install as Composer packages of type `my-sites-ide-plugin`, e.g. [yiendos/my-sites-ide-security-zaproxy](https://github.com/yiendos/my-sites-ide-security-zaproxy) or [yiendos/my-sites-ide-servers-nginx](https://github.com/yiendos/my-sites-ide-servers-nginx).
 
 Which plugins you use is your choice, so they're listed in your own `composer.local.json` (git ignored, merged into `composer.json` by [wikimedia/composer-merge-plugin](https://github.com/wikimedia/composer-merge-plugin)) rather than the tracked `composer.json`. `composer.lock` is git ignored for the same reason - every installation's set of plugins differs.
 
@@ -224,4 +229,4 @@ To develop a plugin locally, clone it into `Packages/<vendor>/my-sites-ide-<cate
 
 ### Certificates
 
-Sites use the IDE's self-signed certificate (`_dev/environment/servers/ssl/`) unless a certificate plugin issues a real one. Those plugins share one store, `storage/certificates/`, in the Let's Encrypt layout (`live/<domain>/fullchain.pem` linking into `archive/`). nginx always mounts it, at `/etc/nginx/ssl/live` and `/etc/nginx/ssl/archive`. Without a certificate plugin it's just empty (`ide:spark` creates it), so nginx starts either way. With [yiendos/my-sites-ide-certificates-certbot-cloudflare](https://github.com/yiendos/my-sites-ide-certificates-certbot-cloudflare) installed, `certificates:certbot-create <domain>` fills it, replacing the old `ide:ssl`.
+Sites use the IDE's self-signed certificate (`_dev/environment/servers/ssl/`) unless a certificate plugin issues a real one. Those plugins share one store, `storage/certificates/`, in the Let's Encrypt layout (`live/<domain>/fullchain.pem` linking into `archive/`). The [nginx plugin](https://github.com/yiendos/my-sites-ide-servers-nginx) always mounts it, at `/etc/nginx/ssl/live` and `/etc/nginx/ssl/archive`. Without a certificate plugin it's just empty (`ide:spark` creates it), so nginx starts either way. With [yiendos/my-sites-ide-certificates-certbot-cloudflare](https://github.com/yiendos/my-sites-ide-certificates-certbot-cloudflare) installed, `certificates:certbot-create <domain>` fills it, replacing the old `ide:ssl`.
