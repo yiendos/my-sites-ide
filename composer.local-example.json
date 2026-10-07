@@ -1,7 +1,6 @@
 {
     "require": {
         "yiendos/my-sites-ide-servers-nginx": "@dev",
-        "yiendos/my-sites-ide-servers-mailhog": "@dev",
-        "yiendos/my-sites-ide-security-zaproxy": "@dev"
+        "yiendos/my-sites-ide-servers-mailhog": "@dev"
     }
 }
