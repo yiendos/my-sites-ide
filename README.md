@@ -72,7 +72,7 @@ For help and guidance relating to any command
 
 In terms of running containers on the IDE you have the choice of: 
 
-* PHP-FPM 
+* PHP-FPM and PHP-CLI (plugin: [yiendos/my-sites-ide-preprocessors-php](https://github.com/yiendos/my-sites-ide-preprocessors-php)) - fpm serves your sites, cli runs artisan, queues and background jobs
 * Nginx (plugin: [yiendos/my-sites-ide-servers-nginx](https://github.com/yiendos/my-sites-ide-servers-nginx))
 * Apache (plugin: [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache))
 * Caddy (plugin: [yiendos/my-sites-ide-servers-caddy](https://github.com/yiendos/my-sites-ide-servers-caddy))
@@ -80,22 +80,20 @@ In terms of running containers on the IDE you have the choice of:
 * Mariadb 
 * MySQL
 * Redis 
-* PHP-CLI 
-* PHP cron
 
 A default list of Applications are defined in the `./env` file: 
 
-`APP="fpm,mariadb,redis,cli,cron"`
+`APP="mysql redis theia"`
 
 And these are the default containers that will run when you invoke: 
 
 `php my-sites-ide ide:spark` 
 
-Server plugins (nginx, apache, caddy) start alongside them on their own - they don't need listing in `APP`.
+Plugins marked autostart - PHP, the web servers (nginx, apache, caddy), MailHog - start alongside them on their own, so they don't need listing in `APP`. A service in `APP` that no longer exists (e.g. `cron`, which the PHP plugin folded into `cli`) is skipped with a warning.
 
 To change the default behaviour add or remove containers from the `./env` file or provide further options via the spark command: 
 
-`php my-sites-ide ide:spark --app=fpm,nginx`
+`php my-sites-ide ide:spark --app="fpm nginx"`
 
 ## Next steps 
 
@@ -173,6 +171,7 @@ Extra services (security scanners, alternative servers, deployment targets) inst
 
 | Plugin | What it adds | Starts with `ide:spark` |
 |---|---|---|
+| [yiendos/my-sites-ide-preprocessors-php](https://github.com/yiendos/my-sites-ide-preprocessors-php) | PHP - php-fpm serving your sites, and a cli container for artisan, queues and background jobs | yes |
 | [yiendos/my-sites-ide-servers-nginx](https://github.com/yiendos/my-sites-ide-servers-nginx) | nginx web server, https://<site>.localhost | yes |
 | [yiendos/my-sites-ide-servers-mailhog](https://github.com/yiendos/my-sites-ide-servers-mailhog) | MailHog, catches the mail your sites send - http://localhost:8025 | yes |
 | [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache) | Apache web server, https://<site>.localhost:8443 | yes |
@@ -182,7 +181,7 @@ Extra services (security scanners, alternative servers, deployment targets) inst
 | [yiendos/my-sites-ide-certificates-certbot-cloudflare](https://github.com/yiendos/my-sites-ide-certificates-certbot-cloudflare) | real Let's Encrypt certificates through Cloudflare DNS | no - run on demand |
 | [yiendos/my-sites-ide-security-zaproxy](https://github.com/yiendos/my-sites-ide-security-zaproxy) | OWASP ZAP security scanning | no - run on demand |
 
-`composer.local-example.json` holds the default stack - nginx and MailHog, the services `ide:spark` used to run before they became plugins. Add any of the others to your own `composer.local.json`.
+`composer.local-example.json` holds the default stack - PHP, nginx and MailHog, the services `ide:spark` used to run before they became plugins. Add any of the others to your own `composer.local.json`.
 
 Which plugins you use is your choice, so they're listed in your own `composer.local.json` (git ignored, merged into `composer.json` by [wikimedia/composer-merge-plugin](https://github.com/wikimedia/composer-merge-plugin)) rather than the tracked `composer.json`. `composer.lock` is git ignored for the same reason - every installation's set of plugins differs.
 

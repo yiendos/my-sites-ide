@@ -32,15 +32,8 @@ class BuildCommand extends Command
      */
     public function __invoke(OutputInterface $output, Application $application): int
     {
-        $namespace = getenv('NAMESPACE');
-
-        //cli is build from cron so we need to build this first 
-        $output->writeLn("docker buildx bake cron -f docker-compose.yml");
-        passthru("docker buildx bake cron -f docker-compose.yml");
-
-        //now we proceed to build the rest of the containers
-        $output->writeLn("docker compose build --build-arg NAMESPACE=$namespace ");
-        passthru("docker compose build --build-arg NAMESPACE=$namespace");
+        $output->writeLn("docker compose build");
+        passthru("docker compose build");
 
         $output->writeLn("<info>Now lets spark our containers into life</>");
 

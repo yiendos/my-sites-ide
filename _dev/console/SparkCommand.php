@@ -49,6 +49,8 @@ class SparkCommand extends Command
             $app = implode(' ', array_unique([...preg_split('/\s+/', trim($app)), ...$autostart]));
         }
 
+        $app = $this->withoutMissingServices((string) $app, $io);
+
         // server plugins (e.g. nginx) mount the shared certificate store whether or not a
         // certificate plugin is installed - create it here, or Docker creates it owned by root on Linux hosts
         foreach (['live', 'archive'] as $directory) {
@@ -88,5 +90,33 @@ EOT;
         $output->writeln('<href=https://localhost>See your homepage</>');
 
         return Command::SUCCESS;
+    }
+    /**
+     * Drops services the stack no longer has - an APP written before a
+     * service moved into a plugin (e.g. cron, folded into the PHP plugin's
+     * cli) or whose plugin was uninstalled - which would otherwise stop
+     * `docker compose up` before it starts anything
+     *
+     * @param string $app
+     * @param SymfonyStyle $io
+     * @return string
+     */
+    private function withoutMissingServices(string $app, SymfonyStyle $io): string
+    {
+        $requested = preg_split('/\s+/', trim($app), -1, PREG_SPLIT_NO_EMPTY);
+        $known = preg_split('/\s+/', trim((string) shell_exec('docker compose config --services 2>/dev/null')), -1, PREG_SPLIT_NO_EMPTY);
+
+        // can't tell (e.g. the compose file doesn't parse) - leave it to compose to report
+        if ($requested === [] || $known === []) {
+            return $app;
+        }
+
+        $missing = array_diff($requested, $known);
+
+        if ($missing !== []) {
+            $io->warning('Skipping ' . implode(', ', $missing) . " - no such service (moved into a plugin, or its plugin isn't installed). Remove it from APP in .env.");
+        }
+
+        return implode(' ', array_intersect($requested, $known));
     }
 }
