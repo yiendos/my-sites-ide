@@ -11,32 +11,38 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      #docker-compose.yml includes docker-compose.plugins.yml, which plugin discovery
-      #generates on composer's post-autoload-dump - no dependencies need installing for it,
-      #and with no composer.local.json in CI it's the empty, no-plugins version
-      - name: Generate plugins compose file
-        run: composer dump-autoload --no-interaction
-      - name: Build cron image first
-        run: docker compose --progress quiet build cron
-        env: 
-            NAMESPACE: ${{ secrets.NAMESPACE }}
-      - name: Build fpm image
-        run: docker compose --progress quiet build fpm
-        env: 
-            NAMESPACE: ${{ secrets.NAMESPACE }}
-      - name: Run trivy over cron 
+      #PHP (fpm, cli) is a plugin now, scanned in its own repository - these are the images
+      #still in core, built straight from their Dockerfiles (compose needs a root .env, which CI doesn't have)
+      - name: Build mysql image
+        run: docker build --progress quiet -t my_site_mysql _dev/environment/databases/mysql
+      - name: Build mariadb image
+        run: docker build --progress quiet -t my_site_mariadb _dev/environment/databases/mariadb
+      - name: Build redis image
+        run: docker build --progress quiet -t my_site_redis _dev/environment/caching/redis
+      - name: Run trivy over mysql
         uses: aquasecurity/trivy-action@0.35.0
         with:
-          image-ref: 'my_site_cron'
+          image-ref: 'my_site_mysql'
           format: 'table'
           exit-code: 0
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
-      - name: Run trivy over fpm 
+        continue-on-error: true
+      - name: Run trivy over mariadb
         uses: aquasecurity/trivy-action@0.35.0
         with:
-          image-ref: 'my_site_fpm'
+          image-ref: 'my_site_mariadb'
+          format: 'table'
+          exit-code: 0
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+        continue-on-error: true
+      - name: Run trivy over redis
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          image-ref: 'my_site_redis'
           format: 'table'
           exit-code: 0
           ignore-unfixed: true

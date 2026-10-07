@@ -1,3 +1,0 @@
-ARG NAMESPACE=""
-
-FROM ${NAMESPACE}_cron AS cli
