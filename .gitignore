@@ -5,6 +5,7 @@ _dev/environment/databases/**/data/*
 _dev/deployment
 /Packages/*
 Repos/*
+#certbot moved to a plugin (#69) - kept ignored so a leftover pre-plugin credentials.ini can never be committed
 _dev/environment/certificates/certbot/conf
 _dev/environment/certificates/certbot/credentials.ini
 _dev/environment/editor/theia/plugins
