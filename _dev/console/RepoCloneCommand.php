@@ -168,6 +168,8 @@ class RepoCloneCommand extends Command
         //not sure I like using a global 
         //https://raw.githubusercontent.com/laravel/laravel/refs/heads/12.x/public/index.php
         $lavavelIndex = getenv('LARAVEL_INDEX'); 
+        //the site's application folder - IDE_APP_DIR, deploy by default
+        $app = Ide::appPath($projectName);
         
         $output->writeLn([
             '',
@@ -175,14 +177,14 @@ class RepoCloneCommand extends Command
             ''
         ]);
 
-        $output->writeLn("<info>mkdir -p Repos/$projectName/Sites/storage/framework/{cache,sessions,testing,views}</>"); 
-        exec("mkdir -p Repos/$projectName/Sites/storage/framework/{cache,sessions,testing,views}");
+        $output->writeLn("<info>mkdir -p $app/storage/framework/{cache,sessions,testing,views}</>"); 
+        exec("mkdir -p $app/storage/framework/{cache,sessions,testing,views}");
 
-        $output->writeLn("<info>mkdir -p Repos/$projectName/Sites/storage/framework/cache/data</>"); 
-        exec("mkdir -p Repos/$projectName/Sites/storage/framework/cache/data");
+        $output->writeLn("<info>mkdir -p $app/storage/framework/cache/data</>"); 
+        exec("mkdir -p $app/storage/framework/cache/data");
 
-        $output->writeLn("<info>mkdir -p Repos/$projectName/Sites/public</>"); 
-        exec("mkdir -p Repos/$projectName/Sites/public");
+        $output->writeLn("<info>mkdir -p $app/public</>"); 
+        exec("mkdir -p $app/public");
 
         $output->writeLn([
             '',
@@ -191,7 +193,7 @@ class RepoCloneCommand extends Command
             ''
         ]); 
         
-        $output->writeLn("<info>wget $lavavelIndex -O Repos/$projectName/Sites/public/index.php</>"); 
-        exec("wget $lavavelIndex -O Repos/$projectName/Sites/public/index.php");
+        $output->writeLn("<info>wget $lavavelIndex -O $app/public/index.php</>"); 
+        exec("wget $lavavelIndex -O $app/public/index.php");
     }
 }

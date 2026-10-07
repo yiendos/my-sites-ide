@@ -103,7 +103,7 @@ Make things more interesting by installing a Laravel site:
 
 Run through the normal install steps...
 
-This will create a new Laravel instance under `./Repos/example`
+This will create a new Laravel instance under `./Repos/example/deploy`
 
 ```
 └── Repos
@@ -111,7 +111,7 @@ This will create a new Laravel instance under `./Repos/example`
       ├── _build
       │   └── config
       └── Projects
-      └── Sites
+      └── deploy
 ```
 
 Then access your brand new Laravel site: 
@@ -141,8 +141,20 @@ my-sites-ide can handle as many github repositories or individual projects you c
    │   ├── config
    │   │   ├── 1-default-apache.conf    //provide a vhost configuration for apache (if you are using the apache plugin)
    │   │   └── 1-default-nginx.conf     //provide a vhost configuration for nginx (if you are using the nginx plugin)
-   └── Sites                            //where your PHP app should be hosted 
+   └── deploy                           //where your PHP app should be hosted (IDE_APP_DIR)
 ``` 
+
+### Where your app lives
+
+The IDE expects each site's application code in the same folder inside its repository, set by `IDE_APP_DIR` in `.env`:
+
+| `IDE_APP_DIR` | App code in | |
+|---|---|---|
+| `deploy` | `Repos/<site>/deploy/` | the default |
+| `Sites` | `Repos/<site>/Sites/` | the older layout |
+| `.` | `Repos/<site>/` | an app at the root of the repository |
+
+`ide:create-site` and `ide:repo-clone --laravel` create the app there, and plugins work there too - composer and npm installs, `artisan`, and the document root (`<app>/public`) in the vhosts web server plugins write for new sites. Existing vhosts in `Repos/<site>/_build/config/` aren't rewritten, so if you change it, update their paths by hand. It's one setting for every site.
 
 Remember after each time you clone a repository/ create a new site to `./Repos` you should restart your IDE for these changes to take effect: 
 
@@ -238,7 +250,7 @@ Describe it in the plugin's own `composer.json`:
 - `storage` - with `true`, the IDE creates `storage/plugins/<service>/` (`<service>` from the package name) and mounts it at `/storage` in every one of `services` - git ignored, outside `vendor/`, so it survives `composer update`. Commands reach it on the host through `IDE_ROOT`. Discover writes the mount as an override in `_dev/cache/storage/`, merged into the plugin's own compose file.
 - `hooks` - commands the IDE runs on its events. `site-created` runs once `ide:create-site` / `ide:repo-clone` has the site's `Repos/<site>/_build/config` in place, with the site as the `site` argument - how a server plugin adds its own vhost. `site-dependencies` runs during `ide:repo-clone --laravel`, once the Laravel folders exist, also with `site` - how the composer plugin installs the site's dependencies. `site-assets` runs straight after it, with `site` - how the node plugin builds the site's assets.
 
-Commands find the project root through the `IDE_ROOT` environment variable, which the CLI sets.
+Commands find the project root through the `IDE_ROOT` environment variable, and a site's application code in `Repos/<site>/<IDE_APP_DIR>` - the CLI sets both, and `IDE_APP_DIR` is always a valid folder (`deploy` unless `.env` says otherwise, `.` for the repository root). Fall back to `deploy` if it's missing, for older versions of the IDE. List `IDE_APP_DIR` in your plugin's `env-example` if it uses it.
 
 To develop a plugin locally, clone it into `Packages/<vendor>/my-sites-ide-<category>-<service>` - the root `composer.json` has a path repository for `Packages/*/my-sites-ide-*`, so adding `"<vendor>/<package>": "@dev"` to `composer.local.json` and running `composer update` symlinks your working copy into `vendor/`. Nothing is committed to my-sites-ide - which plugins you've cloned is up to you. Discover reads each plugin's own `composer.json`, so manifest edits in your clone apply after `php my-sites-ide ide:plugin-discover`, committed or not.
 
