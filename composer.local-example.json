@@ -2,6 +2,8 @@
     "require": {
         "yiendos/my-sites-ide-preprocessors-php": "@dev",
         "yiendos/my-sites-ide-servers-nginx": "@dev",
-        "yiendos/my-sites-ide-servers-mailhog": "@dev"
+        "yiendos/my-sites-ide-servers-mailhog": "@dev",
+        "yiendos/my-sites-ide-databases-mysql": "@dev",
+        "yiendos/my-sites-ide-caching-redis": "@dev"
     }
 }
