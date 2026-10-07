@@ -40,8 +40,11 @@ class CreateSiteCommand extends Command
     {
         $projectName = strtolower($input->getArgument('projectName'));
 
-        $output->writeLn("php vendor/bin/laravel new Repos/$projectName/Sites"); 
-        passthru("php vendor/bin/laravel new Repos/$projectName/Sites");
+        //into the site's application folder - IDE_APP_DIR, deploy by default
+        $app = Ide::appPath($projectName);
+
+        $output->writeLn("php vendor/bin/laravel new $app"); 
+        passthru("php vendor/bin/laravel new $app");
 
         $output->writeLn("mkdir -p Repos/$projectName/_build/config"); 
         passthru("mkdir -p Repos/$projectName/_build/config");

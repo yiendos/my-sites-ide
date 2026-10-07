@@ -11,6 +11,7 @@ use Yiendos\MySitesIde\DouseCommand;
 use Yiendos\MySitesIde\SparkCommand;
 use Yiendos\MySitesIde\BuildCommand AS ImageBuildCommand;
 use Yiendos\MySitesIde\CreateSiteCommand;
+use Yiendos\MySitesIde\Ide;
 use Yiendos\MySitesIde\RepoCloneCommand;
 use Yiendos\MySitesIde\RestartCommand;
 use Yiendos\MySitesIde\PluginDiscoverCommand;
@@ -24,6 +25,15 @@ $dotenv->load();
 
 // the contract plugins use to find the project root (also in _dev/cache/ide.env for compose)
 putenv('IDE_ROOT=' . __DIR__);
+
+// and where each site's application code lives within Repos/<site>/ - resolved here, so
+// plugins reading IDE_APP_DIR always get a valid folder (deploy unless .env says otherwise)
+try {
+    putenv('IDE_APP_DIR=' . Ide::appDir());
+} catch (InvalidArgumentException $e) {
+    fwrite(STDERR, $e->getMessage() . PHP_EOL);
+    exit(1);
+}
 
 $application = new Application();
 

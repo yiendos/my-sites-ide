@@ -11,6 +11,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  *     "hooks": { "site-created": ["servers:apache-vhost"] }
  *
+ * Hooked commands are given the site, not its path: the site's application
+ * code is in Repos/<site>/<IDE_APP_DIR>, which the CLI exports (deploy by
+ * default).
+ *
  * Events and the arguments each hooked command is given:
  *
  * - site-created  {site}  after ide:create-site / ide:repo-clone has the

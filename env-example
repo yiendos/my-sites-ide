@@ -4,6 +4,10 @@ NAMESPACE=my_sites
 #so they needn't be listed here
 APP="mysql redis theia"
 SITE=default
+#where each site's application code lives, inside Repos/<site>/ - deploy (the default),
+#Sites for the older layout, or . for an app at the root of the repository. Plugins
+#(composer, node, php, the web servers' new vhosts) all read it
+IDE_APP_DIR=deploy
 MARIADB_DATABASE=yiendos
 DOCKER_FILE=_dev/environment/images/local/Dockerfile
 LARAVEL_INDEX=https://raw.githubusercontent.com/laravel/laravel/refs/heads/12.x/public/index.php
