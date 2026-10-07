@@ -76,6 +76,7 @@ In terms of running containers on the IDE you have the choice of:
 * Nginx (plugin: [yiendos/my-sites-ide-servers-nginx](https://github.com/yiendos/my-sites-ide-servers-nginx))
 * Apache (plugin: [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache))
 * Caddy (plugin: [yiendos/my-sites-ide-servers-caddy](https://github.com/yiendos/my-sites-ide-servers-caddy))
+* MailHog (plugin: [yiendos/my-sites-ide-servers-mailhog](https://github.com/yiendos/my-sites-ide-servers-mailhog)) - catches the mail your sites send, http://localhost:8025
 * Mariadb 
 * MySQL
 * Redis 
