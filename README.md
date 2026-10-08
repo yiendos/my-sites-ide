@@ -76,7 +76,7 @@ In terms of running containers on the IDE you have the choice of:
 * Nginx (plugin: [yiendos/my-sites-ide-servers-nginx](https://github.com/yiendos/my-sites-ide-servers-nginx))
 * Apache (plugin: [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache))
 * Caddy (plugin: [yiendos/my-sites-ide-servers-caddy](https://github.com/yiendos/my-sites-ide-servers-caddy))
-* MailHog (plugin: [yiendos/my-sites-ide-servers-mailhog](https://github.com/yiendos/my-sites-ide-servers-mailhog)) - catches the mail your sites send, http://localhost:8025
+* MailHog (plugin: [yiendos/my-sites-ide-mail-mailhog](https://github.com/yiendos/my-sites-ide-mail-mailhog)) - catches the mail your sites send, http://localhost:8025
 * MySQL (plugin: [yiendos/my-sites-ide-databases-mysql](https://github.com/yiendos/my-sites-ide-databases-mysql)) - sites connect to `mysql:3306`
 * MariaDB (plugin: [yiendos/my-sites-ide-databases-mariadb](https://github.com/yiendos/my-sites-ide-databases-mariadb)) - sites connect to `mariadb:3306`
 * Redis (plugin: [yiendos/my-sites-ide-caching-redis](https://github.com/yiendos/my-sites-ide-caching-redis)) - sites connect to `redis:6379`
@@ -185,7 +185,7 @@ Extra services (security scanners, alternative servers, deployment targets) inst
 |---|---|---|
 | [yiendos/my-sites-ide-preprocessors-php](https://github.com/yiendos/my-sites-ide-preprocessors-php) | PHP - php-fpm serving your sites, and a cli container for artisan, queues and background jobs | yes |
 | [yiendos/my-sites-ide-servers-nginx](https://github.com/yiendos/my-sites-ide-servers-nginx) | nginx web server, https://<site>.localhost | yes |
-| [yiendos/my-sites-ide-servers-mailhog](https://github.com/yiendos/my-sites-ide-servers-mailhog) | MailHog, catches the mail your sites send - http://localhost:8025 | yes |
+| [yiendos/my-sites-ide-mail-mailhog](https://github.com/yiendos/my-sites-ide-mail-mailhog) | MailHog, catches the mail your sites send - http://localhost:8025 | yes |
 | [yiendos/my-sites-ide-databases-mysql](https://github.com/yiendos/my-sites-ide-databases-mysql) | MySQL 8.4, data kept in `storage/plugins/mysql/` | yes |
 | [yiendos/my-sites-ide-caching-redis](https://github.com/yiendos/my-sites-ide-caching-redis) | Redis, for cache, sessions and queues | yes |
 | [yiendos/my-sites-ide-databases-mariadb](https://github.com/yiendos/my-sites-ide-databases-mariadb) | MariaDB 11.8, data kept in `storage/plugins/mariadb/` | no - add `mariadb` to `APP` |
@@ -224,7 +224,7 @@ Don't `composer require` a plugin - that writes to the tracked `composer.json`. 
 | Commands | `<category>:<short>-<action>` | `security:zap-scan` |
 | User data | `storage/plugins/<service>/` | `storage/plugins/zaproxy/` |
 
-Categories follow the `_dev/environment/` folders: preprocessors, servers, databases, build, caching, editor, certificates - plus security, deploy.
+Categories follow the `_dev/environment/` folders: preprocessors, servers, databases, build, caching, editor, certificates - plus security, mail, deploy.
 
 ### Writing a plugin
 
