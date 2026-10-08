@@ -1,7 +1,8 @@
 NAMESPACE=my_sites
 #PHP (fpm, cli), web servers, databases, redis and mailhog are plugins now (e.g. yiendos/my-sites-ide-preprocessors-php,
 #-databases-mysql) - once installed the default ones start with ide:spark (and servers create their own
-#site vhosts), so they needn't be listed here. Opt-in ones, such as mariadb, still go here
+#site vhosts), so they needn't be listed here. Opt-in ones, such as theia (yiendos/my-sites-ide-editor-theia)
+#and mariadb, still go here. Keep at least one entry - an empty APP starts every service, run-on-demand ones included
 APP="theia"
 SITE=default
 #where each site's application code lives, inside Repos/<site>/ - deploy (the default),
