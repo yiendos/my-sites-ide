@@ -1,17 +1,15 @@
 NAMESPACE=my_sites
-#PHP (fpm, cli), web servers and mailhog are plugins now (e.g. yiendos/my-sites-ide-preprocessors-php,
-#-servers-nginx) - once installed they start with ide:spark (and servers create their own site vhosts),
-#so they needn't be listed here
-APP="mysql redis theia"
+#PHP (fpm, cli), web servers, databases, redis and mailhog are plugins now (e.g. yiendos/my-sites-ide-preprocessors-php,
+#-databases-mysql) - once installed the default ones start with ide:spark (and servers create their own
+#site vhosts), so they needn't be listed here. Opt-in ones, such as mariadb, still go here
+APP="theia"
 SITE=default
 #where each site's application code lives, inside Repos/<site>/ - deploy (the default),
 #Sites for the older layout, or . for an app at the root of the repository. Plugins
 #(composer, node, php, the web servers' new vhosts) all read it
 IDE_APP_DIR=deploy
-MARIADB_DATABASE=yiendos
 DOCKER_FILE=_dev/environment/images/local/Dockerfile
 LARAVEL_INDEX=https://raw.githubusercontent.com/laravel/laravel/refs/heads/12.x/public/index.php
-SQL_MODE=ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
 # [preprocessors-php plugin]
 #fpm blocks a list of risky functions by default (exec, shell_exec, pcntl_*...)
 #however for development, this is less than ideal - with the line below present
