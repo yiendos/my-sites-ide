@@ -80,6 +80,7 @@ In terms of running containers on the IDE you have the choice of:
 * MySQL (plugin: [yiendos/my-sites-ide-databases-mysql](https://github.com/yiendos/my-sites-ide-databases-mysql)) - sites connect to `mysql:3306`
 * MariaDB (plugin: [yiendos/my-sites-ide-databases-mariadb](https://github.com/yiendos/my-sites-ide-databases-mariadb)) - sites connect to `mariadb:3306`
 * Redis (plugin: [yiendos/my-sites-ide-caching-redis](https://github.com/yiendos/my-sites-ide-caching-redis)) - sites connect to `redis:6379`
+* Theia (plugin: [yiendos/my-sites-ide-editor-theia](https://github.com/yiendos/my-sites-ide-editor-theia)) - an IDE in the browser with PHP debugging, http://localhost:3001
 
 A default list of Applications are defined in the `./env` file: 
 
@@ -189,6 +190,7 @@ Extra services (security scanners, alternative servers, deployment targets) inst
 | [yiendos/my-sites-ide-databases-mysql](https://github.com/yiendos/my-sites-ide-databases-mysql) | MySQL 8.4, data kept in `storage/plugins/mysql/` | yes |
 | [yiendos/my-sites-ide-caching-redis](https://github.com/yiendos/my-sites-ide-caching-redis) | Redis, for cache, sessions and queues | yes |
 | [yiendos/my-sites-ide-databases-mariadb](https://github.com/yiendos/my-sites-ide-databases-mariadb) | MariaDB 11.8, data kept in `storage/plugins/mariadb/` | no - add `mariadb` to `APP` |
+| [yiendos/my-sites-ide-editor-theia](https://github.com/yiendos/my-sites-ide-editor-theia) | Theia IDE in the browser - PHP, Composer, Claude Code and Xdebug debugging, settings kept in `storage/plugins/theia/` | no - add `theia` to `APP` |
 | [yiendos/my-sites-ide-servers-apache](https://github.com/yiendos/my-sites-ide-servers-apache) | Apache web server, https://<site>.localhost:8443 | yes |
 | [yiendos/my-sites-ide-servers-caddy](https://github.com/yiendos/my-sites-ide-servers-caddy) | Caddy web server with trusted local HTTPS, https://<site>.localhost:9443 | yes |
 | [yiendos/my-sites-ide-build-composer](https://github.com/yiendos/my-sites-ide-build-composer) | Composer in a container - installs a site's PHP dependencies, including on `ide:repo-clone --laravel` | no - run on demand |
