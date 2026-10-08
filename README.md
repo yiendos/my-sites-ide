@@ -197,6 +197,11 @@ Extra services (security scanners, alternative servers, deployment targets) inst
 | [yiendos/my-sites-ide-build-node](https://github.com/yiendos/my-sites-ide-build-node) | Node and npm in a container - installs a site's npm dependencies and builds its assets, including on `ide:repo-clone --laravel` | no - run on demand |
 | [yiendos/my-sites-ide-certificates-certbot-cloudflare](https://github.com/yiendos/my-sites-ide-certificates-certbot-cloudflare) | real Let's Encrypt certificates through Cloudflare DNS | no - run on demand |
 | [yiendos/my-sites-ide-security-zaproxy](https://github.com/yiendos/my-sites-ide-security-zaproxy) | OWASP ZAP security scanning | no - run on demand |
+| [yiendos/my-sites-ide-monitoring-grafana](https://github.com/yiendos/my-sites-ide-monitoring-grafana) | Grafana, http://localhost:3000 - data sources for whichever monitoring plugins are installed | no - `monitoring:grafana-start` |
+| [yiendos/my-sites-ide-monitoring-prometheus](https://github.com/yiendos/my-sites-ide-monitoring-prometheus) | Prometheus metrics, scraping any IDE container labelled `prometheus.io/scrape` | no - `monitoring:prometheus-start` |
+| [yiendos/my-sites-ide-monitoring-loki](https://github.com/yiendos/my-sites-ide-monitoring-loki) | Loki log storage | no - `monitoring:loki-start` |
+| [yiendos/my-sites-ide-monitoring-tempo](https://github.com/yiendos/my-sites-ide-monitoring-tempo) | Tempo distributed tracing | no - `monitoring:tempo-start` |
+| [yiendos/my-sites-ide-monitoring-alloy](https://github.com/yiendos/my-sites-ide-monitoring-alloy) | Grafana Alloy - ships the IDE's container logs to Loki, takes your apps' OpenTelemetry on `alloy:4318` | no - `monitoring:alloy-start` |
 
 `composer.local-example.json` holds the default stack - PHP, nginx, MailHog, MySQL and Redis, the services `ide:spark` used to run before they became plugins. Add any of the others to your own `composer.local.json`.
 
@@ -211,6 +216,16 @@ php my-sites-ide ide:plugin-list                                # what's install
 ```
 
 Don't `composer require` a plugin - that writes to the tracked `composer.json`. A plugin that isn't on Packagist can be added through a `repositories` entry in `composer.local.json`, which is merged too.
+
+### Presets
+
+A preset is a Composer metapackage that requires a set of plugins, so one line in `composer.local.json` installs them all - e.g. [yiendos/my-sites-ide-preset-monitoring](https://github.com/yiendos/my-sites-ide-preset-monitoring) for the five monitoring plugins:
+
+```json
+"yiendos/my-sites-ide-preset-monitoring": "@dev"
+```
+
+The plugins only have dev versions so far, and Composer ignores a preset's `@dev` flags - it only honours the root's. So the root `composer.json` sets `"minimum-stability": "dev"` with `"prefer-stable": true`: anything with a stable release still gets one.
 
 `composer install`/`update` discovers installed plugins and generates `docker-compose.plugins.yml` (included by `docker-compose.yml`), so a plugin's console commands, docker services and `.env` defaults are picked up without editing any core file. A plugin's user data lives in `storage/plugins/<service>/`, never in `vendor/` - with `"storage": true` the IDE creates that folder and mounts it at `/storage` in the plugin's containers.
 
