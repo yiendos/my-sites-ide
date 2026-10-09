@@ -67,17 +67,4 @@ foreach (Discover::load() as $plugin)
     }
 }
 
-/** If the user has a deployment mechanism installed via composer */
-if (class_exists('Yiendos\Deploy\Console\Commands')) 
-{
-    $commands = (new \Yiendos\Deploy\Console\Commands)->getList();
-
-    foreach($commands as $command)
-    {
-        $object = new ReflectionClass($command);
-        $obj = $object->newInstanceArgs([]);
-        $application->add($obj);
-    }
-}
-
 $application->run();

@@ -49,16 +49,9 @@ class CreateSiteCommand extends Command
         $output->writeLn("mkdir -p Repos/$projectName/_build/config"); 
         passthru("mkdir -p Repos/$projectName/_build/config");
         
-        //server plugins add their own site configuration (e.g. the nginx plugin's vhost)
+        //plugins add their own site configuration (e.g. the nginx plugin's vhost, the
+        //deploy plugin's deployment files)
         Hooks::run('site-created', ['site' => $projectName], $application, $output);
-
-        /** If the user has a deployment mechanism installed via composer */
-        if (class_exists('Yiendos\Deploy\Console\Commands')) 
-        {
-            $createDeploy = new ArrayInput(['command' => 'deploy:site:create-scripts', 'site' => $projectName]);
-            $application->doRun($createDeploy, $output);
-        }
-        //then we need to update the local.yaml - definately APP_KEY
 
         $output->writeLn('php my-sites-ide ide:restart'); 
         $restartInput = new ArrayInput(['command' => 'ide:restart']); 
