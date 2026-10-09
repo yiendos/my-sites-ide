@@ -32,6 +32,8 @@
         "laravel/installer": "^5.19",
         "wikimedia/composer-merge-plugin": "^2.1"
     },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "extra": {
         "merge-plugin": {
             "include": [
