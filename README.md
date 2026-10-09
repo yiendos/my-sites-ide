@@ -197,11 +197,11 @@ Extra services (security scanners, alternative servers, deployment targets) inst
 | [yiendos/my-sites-ide-build-node](https://github.com/yiendos/my-sites-ide-build-node) | Node and npm in a container - installs a site's npm dependencies and builds its assets, including on `ide:repo-clone --laravel` | no - run on demand |
 | [yiendos/my-sites-ide-certificates-certbot-cloudflare](https://github.com/yiendos/my-sites-ide-certificates-certbot-cloudflare) | real Let's Encrypt certificates through Cloudflare DNS | no - run on demand |
 | [yiendos/my-sites-ide-security-zaproxy](https://github.com/yiendos/my-sites-ide-security-zaproxy) | OWASP ZAP security scanning | no - run on demand |
-| [yiendos/my-sites-ide-monitoring-grafana](https://github.com/yiendos/my-sites-ide-monitoring-grafana) | Grafana, http://localhost:3000 - data sources for whichever monitoring plugins are installed | no - `monitoring:grafana-start` |
-| [yiendos/my-sites-ide-monitoring-prometheus](https://github.com/yiendos/my-sites-ide-monitoring-prometheus) | Prometheus metrics, scraping any IDE container labelled `prometheus.io/scrape` | no - `monitoring:prometheus-start` |
+| [yiendos/my-sites-ide-monitoring-grafana](https://github.com/yiendos/my-sites-ide-monitoring-grafana) | Grafana, http://localhost:3000 - data sources for whichever monitoring plugins are installed, and container dashboards | no - `monitoring:grafana-start` |
+| [yiendos/my-sites-ide-monitoring-prometheus](https://github.com/yiendos/my-sites-ide-monitoring-prometheus) | Prometheus metrics, scraping any IDE container labelled `prometheus.io/scrape`, and every container's CPU and memory from Alloy | no - `monitoring:prometheus-start` |
 | [yiendos/my-sites-ide-monitoring-loki](https://github.com/yiendos/my-sites-ide-monitoring-loki) | Loki log storage | no - `monitoring:loki-start` |
 | [yiendos/my-sites-ide-monitoring-tempo](https://github.com/yiendos/my-sites-ide-monitoring-tempo) | Tempo distributed tracing | no - `monitoring:tempo-start` |
-| [yiendos/my-sites-ide-monitoring-alloy](https://github.com/yiendos/my-sites-ide-monitoring-alloy) | Grafana Alloy - ships the IDE's container logs to Loki, takes your apps' OpenTelemetry on `alloy:4318` | no - `monitoring:alloy-start` |
+| [yiendos/my-sites-ide-monitoring-alloy](https://github.com/yiendos/my-sites-ide-monitoring-alloy) | Grafana Alloy - ships the IDE's container logs to Loki and every container's CPU, memory and network to Prometheus, takes your apps' OpenTelemetry on `alloy:4318` | no - `monitoring:alloy-start` |
 
 `composer.local-example.json` holds the default stack - PHP, nginx, MailHog, MySQL and Redis, the services `ide:spark` used to run before they became plugins. Add any of the others to your own `composer.local.json`.
 
@@ -216,6 +216,31 @@ php my-sites-ide ide:plugin-list                                # what's install
 ```
 
 Don't `composer require` a plugin - that writes to the tracked `composer.json`. A plugin that isn't on Packagist can be added through a `repositories` entry in `composer.local.json`, which is merged too.
+
+### Overriding a plugin's settings
+
+Each plugin ships its own `.env` with safe defaults, and the IDE's root `.env` overrides any of them. For example, the [php plugin](https://github.com/yiendos/my-sites-ide-preprocessors-php) disables `exec`, `shell_exec`, `phpinfo` and other risky functions in fpm by default. To lift every restriction while you test something that needs them, set the variable to nothing in the root `.env`:
+
+```
+PHP_DISABLE_FUNCTIONS=
+```
+
+Then recreate the container so it picks up the new value - a plain restart keeps the old environment:
+
+```
+docker compose up -d fpm
+```
+
+Take the line out again, and recreate the container, to go back to the plugin's default.
+
+The root `.env` wins in both ways the IDE runs Docker Compose:
+
+- **`docker compose` on its own** - `docker-compose.plugins.yml` lists each plugin's env files in this order: the plugin's `.env`, the root `.env`, then `_dev/cache/ide.env` (just `IDE_ROOT`). Later files win, so a root value replaces the plugin's.
+- **`php my-sites-ide` commands** - the CLI loads the root `.env` first, then each plugin's `.env` without overwriting anything already set. An empty value counts as set, so `PHP_DISABLE_FUNCTIONS=` stays empty.
+
+Only settings a plugin's `docker-compose.yml` reads from a variable (`${PHP_DISABLE_FUNCTIONS}`) can be overridden. Values written straight into its compose file can't be. Each plugin's README lists its variables, and `php my-sites-ide ide:plugin-env <plugin>` copies them into the root `.env`, commented out, ready to change.
+
+To check what a service will actually get, run `docker compose config <service>`.
 
 ### Presets
 
