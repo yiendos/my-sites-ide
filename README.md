@@ -197,6 +197,7 @@ Extra services (security scanners, alternative servers, deployment targets) inst
 | [yiendos/my-sites-ide-build-node](https://github.com/yiendos/my-sites-ide-build-node) | Node and npm in a container - installs a site's npm dependencies and builds its assets, including on `ide:repo-clone --laravel` | no - run on demand |
 | [yiendos/my-sites-ide-certificates-certbot-cloudflare](https://github.com/yiendos/my-sites-ide-certificates-certbot-cloudflare) | real Let's Encrypt certificates through Cloudflare DNS | no - run on demand |
 | [yiendos/my-sites-ide-security-zaproxy](https://github.com/yiendos/my-sites-ide-security-zaproxy) | OWASP ZAP security scanning | no - run on demand |
+| [yiendos/my-sites-ide-clusters-minikube](https://github.com/yiendos/my-sites-ide-clusters-minikube) | Minikube - a local Kubernetes cluster that mimics DigitalOcean, for test deployments (runs on your host: needs minikube, kubectl and helm) | no - `clusters:minikube-start-configure <site>` |
 | [yiendos/my-sites-ide-monitoring-grafana](https://github.com/yiendos/my-sites-ide-monitoring-grafana) | Grafana, http://localhost:3000 - data sources for whichever monitoring plugins are installed, and container dashboards | no - `monitoring:grafana-start` |
 | [yiendos/my-sites-ide-monitoring-prometheus](https://github.com/yiendos/my-sites-ide-monitoring-prometheus) | Prometheus metrics, scraping any IDE container labelled `prometheus.io/scrape`, and every container's CPU and memory from Alloy | no - `monitoring:prometheus-start` |
 | [yiendos/my-sites-ide-monitoring-loki](https://github.com/yiendos/my-sites-ide-monitoring-loki) | Loki log storage | no - `monitoring:loki-start` |
@@ -266,7 +267,7 @@ The plugins only have dev versions so far, and Composer ignores a preset's `@dev
 | Commands | `<category>:<short>-<action>` | `security:zap-scan` |
 | User data | `storage/plugins/<service>/` | `storage/plugins/zaproxy/` |
 
-Categories follow the `_dev/environment/` folders: preprocessors, servers, databases, build, caching, editor, certificates - plus security, mail, deploy.
+Categories follow the `_dev/environment/` folders: preprocessors, servers, databases, build, caching, editor, certificates - plus security, mail, deploy, clusters.
 
 ### Writing a plugin
 
