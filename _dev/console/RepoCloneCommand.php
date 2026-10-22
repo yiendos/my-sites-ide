@@ -105,7 +105,7 @@ class RepoCloneCommand extends Command
     public function determineProjectName($repo, $project)
     {
         //lets find out whether we have a valid git clone web url
-        $re = '/(git@github\.com\:)([A-Za-z0-9\/A-ZA-z0-9\.]*)(.git)/m';
+        $re = '/(git@github\.com\:)([A-Za-z0-9\/\._-]*)(\.git)/m';
         preg_match($re, $repo, $matches);
 
         if (!count($matches)) {
