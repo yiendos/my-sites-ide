@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"name": "my-sites-ide",
+			"path": "."
+		}
+	],
+	"settings": {
+		"git.repositoryScanMaxDepth": 3,
+		"git.repositoryScanIgnoredFolders": ["Repos"],
+		"intelephense.environment.phpVersion": "8.4",
+		"intelephense.files.exclude": [
+			"**/.git/**",
+			"**/.svn/**",
+			"**/.hg/**",
+			"**/CVS/**",
+			"**/.DS_Store/**",
+			"**/node_modules/**",
+			"**/bower_components/**",
+			"**/vendor/**/{Tests,tests}/**"
+		]
+	}
+}
